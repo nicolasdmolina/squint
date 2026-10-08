@@ -11,11 +11,18 @@ how predictable each word was against how predictable the models expected it to 
 - **% of text that looks AI-written**: from 150 words, using overlapping ~150-word windows.
 - **Show me why**: word-level heat map, hover any word for the model's top 5 guesses and where
   the actual word ranked, per-sentence and per-paragraph leanings, plain-English reasons.
-- **Tuned on** ChatGPT, Claude and Gemini output against student essays, general prose and
+- **Tuned on** Claude and ChatGPT output against student essays, general prose and
   non-native English essays. Thresholds keep wrongly flagged human text at or below about 1%.
 
 Status: in development. Private only; going public at `squint.nickymolina.com` waits for the
 accuracy report and Nicky's OK.
+
+## Known gaps
+
+- **ChatGPT text is mostly missed.** Binoculars can't separate current ChatGPT output from
+  human writing. The fix is a trained classifier alongside it. See
+  [`docs/known-gaps.md`](docs/known-gaps.md).
+- **Gemini is untested.** Its samples have not been generated yet.
 
 ## Layout
 
