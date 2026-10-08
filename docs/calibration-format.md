@@ -69,3 +69,9 @@ Fitting rules (calibration, on the `tune` split only):
 ## 4. Accuracy report — `calibration/report.json` (committed; served at `/api/accuracy`)
 
 The shape in `docs/api-contract.md` → "Accuracy report", computed on the `heldout` split only.
+
+## v1.1 amendments (2026-10-08)
+
+- `squint-score` segment `start`/`end` are UTF-16 code units.
+- A row that fails to score is written as `{"id", "error", "score": null, "model_pair"}`; skip it.
+- Rows under 20 words are still scored; the fitting and report scripts must drop them.

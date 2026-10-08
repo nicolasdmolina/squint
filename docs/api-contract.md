@@ -132,3 +132,19 @@ Field rules:
 ```
 
 Returns `404 not_calibrated` before the first calibration run.
+
+## v1.1 amendments (from the server build, accepted 2026-10-08)
+
+1. The first token has no context, so it is never scored: `surprise`, `expected_surprise` and
+   `rank` are `null`, `top` is `[]`, `signal`/`signal_smooth` are `0`.
+2. When uncalibrated: `verdict.band = "uncalibrated"`, `label = "Not tuned yet"`,
+   `verdict.thresholds = null`, `ai_percent = null`; `segments` are still returned with `flagged: false`.
+3. `429 rate_limited` carries `retry_after_s` inside the `error` object and a `Retry-After` header.
+4. Extra error codes: `400 invalid_request`, `400` missing upload field, `404 job_not_found`,
+   `413 too_long` (JSON body over 1 MB), `503 busy` (queue full). Job-level `error.code` can be
+   `model_unavailable`, `scoring_failed`, `too_long`, `too_short`.
+5. `stats.sentence_score_spread` may be `null` (fewer than two sentences with ≥ 8 scored tokens).
+6. `token_count` counts model tokens; `tokens[]` are display tokens (pieces of one character, such as
+   an emoji, are merged), so `tokens.length` can be smaller than `token_count`.
+7. The document `score` keeps the reference implementation's last-position term, so it can differ
+   very slightly from Σ surprise / Σ expected_surprise over `tokens`.
