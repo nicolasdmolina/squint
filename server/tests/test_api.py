@@ -409,3 +409,209 @@ def test_static_files_and_spa_fallback(settings, tmp_path):
         r = c.get("/")
         assert r.headers["x-content-type-options"] == "nosniff"
         assert r.headers["x-frame-options"] == "DENY"
+
+
+# ------------------------------------------------------------------------------------- hardening
+
+
+def test_junk_session_cookies_are_just_unauthenticated(settings):
+    with make_client(settings, password="pw") as c:
+        for raw in (b"squint_session=e30.\xe9", b"squint_session=e30.\xc3\xa9\xc3\xa9", b"squint_session=\xe9\xe9",
+                    b"squint_session=..", b"squint_session=%ZZ.%ZZ"):
+            h = {"Cookie": raw}
+            r = c.get("/api/session", headers=h)
+            assert r.status_code == 200 and r.json() == {"authenticated": False, "password_required": True}
+            r = c.get("/api/status", headers=h)
+            assert r.status_code == 401 and r.json()["error"]["code"] == "auth_required"
+
+
+def test_lone_surrogate_password_is_just_wrong(settings):
+    with make_client(settings, password="pw") as c:
+        r = c.post("/api/login", content=b'{"password": "\\ud83d"}', headers={"Content-Type": "application/json"})
+        assert r.status_code == 401 and r.json()["error"]["code"] == "bad_password"
+
+
+def test_failed_logins_everywhere_slow_logins_down_but_never_lock_out(settings):
+    with make_client(settings, password="pw", login_global_max_failures=5, login_global_delay_s=0.2) as c:
+        for i in range(8):  # an attacker rotating addresses
+            r = c.post("/api/login", json={"password": "nope"}, headers={"CF-Connecting-IP": f"198.51.100.{i}"})
+            assert r.status_code == 401
+        t0 = time.monotonic()
+        r = c.post("/api/login", json={"password": "pw"}, headers={"CF-Connecting-IP": "203.0.113.77"})
+        assert r.status_code == 204
+        assert time.monotonic() - t0 >= 0.2  # slowed, not blocked
+
+
+def test_ipv6_clients_are_limited_by_their_64(settings):
+    with make_client(settings, password="pw", login_max_failures=3, limits=Limits(checks_per_hour=2)) as c:
+        for i in range(3):  # rotating addresses inside one /64
+            r = c.post("/api/login", json={"password": "nope"}, headers={"CF-Connecting-IP": f"2001:db8:1:2::{i + 1:x}"})
+            assert r.status_code == 401
+        r = c.post("/api/login", json={"password": "pw"}, headers={"CF-Connecting-IP": "2001:db8:1:2:ffff:ffff:ffff:ffff"})
+        assert r.status_code == 429
+        assert c.post("/api/login", json={"password": "pw"}, headers={"CF-Connecting-IP": "2001:db8:1:3::1"}).status_code == 204
+        for i in range(2):
+            assert analyze(c, words(25), headers={"CF-Connecting-IP": f"2001:db8:aa:bb::{i + 1}"}).status_code == 202
+        r = analyze(c, words(25), headers={"CF-Connecting-IP": "2001:DB8:AA:BB:1234:5678:9abc:def0"})
+        assert r.status_code == 429
+        assert analyze(c, words(25), headers={"CF-Connecting-IP": "2001:db8:aa:bc::1"}).status_code == 202
+
+
+def test_lone_surrogate_text_is_rejected_before_queueing(settings):
+    with make_client(settings, limits=Limits(checks_per_hour=1)) as c:
+        body = json.dumps({"text": words(25) + " \ud83d"})  # ASCII JSON with a \ud83d escape
+        r = c.post("/api/analyze", content=body, headers={"Content-Type": "application/json"})
+        assert r.status_code == 400 and r.json()["error"]["code"] == "invalid_request"
+        assert c.svc.queue._jobs == {}
+        # a proper pair is fine, and the rejected request did not use up the hourly check
+        jid = analyze(c, words(25) + " \U0001F600").json()["job_id"]
+        assert wait_job(c, jid)["status"] == "done"
+
+
+def test_accuracy_report_for_another_model_pair_is_not_served(settings):
+    with make_client(settings) as c:
+        (settings.calibration_dir / "thresholds.json").write_text(json.dumps(thresholds()))
+        for report in ({"version": "1", "model_pair": {"observer": "A", "performer": "B"}},
+                       {"version": "2", "model_pair": {"observer": PAIR["observer"], "performer": "B"}},
+                       {"version": "3"}):
+            (settings.calibration_dir / "report.json").write_text(json.dumps(report))
+            r = c.get("/api/accuracy")
+            assert r.status_code == 404 and r.json()["error"]["code"] == "not_calibrated", report
+        good = {"version": "4", "model_pair": PAIR}
+        (settings.calibration_dir / "report.json").write_text(json.dumps(good))
+        assert c.get("/api/accuracy").json() == good
+
+
+def test_require_password_refuses_to_start_without_one(settings, monkeypatch):
+    import squint.app
+    from squint.auth import PasswordMissing
+
+    strict = settings.with_overrides(require_password=True)
+    kw = dict(backend_factory=FakeBackend, tokenizer=FakeTokenizer())
+    with pytest.raises(PasswordMissing, match="require_password"):
+        create_app(strict, password=None, **kw)
+    with pytest.raises(PasswordMissing):
+        create_app(strict, password="", **kw)
+    monkeypatch.setattr(squint.app, "read_keychain_password", lambda service: None)
+    with pytest.raises(PasswordMissing):
+        create_app(strict, **kw)  # password read from the (missing) Keychain item
+    assert create_app(strict, password="pw", **kw).state.svc.password == "pw"
+    assert create_app(settings, **kw).state.svc.password is None  # flag off: private mode, as before
+
+
+def test_squint_server_exits_with_a_clear_message(settings, monkeypatch, tmp_path):
+    import socket
+
+    import squint.app
+    from squint import cli
+
+    with socket.socket() as s:
+        s.bind(("127.0.0.1", 0))
+        port = s.getsockname()[1]
+    monkeypatch.setattr(squint.app, "read_keychain_password", lambda service: None)
+    monkeypatch.setenv("SQUINT_PROFILE", "qwen2.5-0.5b-standin")
+    monkeypatch.setenv("SQUINT_PORT", str(port))
+    monkeypatch.setenv("SQUINT_CALIBRATION_DIR", str(tmp_path))
+    monkeypatch.setenv("SQUINT_REQUIRE_PASSWORD", "1")
+    with pytest.raises(SystemExit) as exc:
+        cli.server_main([])
+    assert "require_password" in str(exc.value) and "refusing to start" in str(exc.value)
+
+
+def test_extract_rate_limit(settings):
+    with make_client(settings, limits=Limits(extracts_per_hour=2)) as c:
+        a = {"CF-Connecting-IP": "203.0.113.20"}
+
+        def up(name, data, headers=a):
+            return c.post("/api/extract", files={"file": (name, data, "application/octet-stream")}, headers=headers)
+
+        assert up("a.txt", b"hello there").status_code == 200
+        assert up("b.docx", b"not a zip").status_code == 415  # failed uploads count too
+        r = up("c.txt", b"hello again")
+        assert r.status_code == 429
+        err = r.json()["error"]
+        assert err["code"] == "rate_limited" and 3500 <= err["retry_after_s"] <= 3600 and "2 file uploads" in err["message"]
+        assert r.headers["retry-after"] == str(err["retry_after_s"])
+        assert up("d.txt", b"other client", headers={"CF-Connecting-IP": "203.0.113.21"}).status_code == 200
+
+
+def test_one_extraction_at_a_time(settings, monkeypatch):
+    import squint.app
+
+    started, release = threading.Event(), threading.Event()
+    real = squint.app.extract_text
+
+    def gated(filename, data, max_bytes):
+        if filename == "slow.txt":
+            started.set()
+            assert release.wait(10)
+        return real(filename, data, max_bytes)
+
+    monkeypatch.setattr(squint.app, "extract_text", gated)
+    with make_client(settings, extract_wait_s=0.3) as c:
+        first = {}
+        t = threading.Thread(target=lambda: first.update(r=upload(c, "slow.txt", b"slow file text")))
+        t.start()
+        assert started.wait(5)
+        t0 = time.monotonic()
+        r = upload(c, "second.txt", b"second file")
+        assert r.status_code == 503 and r.json()["error"]["code"] == "busy"
+        assert 0.3 <= time.monotonic() - t0 < 3
+        # a slot that frees up while a request is waiting is taken
+        threading.Timer(0.1, release.set).start()
+        r = upload(c, "third.txt", b"third file")
+        assert r.status_code == 200 and r.json()["text"] == "third file"
+        t.join(10)
+        assert first["r"].status_code == 200 and first["r"].json()["text"] == "slow file text"
+
+
+def test_shutdown_does_not_unload_under_a_running_job(settings):
+    gate = threading.Event()
+    backend = FakeBackend(gate=gate)
+    with make_client(settings, backend=backend) as c:
+        jid = analyze(c, words(25)).json()["job_id"]
+        wait_job(c, jid, statuses=("scoring",))
+        c.svc.queue.stop(join_timeout=0.2)  # the worker is still inside score_ids
+        assert backend.unload_calls == 0 and backend.loaded and c.svc.manager.state == "ready"
+        assert c.svc.manager.unload() is False  # busy: refused
+        gate.set()
+        assert wait_for(lambda: c.svc.queue._jobs[jid].status == "done")
+        assert wait_for(lambda: not c.svc.manager._busy)
+    assert backend.unload_calls == 1 and c.svc.manager.state == "unloaded"
+
+
+def test_idle_unload_never_races_a_new_job(settings):
+    unloading, finish_unload = threading.Event(), threading.Event()
+    seen = []
+    holder = {}
+
+    class SlowUnload(FakeBackend):
+        def unload(self):
+            unloading.set()
+            assert finish_unload.wait(10)
+            super().unload()
+
+    class Recording(FakeBackend):
+        def load(self):
+            seen.append(sorted(j.status for j in holder["c"].svc.queue._jobs.values() if j.finished is None))
+            super().load()
+
+    made = []
+
+    def factory():
+        made.append(SlowUnload() if not made else Recording())
+        return made[-1]
+
+    with make_client(settings, factory=factory, idle_unload_s=0.2) as c:
+        holder["c"] = c
+        assert wait_job(c, analyze(c, words(25)).json()["job_id"])["status"] == "done"
+        assert unloading.wait(5)  # the janitor is now unloading the idle pair
+        r = analyze(c, words(25))  # not blocked by the unload
+        assert r.status_code == 202
+        jid = r.json()["job_id"]
+        time.sleep(0.1)
+        assert c.get(f"/api/jobs/{jid}").json()["status"] == "queued"  # held until the unload is done
+        finish_unload.set()
+        assert wait_job(c, jid)["status"] == "done"
+        assert seen == [["loading_model"]]
+        assert made[0].unload_calls == 1 and c.svc.manager.loads == 2

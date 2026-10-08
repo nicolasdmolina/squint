@@ -82,3 +82,45 @@ def test_squint_score_and_resume(score_env):
 
     cli.score_main(["--in", str(inp), "--out", str(out), "--overwrite", "--limit", "1"])
     assert [r["id"] for r in read_rows(out)] == ["a"]
+
+
+def test_squint_score_writes_an_error_row_for_any_failing_row(score_env, monkeypatch):
+    tmp, backends = score_env
+    import squint.analysis
+
+    real = squint.analysis.score_text
+
+    def flaky(text, tok, backend):
+        if text.startswith("BOOM"):
+            raise TypeError("tokenizer exploded")
+        return real(text, tok, backend)
+
+    monkeypatch.setattr(squint.analysis, "score_text", flaky)
+    inp, out = tmp / "in.jsonl", tmp / "out.jsonl"
+    text = words(30)
+    lines = [
+        json.dumps({"id": "surrogate", "text": text + " \ud83d"}),  # lone surrogate, as \ud83d in the JSON
+        "{not json",
+        json.dumps({"id": "boom", "text": "BOOM " + text}),
+        json.dumps({"id": 7, "text": text}),
+        json.dumps({"id": "\ud800", "text": text}),  # odd id: escaped in the output, still resumable
+    ]
+    inp.write_bytes(("\n".join(lines) + "\n").encode()
+                    + b'{"id": "bad-bytes", "text": "' + text.encode() + b' \xff\xfe"}\n'
+                    + (json.dumps({"id": "ok", "text": text}) + "\n").encode())
+    cli.score_main(["--in", str(inp), "--out", str(out)])
+    got = read_rows(out)
+    assert [r["id"] for r in got] == ["surrogate", None, "boom", 7, "\ud800", "bad-bytes", "ok"]
+    errors = {r["id"]: r["error"] for r in got if "error" in r}
+    assert errors == {"surrogate": "invalid_text", None: "invalid_row", "boom": "scoring_failed",
+                      "bad-bytes": "invalid_text"}
+    for r in got:
+        if "error" in r:
+            assert set(r) == {"id", "error", "score", "model_pair"} and r["score"] is None
+            assert r["model_pair"] == {"observer": "Fake observer", "performer": "Fake performer"}
+    assert got[3]["score"] == pytest.approx(0.8) and got[6]["score"] == pytest.approx(0.8)
+    assert backends[0].unload_calls == 1
+
+    # every row is accounted for, so a resume has nothing to do
+    cli.score_main(["--in", str(inp), "--out", str(out), "--resume"])
+    assert len(backends) == 1 and len(read_rows(out)) == 7

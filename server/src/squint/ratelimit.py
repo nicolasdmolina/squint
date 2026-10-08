@@ -39,7 +39,9 @@ class SlidingWindowLimiter:
         with self._lock:
             now = self._clock()
             self._prune(key, now)
-            self._hits.setdefault(key, deque()).append(now)
+            # only the newest `limit` hits decide retry_after, so older ones need not be kept
+            # (bounds memory when many failures pile up on one key)
+            self._hits.setdefault(key, deque(maxlen=max(1, self.limit))).append(now)
 
     def reset(self, key: str) -> None:
         with self._lock:

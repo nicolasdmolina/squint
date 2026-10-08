@@ -2,10 +2,13 @@
 
 from __future__ import annotations
 
+import asyncio
+import ipaddress
 import json
 import logging
 import mimetypes
 import threading
+import time
 from contextlib import asynccontextmanager
 from pathlib import Path
 from typing import Callable
@@ -17,14 +20,14 @@ from starlette.concurrency import run_in_threadpool
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
 from .analysis import Analysis, TextTooShortToScore, score_text
-from .auth import COOKIE_NAME, SessionSigner, password_matches, read_keychain_password
+from .auth import COOKIE_NAME, PasswordMissing, SessionSigner, password_matches, read_keychain_password
 from .backend import LlamaCppPair, PairBackend
 from .calibration import CalibrationStore
 from .config import Settings
 from .extract import ExtractError, extract_text
 from .jobs import JobFailed, JobQueue, ModelManager, QueueFull
 from .ratelimit import SlidingWindowLimiter
-from .textproc import TextTokenizer, count_words
+from .textproc import TextTokenizer, count_words, valid_unicode
 
 log = logging.getLogger("squint.app")
 
@@ -41,11 +44,23 @@ def error_response(status: int, code: str, message: str, headers: dict | None = 
     return JSONResponse({"error": {"code": code, "message": message, **extra}}, status_code=status, headers=headers)
 
 
+def rate_key(addr: str) -> str:
+    """Rate-limit key for a client address: IPv4 as is, IPv6 by its /64 (one subscriber's
+    allocation, so rotating addresses inside it does not reset the limits)."""
+    try:
+        ip = ipaddress.ip_address(addr)
+    except ValueError:
+        return addr[:64] or "unknown"
+    if isinstance(ip, ipaddress.IPv6Address):
+        if ip.ipv4_mapped is not None:
+            return str(ip.ipv4_mapped)
+        return str(ipaddress.IPv6Network(((int(ip) >> 64) << 64, 64)))
+    return str(ip)
+
+
 def client_key(request: Request) -> str:
-    cf = request.headers.get("cf-connecting-ip")
-    if cf:
-        return cf.strip()
-    return request.client.host if request.client else "unknown"
+    cf = (request.headers.get("cf-connecting-ip") or "").strip()
+    return rate_key(cf or (request.client.host if request.client else "unknown"))
 
 
 def _is_https(request: Request) -> bool:
@@ -126,9 +141,14 @@ class Services:
         self._tok_lock = threading.Lock()
         if password is FROM_KEYCHAIN:
             password = read_keychain_password(settings.keychain_service)
+        if settings.require_password and not password:
+            raise PasswordMissing(f"require_password is on but Keychain item {settings.keychain_service!r} "
+                                  "was not found (add it, or set [server].require_password = false)")
         self.password: str | None = password
         self.signer = SessionSigner(settings.session_ttl_s)
         self.analyze_limiter = SlidingWindowLimiter(settings.limits.checks_per_hour, 3600)
+        self.extract_limiter = SlidingWindowLimiter(settings.limits.extracts_per_hour, 3600)
+        self.extract_slot = threading.Lock()  # one file extraction at a time, server-wide
         self.login_limiter = SlidingWindowLimiter(settings.login_max_failures, settings.login_window_s)
         self.login_global = SlidingWindowLimiter(settings.login_global_max_failures, settings.login_global_window_s)
         factory = backend_factory or (lambda: LlamaCppPair(self.profile))
@@ -235,10 +255,14 @@ def create_app(
         if svc.password is None:
             return Response(status_code=204)
         key = client_key(request)
-        wait = max(svc.login_limiter.retry_after(key), svc.login_global.retry_after("*"))
+        wait = svc.login_limiter.retry_after(key)
         if wait:
             raise ApiError(429, "rate_limited", "Too many login attempts. Try again later.",
                            headers={"Retry-After": str(wait)}, retry_after_s=wait)
+        if svc.login_global.retry_after("*"):
+            # many failures from many clients: slow every attempt a little, but never lock out
+            # the right password (that would let anyone with a few IPs lock everyone out)
+            await asyncio.sleep(settings.login_global_delay_s)
         given = data.get("password")
         if not isinstance(given, str) or not password_matches(given, svc.password):
             svc.login_limiter.hit(key)
@@ -272,7 +296,7 @@ def create_app(
     @app.get("/api/accuracy")
     async def accuracy(request: Request):
         svc.require_auth(request)
-        report = svc.calibration.current().report
+        report = svc.calibration.current().report_for(svc.model_pair)
         if report is None:
             raise ApiError(404, "not_calibrated", "The accuracy report isn't ready yet.")
         return report
@@ -284,6 +308,13 @@ def create_app(
         ctype = request.headers.get("content-type", "")
         if not ctype.lower().startswith("multipart/form-data"):
             raise ApiError(415, "unsupported_file", "Upload the file as multipart/form-data in the field 'file'.")
+        key = client_key(request)
+        wait = svc.extract_limiter.retry_after(key)
+        if wait:
+            raise ApiError(429, "rate_limited",
+                           f"You've hit the limit of {settings.limits.extracts_per_hour} file uploads an hour. "
+                           f"Try again in {max(1, round(wait / 60))} min.",
+                           headers={"Retry-After": str(wait)}, retry_after_s=wait)
         cap = settings.max_upload_bytes + 64 * 1024
         body = await read_body_capped(request, cap, "file_too_large", "Files can be at most 10 MB.")
         try:
@@ -294,10 +325,20 @@ def create_app(
             raise ApiError(400, "invalid_request", "No file was found in the field 'file'.")
         filename, data = parsed
         del body
+        svc.extract_limiter.hit(key)
+        deadline = time.monotonic() + settings.extract_wait_s
+        while not svc.extract_slot.acquire(blocking=False):
+            if time.monotonic() >= deadline:
+                raise ApiError(503, "busy", "Squint is reading another file. Try again in a moment.")
+            await asyncio.sleep(0.05)
         try:
+            # run_in_threadpool waits for the thread even if this request is cancelled, so the
+            # slot is only freed once the extraction (and its child process) has finished
             text = await run_in_threadpool(extract_text, filename, data, settings.max_upload_bytes)
         except ExtractError as exc:
             raise ApiError(exc.status, exc.code, exc.message)
+        finally:
+            svc.extract_slot.release()
         return {"text": text, "filename": Path(filename).name, "word_count": count_words(text)}
 
     # ------------------------------------------------------------------ analyze / jobs
@@ -308,6 +349,8 @@ def create_app(
         text = data.get("text")
         if not isinstance(text, str):
             raise ApiError(400, "invalid_request", "Send the text to check as {\"text\": \"...\"}.")
+        if not valid_unicode(text):
+            raise ApiError(400, "invalid_request", "The text contains characters that aren't valid Unicode.")
         lim = settings.limits
         words = count_words(text)
         if words < lim.min_words:

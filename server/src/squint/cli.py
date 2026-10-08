@@ -63,6 +63,19 @@ def server_main(argv: list[str] | None = None) -> None:
 # ------------------------------------------------------------------------------ squint-score
 
 
+def _id_key(rid) -> str:
+    """Hashable, type-preserving key for an id of any JSON type (1 and "1" stay distinct)."""
+    return json.dumps(rid, sort_keys=True)
+
+
+def _parse_row(line: str) -> dict | None:
+    try:
+        row = json.loads(line)
+    except ValueError:
+        return None
+    return row if isinstance(row, dict) else None
+
+
 def _read_done_ids(out_path: Path) -> set:
     """Ids already written; drops a truncated trailing line left by an interrupted run."""
     done: set = set()
@@ -74,7 +87,7 @@ def _read_done_ids(out_path: Path) -> set:
             if not line.endswith(b"\n"):
                 break
             try:
-                done.add(json.loads(line)["id"])
+                done.add(_id_key(json.loads(line)["id"]))
             except Exception:
                 break
             good_bytes += len(line)
@@ -102,7 +115,7 @@ def score_main(argv: list[str] | None = None) -> None:
     from .analysis import Analysis, TextTooShortToScore, score_text
     from .backend import LlamaCppPair
     from .calibration import CalibrationStore
-    from .textproc import TextTokenizer
+    from .textproc import TextTokenizer, valid_unicode
 
     settings = load_settings(profile=args.profile)
     out_path = Path(args.out)
@@ -113,13 +126,14 @@ def score_main(argv: list[str] | None = None) -> None:
         out_path.unlink()
 
     rows = []
-    with open(args.inp, encoding="utf-8") as fh:
+    # surrogateescape: a row with invalid UTF-8 becomes an error row instead of stopping the run
+    with open(args.inp, encoding="utf-8", errors="surrogateescape") as fh:
         for n, line in enumerate(fh):
             if args.limit is not None and len(rows) >= args.limit:
                 break
             if line.strip():
                 rows.append(line)
-    todo = sum(1 for line in rows if json.loads(line).get("id") not in done)
+    todo = sum(1 for line in rows if _id_key((_parse_row(line) or {}).get("id")) not in done)
     print(f"squint-score: {len(rows)} rows, {len(rows) - todo} already done, {todo} to score "
           f"with {settings.profile.name}", file=sys.stderr)
     if todo == 0:
@@ -138,20 +152,30 @@ def score_main(argv: list[str] | None = None) -> None:
     try:
         with open(out_path, "a", encoding="utf-8") as out:
             for line in rows:
-                row = json.loads(line)
-                rid = row.get("id")
-                if rid in done:
+                row = _parse_row(line)
+                rid = row.get("id") if row is not None else None
+                if _id_key(rid) in done:
                     continue
-                text = row.get("text")
-                if not isinstance(text, str) or not text.strip():
-                    rec = {"id": rid, "error": "missing_text", "score": None, "model_pair": pair}
+                text = row.get("text") if row is not None else None
+                error = None
+                if row is None:
+                    error = "invalid_row"
+                elif not isinstance(text, str) or not text.strip():
+                    error = "missing_text"
+                elif not valid_unicode(text):
+                    error = "invalid_text"  # lone surrogates: the tokenizer cannot take them
                 else:
                     try:
                         scored = score_text(text, tok, backend)
                         rec = Analysis(scored, cal, settings.limits, None).batch_row(rid)
                     except TextTooShortToScore:
-                        rec = {"id": rid, "error": "too_short", "score": None, "model_pair": pair}
-                out.write(json.dumps(rec, ensure_ascii=False) + "\n")
+                        error = "too_short"
+                    except Exception as exc:  # one bad row must not stop a long run
+                        print(f"squint-score: row {rid!r} failed: {type(exc).__name__}: {exc}", file=sys.stderr)
+                        error = "scoring_failed"
+                if error is not None:
+                    rec = {"id": rid, "error": error, "score": None, "model_pair": pair}
+                out.write(_json_line(rec))
                 out.flush()
                 scored_n += 1
                 if scored_n % args.progress_every == 0 or scored_n == todo:
@@ -162,6 +186,15 @@ def score_main(argv: list[str] | None = None) -> None:
                           f"peak rss {_peak_rss_mb():.0f} MB", file=sys.stderr)
     finally:
         backend.unload()
+
+
+def _json_line(rec: dict) -> str:
+    line = json.dumps(rec, ensure_ascii=False)
+    try:
+        line.encode("utf-8")
+    except UnicodeEncodeError:  # e.g. an id with a lone surrogate: escape it instead
+        line = json.dumps(rec)
+    return line + "\n"
 
 
 # ------------------------------------------------------------------------------ squint-models

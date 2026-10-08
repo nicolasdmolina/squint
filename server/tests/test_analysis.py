@@ -221,3 +221,21 @@ def test_utf16_offsets_with_real_tokenizer():
     for s in r["sentences"] + r["paragraphs"]:
         assert js_slice(s["start"], s["end"]).strip() == js_slice(s["start"], s["end"])
     assert js_slice(r["paragraphs"][2]["start"], r["paragraphs"][2]["end"]) == "Third paragraph after many newlines 🇨🇦!"
+
+
+def test_token_zero_has_no_smoothed_signal_and_does_not_dilute_its_neighbours():
+    toks = analyse(words(40), 0.5).tokens  # every scored token strongly AI-like
+    assert toks[0]["signal"] == 0 and toks[0]["signal_smooth"] == 0
+    assert toks[1]["signal_smooth"] > 0.5
+    # token 1's window includes token 0, token 20's does not: same value means token 0 added nothing
+    assert toks[1]["signal_smooth"] == pytest.approx(toks[20]["signal_smooth"])
+    assert toks[3]["signal_smooth"] == pytest.approx(toks[20]["signal_smooth"])
+
+
+def test_calibration_report_is_tied_to_the_model_pair():
+    report = {"version": "x", "model_pair": dict(PAIR)}
+    assert Calibration(None, report).report_for(PAIR) == report
+    assert Calibration(None, {**report, "model_pair": {"observer": "A", "performer": "B"}}).report_for(PAIR) is None
+    assert Calibration(None, {"version": "x"}).report_for(PAIR) is None
+    assert Calibration(None, {"version": "x", "model_pair": "nope"}).report_for(PAIR) is None
+    assert Calibration(None, None).report_for(PAIR) is None

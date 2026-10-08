@@ -20,6 +20,10 @@ class KeychainError(RuntimeError):
     pass
 
 
+class PasswordMissing(KeychainError):
+    """`require_password` is on but no password was found."""
+
+
 def read_keychain_password(service: str) -> str | None:
     """Read the generic-password item `service`; None when it does not exist.
 
@@ -71,16 +75,14 @@ class SessionSigner:
         return f"{_b64(payload)}.{self._sig(payload)}"
 
     def verify(self, token: str | None) -> bool:
-        if not token or token.count(".") != 1:
-            return False
-        body, sig = token.split(".")
+        """False for anything that is not a valid, unexpired token (including non-ASCII junk)."""
         try:
+            if not isinstance(token, str) or token.count(".") != 1:
+                return False
+            body, sig = token.split(".")
             payload = _unb64(body)
-        except Exception:
-            return False
-        if not hmac.compare_digest(sig, self._sig(payload)):
-            return False
-        try:
+            if not hmac.compare_digest(sig.encode("utf-8"), self._sig(payload).encode("ascii")):
+                return False
             data = json.loads(payload)
             return int(data["exp"]) > self._clock()
         except Exception:
@@ -88,4 +90,5 @@ class SessionSigner:
 
 
 def password_matches(given: str, expected: str) -> bool:
-    return hmac.compare_digest(given.encode("utf-8"), expected.encode("utf-8"))
+    # surrogatepass: a lone surrogate from JSON ("\ud83d") never matches and never raises
+    return hmac.compare_digest(given.encode("utf-8", "surrogatepass"), expected.encode("utf-8", "surrogatepass"))

@@ -286,11 +286,13 @@ class Analysis:
         c = self.signal_center
         d = np.where(self.g_scored, c * self.g_e - self.g_s, 0.0)
         sig = np.where(self.g_scored, np.tanh(d / SIGNAL_SCALE), 0.0)
+        # unscored tokens (token 0) add nothing to their neighbours' windows: d is 0 there and
+        # they are left out of the weight sum; their own smoothed signal is 0 (contract v1.1 #1)
         w = SMOOTH_WEIGHTS
         num = np.convolve(d, w, mode="same")
         den = np.convolve(self.g_scored.astype(float), w, mode="same")
         avg = np.divide(num, den, out=np.zeros_like(num), where=den > 0)
-        smooth = np.tanh(avg / SMOOTH_SCALE)
+        smooth = np.where(self.g_scored, np.tanh(avg / SMOOTH_SCALE), 0.0)
         return sig, smooth
 
     @cached_property

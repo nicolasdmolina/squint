@@ -19,6 +19,15 @@ def count_words(text: str) -> int:
     return sum(1 for _ in WORD_RE.finditer(text))
 
 
+def valid_unicode(text: str) -> bool:
+    """False when the text holds lone surrogates (JSON allows "\\ud83d"; tokenizers reject it)."""
+    try:
+        text.encode("utf-8")
+    except UnicodeEncodeError:
+        return False
+    return True
+
+
 def utf16_map(text: str) -> list[int]:
     """out[i] = number of UTF-16 code units in text[:i]; len(out) == len(text) + 1."""
     out = [0] * (len(text) + 1)

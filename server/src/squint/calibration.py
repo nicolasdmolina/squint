@@ -52,6 +52,16 @@ class Calibration:
             return False
         return all(self._bucket_ok(t, b) for b in BUCKETS)
 
+    def report_for(self, model_pair: dict) -> dict | None:
+        """report.json, only when it was computed for this model pair (like thresholds.json)."""
+        r = self.report
+        if not r:
+            return None
+        mp = r.get("model_pair") if isinstance(r.get("model_pair"), dict) else {}
+        if mp.get("observer") != model_pair.get("observer") or mp.get("performer") != model_pair.get("performer"):
+            return None
+        return r
+
     @staticmethod
     def _bucket_ok(t: dict, bucket: str) -> bool:
         b = (t.get("buckets") or {}).get(bucket)

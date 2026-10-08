@@ -63,19 +63,29 @@ class ModelManager:
     def idle_for(self) -> float:
         return self._clock() - self._last_used
 
+    def unload_due(self) -> bool:
+        """Cheap unlocked check; `maybe_unload` checks again under the lock."""
+        return self._backend is not None and not self._busy and self.idle_for() >= self._idle
+
     def maybe_unload(self) -> bool:
-        if self._backend is None or self._busy or self.idle_for() < self._idle:
+        if not self.unload_due():
             return False
         with self._lock:
-            if self._backend is None or self._busy or self.idle_for() < self._idle:
+            if not self.unload_due():
                 return False
             self._unload_locked()
             return True
 
-    def unload(self) -> None:
+    def unload(self) -> bool:
+        """Unload now unless a job is using the pair (freeing it mid-score would crash llama.cpp)."""
         with self._lock:
-            if self._backend is not None:
-                self._unload_locked()
+            if self._backend is None:
+                return False
+            if self._busy:
+                log.warning("not unloading the model pair: a job is still using it")
+                return False
+            self._unload_locked()
+            return True
 
     def _unload_locked(self) -> None:
         backend, self._backend = self._backend, None
@@ -132,6 +142,7 @@ class JobQueue:
         self._jobs: dict[str, Job] = {}
         self._pending: deque[Job] = deque()
         self._running: Job | None = None
+        self._unloading = False  # the janitor is unloading the idle pair; the worker waits
         self._stop = False
         self._threads: list[threading.Thread] = []
 
@@ -145,13 +156,18 @@ class JobQueue:
             t.start()
             self._threads.append(t)
 
-    def stop(self, unload: bool = True) -> None:
+    def stop(self, unload: bool = True, join_timeout: float = 30.0) -> None:
         with self._cv:
             self._stop = True
             self._cv.notify_all()
         for t in self._threads:
-            t.join(timeout=30)
+            t.join(timeout=join_timeout)
+        stuck = [t.name for t in self._threads if t.is_alive()]
         self._threads = []
+        if stuck:
+            # the worker may still be inside llama.cpp: unloading now would free the context under it
+            log.warning("%s still running after %.0f s; leaving the model pair loaded", ", ".join(stuck), join_timeout)
+            return
         if unload:
             self.manager.unload()
 
@@ -197,7 +213,7 @@ class JobQueue:
     def _worker(self) -> None:
         while True:
             with self._cv:
-                while not self._pending and not self._stop:
+                while (not self._pending or self._unloading) and not self._stop:
                     self._cv.wait()
                 if self._stop:
                     return
@@ -261,9 +277,17 @@ class JobQueue:
                            if j.finished is not None and now - j.finished >= self._ttl]
                 for jid in expired:
                     del self._jobs[jid]
-                idle = not self._pending and self._running is None
-            if idle:
+                # decide under the queue lock and hold the worker off until the unload is done:
+                # otherwise it could pick up a job in between, label it "scoring" and then have the
+                # pair unloaded under it. New jobs still queue meanwhile (submit is not blocked).
+                unload_now = not self._pending and self._running is None and self.manager.unload_due()
+                self._unloading = unload_now
+            if unload_now:
                 try:
                     self.manager.maybe_unload()
                 except Exception:
                     log.exception("unloading the model pair failed")
+                finally:
+                    with self._cv:
+                        self._unloading = False
+                        self._cv.notify_all()
