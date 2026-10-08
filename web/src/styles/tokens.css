@@ -1,0 +1,99 @@
+/*
+ * Squint tokens: chart paper, pen ink, and two signal inks.
+ * Cobalt = more predictable than expected (AI-like). Amber = more surprising (human-like).
+ * Signal inks never colour a control or a line of text; text always wears ink.
+ * Astryx reset.css maps html[data-theme] to color-scheme, so light-dark() follows the switch.
+ */
+:root {
+  /* paper and ink */
+  --paper: light-dark(#f8fcfd, #13181d);
+  --panel: light-dark(#ffffff, #191f25);
+  --wash: light-dark(#eef5f7, #1b2228);
+  --grid: light-dark(#d6edf2, #1b272d);
+  --grid-major: light-dark(#bbdfe8, #1e343b);
+  --ink: light-dark(#141b24, #e7ecf0);
+  --ink-2: light-dark(#4b535e, #b8bfc5);
+  --muted: light-dark(#646d76, #97a0a7);
+  --rule: light-dark(#bccbd1, #2b363e);
+  --edge: light-dark(#7b8890, #66737c);
+  --select: light-dark(#cfe3ea, #2a4049);
+
+  /* signal poles and their tints, steps 1 to 4; each pole keeps 3:1 against its own step-4 tint
+     so the underline (the non-colour channel) stays readable on the strongest shading */
+  --ai: light-dark(#1f53b8, #78a2ef);
+  --hu: light-dark(#a0540a, #dd8e45);
+  --ai-1: light-dark(#e4efff, #1c263a);
+  --ai-2: light-dark(#cfe4ff, #1e3051);
+  --ai-3: light-dark(#b8d5ff, #203a6a);
+  --ai-4: light-dark(#9fc4ff, #234485);
+  --hu-1: light-dark(#ffefd8, #332619);
+  --hu-2: light-dark(#ffe2b9, #452d16);
+  --hu-3: light-dark(#ffcf96, #593513);
+  --hu-4: light-dark(#ffbb75, #6e3c0d);
+
+  /* lines: one device pixel where the screen has them */
+  --hair: 1px;
+
+  /* type */
+  --sans: 'Archivo Variable', 'Archivo', ui-sans-serif, system-ui, sans-serif;
+  --serif: 'Source Serif 4 Variable', 'Source Serif 4', 'Iowan Old Style', Georgia, serif;
+  --mono: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+
+  /* the chart pitch: one specimen line */
+  --pitch: 32px;
+  --specimen-size: 19px;
+
+  /* space */
+  --s1: 4px;
+  --s2: 8px;
+  --s3: 12px;
+  --s4: 16px;
+  --s5: 24px;
+  --s6: 32px;
+  --s7: 48px;
+  --s8: 64px;
+  --s9: 96px;
+
+  --gutter: 32px;
+  --measure: 68ch;
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@media (min-resolution: 2dppx) {
+  :root {
+    --hair: 0.5px;
+  }
+}
+
+@media (max-width: 720px) {
+  :root {
+    --pitch: 28px;
+    --specimen-size: 17px;
+    --gutter: 16px;
+  }
+}
+
+/* Heat: tint carries strength, the underline carries direction without colour.
+   Solid underline = AI-like, dotted = human-like, heavier = stronger. */
+[data-heat] {
+  --tint: transparent;
+  --line: transparent;
+  --weight: 0px;
+  --style: solid;
+  background-color: var(--tint);
+  text-decoration-line: underline;
+  text-decoration-color: var(--line);
+  text-decoration-style: var(--style);
+  text-decoration-thickness: var(--weight);
+  text-underline-offset: 0.24em;
+  text-decoration-skip-ink: none;
+}
+[data-heat='ai1'] { --tint: var(--ai-1); --line: var(--ai); --weight: 1px; }
+[data-heat='ai2'] { --tint: var(--ai-2); --line: var(--ai); --weight: 1.5px; }
+[data-heat='ai3'] { --tint: var(--ai-3); --line: var(--ai); --weight: 2px; }
+[data-heat='ai4'] { --tint: var(--ai-4); --line: var(--ai); --weight: 2.5px; }
+[data-heat='hu1'] { --tint: var(--hu-1); --line: var(--hu); --weight: 1.5px; --style: dotted; }
+[data-heat='hu2'] { --tint: var(--hu-2); --line: var(--hu); --weight: 2px; --style: dotted; }
+[data-heat='hu3'] { --tint: var(--hu-3); --line: var(--hu); --weight: 2.5px; --style: dotted; }
+[data-heat='hu4'] { --tint: var(--hu-4); --line: var(--hu); --weight: 3px; --style: dotted; }
+[data-heat='nu0'] { text-decoration-line: none; }

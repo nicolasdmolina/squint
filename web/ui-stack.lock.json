@@ -1,0 +1,58 @@
+{
+  "created_at": "2026-10-08T00:20:14Z",
+  "features": [],
+  "framework_version": "19.3.0",
+  "license_policy": "permissive-only",
+  "lock_binding_sha256": "eb0f395a4ad2867c77f0a98dcab35223972f71f9bd7f52525ac62a07f707da72",
+  "lock_sha256": "915d6a13c850274755e4f120bfb77cc65a85fb8340df885a85ee32c6f7c22b54",
+  "platform": "react-web",
+  "project_id": "squint",
+  "recipe_id": "react-product",
+  "recipe_sha256": "14ea9bb5fc429ffde04b204afe3aac016a9204e3e781c08c8ae55356396b8166",
+  "recipes_sha256": "286e26a81ae187a597158d69a7233b072b434d41d03420769718ca65266964ee",
+  "schema_version": 1,
+  "selections": [
+    {
+      "candidate_id": "astryx",
+      "candidate_name": "Astryx",
+      "candidate_revision": "ac4a27e50ef7ac1aa6c1ea1b44b88f54c0630b8a",
+      "capability_slots": [
+        "react-product-system"
+      ],
+      "commit": "ac4a27e50ef7ac1aa6c1ea1b44b88f54c0630b8a",
+      "constraint_snapshot": {
+        "framework": {
+          "max_major": 19,
+          "min_major": 19,
+          "name": "react"
+        },
+        "license_gate": "permissive",
+        "paid_features_included": false,
+        "selected_tier": "open-source-core"
+      },
+      "integration_model": "package",
+      "package": "@astryxdesign/core",
+      "platforms": [
+        "react-web"
+      ],
+      "preview_set_sha256": "061a32b2294824d73e3da45d26a73455553678aa41c46262f183cea5b5031dd4",
+      "repository": "https://github.com/facebook/astryx",
+      "slot": "react-product-system",
+      "version": "0.1.9"
+    }
+  ],
+  "source_constraints_sha256": "c44731783e9324bca624661099dbb2a60b29e95ce8712d534c7b5c7926b55678",
+  "source_registry_sha256": "9c6220f411b6893aef2c05668b6cf9a304c79b26d07f70fa151b43d8e13cdc92",
+  "source_request": {
+    "features": [],
+    "framework": {
+      "name": "react",
+      "version": "19.3.0"
+    },
+    "license_policy": "permissive-only",
+    "overrides": {},
+    "platform": "react-web",
+    "recipe_id": "react-product"
+  },
+  "source_route_sha256": "bed2d7ee38842bbc26ec6bc60b9447367f106f2a53f587c94ba88fb3d9d634e3"
+}
