@@ -13,3 +13,4 @@ calibration/generated/
 *.safetensors
 .env*
 .DS_Store
+.qa/
