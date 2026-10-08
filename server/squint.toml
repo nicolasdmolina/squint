@@ -1,0 +1,50 @@
+# Squint server configuration. Environment variables override some keys (see src/squint/config.py).
+#
+# Switching the model pair is a config change, not a code change:
+#   1. uv run squint-models download --profile falcon-7b     (checks free disk first)
+#   2. set [models].profile = "falcon-7b" below (or export SQUINT_PROFILE=falcon-7b)
+#   3. restart the server. Calibration must be re-run: thresholds.json is tied to model_pair labels.
+
+[server]
+host = "127.0.0.1"
+port = 8017
+idle_unload_s = 600     # unload the models after 10 idle minutes
+result_ttl_s = 600      # finished results stay in memory for 10 minutes
+max_queue = 50
+keychain_service = "squint-password"
+
+[limits]
+min_words = 20
+percent_min_words = 150
+max_words = 2500
+max_chars = 40000
+max_tokens = 12000
+checks_per_hour = 30
+
+[models]
+profile = "qwen2.5-0.5b-standin"
+
+# Production pair: Falcon-7B (observer) + Falcon-7B-Instruct (performer), 4-bit GGUF, llama.cpp/Metal.
+# Both files come from the same quantizer (mradermacher static quants, llama.cpp GGUF v3,
+# tokenizer.ggml.pre = "falcon") and carry identical 65,024-token vocabularies.
+# Labels are what calibration/thresholds.json must match; change them if you change the quant.
+[profiles.falcon-7b]
+observer_label = "Falcon-7B (4-bit)"
+performer_label = "Falcon-7B-Instruct (4-bit)"
+observer = { path = "models/falcon-7b/falcon-7b.Q4_K_M.gguf", repo = "mradermacher/falcon-7b-GGUF", filename = "falcon-7b.Q4_K_M.gguf", revision = "8fd1679ed38f3b54c80dad18a97708c559ec7517" }
+performer = { path = "models/falcon-7b/falcon-7b-instruct.Q4_K_M.gguf", repo = "mradermacher/falcon-7b-instruct-GGUF", filename = "falcon-7b-instruct.Q4_K_M.gguf", revision = "3936b4e4b10e02658a85212d4ae7bdb425901e32" }
+tokenizer = { path = "models/falcon-7b/tokenizer.json", repo = "tiiuae/falcon-7b", filename = "tokenizer.json", revision = "ec89142b67d748a1865ea4451372db8313ada0d8" }
+context_tokens = 2048   # Falcon-7B's trained context
+overlap_tokens = 512    # context carried into each later window for texts longer than 2048 tokens
+batch_tokens = 512
+
+# Stand-in pair for development: same runtime and code path, ~1 GB on disk.
+[profiles."qwen2.5-0.5b-standin"]
+observer_label = "Qwen2.5-0.5B (8-bit, stand-in)"
+performer_label = "Qwen2.5-0.5B-Instruct (8-bit, stand-in)"
+observer = { path = "models/qwen2.5-0.5b-standin/Qwen2.5-0.5B.Q8_0.gguf", repo = "mradermacher/Qwen2.5-0.5B-GGUF", filename = "Qwen2.5-0.5B.Q8_0.gguf", revision = "c20fdc01c83cad0e38968fb98bc5476042d1c8db" }
+performer = { path = "models/qwen2.5-0.5b-standin/Qwen2.5-0.5B-Instruct.Q8_0.gguf", repo = "mradermacher/Qwen2.5-0.5B-Instruct-GGUF", filename = "Qwen2.5-0.5B-Instruct.Q8_0.gguf", revision = "da6e97608d97fb5304381739d371103a5d7018be" }
+tokenizer = { path = "models/qwen2.5-0.5b-standin/tokenizer.json", repo = "Qwen/Qwen2.5-0.5B", filename = "tokenizer.json", revision = "060db6499f32faf8b98477b0a26969ef7d8b9987" }
+context_tokens = 2048
+overlap_tokens = 512
+batch_tokens = 256      # 152k-token vocabulary: smaller batches keep logits buffers small

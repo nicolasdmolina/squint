@@ -1,0 +1,40 @@
+[project]
+name = "squint-server"
+version = "0.1.0"
+description = "Squint detector server: local Binoculars scoring, verdicts, queue, password and rate limits."
+readme = "README.md"
+requires-python = ">=3.12,<3.13"
+dependencies = [
+    "fastapi>=0.115",
+    "uvicorn>=0.30",
+    "python-multipart>=0.0.9",
+    "numpy>=1.26",
+    "tokenizers>=0.20",
+    "huggingface-hub>=0.24",
+    "llama-cpp-python==0.3.36",
+    "python-docx>=1.1",
+    "pypdf>=4.0",
+]
+
+[project.scripts]
+squint-server = "squint.cli:server_main"
+squint-score = "squint.cli:score_main"
+squint-models = "squint.cli:models_main"
+
+[dependency-groups]
+dev = [
+    "pytest>=8",
+    "httpx>=0.27",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/squint"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
+markers = ["model: needs the real model files (skipped when absent)"]
