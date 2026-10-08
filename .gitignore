@@ -1,0 +1,15 @@
+# Local state and big files never go in the repo
+.dashboard/
+.scratch/
+.venv/
+__pycache__/
+*.pyc
+node_modules/
+web/dist/
+models/
+calibration/data/
+calibration/generated/
+*.gguf
+*.safetensors
+.env*
+.DS_Store
