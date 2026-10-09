@@ -24,7 +24,7 @@ checks_per_hour = 30
 extracts_per_hour = 30  # file uploads per client
 
 [models]
-profile = "qwen2.5-0.5b-standin"
+profile = "falcon-7b"
 
 # Production pair: Falcon-7B (observer) + Falcon-7B-Instruct (performer), 4-bit GGUF, llama.cpp/Metal.
 # Both files come from the same quantizer (mradermacher static quants, llama.cpp GGUF v3,
