@@ -31,6 +31,7 @@ Environment (defaults in brackets):
   SQUINT_NIGHTLY_MIN_FREE_PCT [20]       memory_pressure free % needed to start a heavy stage
   SQUINT_NIGHTLY_MIN_FREE_PCT_RUNNING [5]  ... below which a running heavy stage is paused
   SQUINT_NIGHTLY_MIN_DISK_GB [6]         free disk needed to start a heavy stage
+SQUINT_NIGHTLY_MIN_DISK_GB_RUNNING [2] pause a running heavy stage below this (macOS swap grows on disk)
   SQUINT_NIGHTLY_POLL_S [60]             guard interval
   SQUINT_NIGHTLY_GRACE_S [90]            SIGTERM -> SIGKILL grace
   SQUINT_NIGHTLY_YIELD_TO [squint-score] comma list of process patterns that pause heavy stages
@@ -95,6 +96,7 @@ class Night:
         self.min_free = int(env("SQUINT_NIGHTLY_MIN_FREE_PCT", "20"))
         self.min_free_running = int(env("SQUINT_NIGHTLY_MIN_FREE_PCT_RUNNING", "5"))
         self.min_disk = float(env("SQUINT_NIGHTLY_MIN_DISK_GB", "6"))
+        self.min_disk_running = float(env("SQUINT_NIGHTLY_MIN_DISK_GB_RUNNING", "2"))
         self.poll = float(env("SQUINT_NIGHTLY_POLL_S", "60"))
         self.grace = float(env("SQUINT_NIGHTLY_GRACE_S", "90"))
         self.yield_to = [p for p in env("SQUINT_NIGHTLY_YIELD_TO", "squint-score").split(",") if p.strip()]
@@ -116,8 +118,11 @@ class Night:
         rec = self.state["stages"].setdefault(stage, {})
         rec.update({"status": status, "at": datetime.now().isoformat(timespec="seconds"), **extra})
         tmp = self.state_path.with_suffix(".tmp")
-        tmp.write_text(json.dumps(self.state, indent=2))
-        tmp.replace(self.state_path)
+        try:
+            tmp.write_text(json.dumps(self.state, indent=2))
+            tmp.replace(self.state_path)
+        except OSError as e:  # a full disk (swap growth) must not end the night; the next mark retries
+            log(f"could not save state: {e}")
         log(f"{stage}: {status}" + (f" {extra}" if extra else ""))
 
     def done(self, stage: str) -> bool:
@@ -190,7 +195,7 @@ class Night:
         free = guards.probe_memory_free_pct()
         disk = guards.probe_disk_free_gb(str(CLF_DIR))
         return guards.heavy_stage_blocker(status, free, self.min_free if starting else self.min_free_running,
-                                          disk if starting else None, self.min_disk, procs)
+                                          disk, self.min_disk if starting else self.min_disk_running, procs)
 
     # ---- stages ----------------------------------------------------------------------------
     def run_light(self, stage: str, argv: list[str], stub_secs: float, timeout: float) -> int:
