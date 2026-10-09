@@ -1,0 +1,74 @@
+{
+  "version": "2026-10-08",
+  "model_pair": {
+    "observer": "Falcon-7B (4-bit)",
+    "performer": "Falcon-7B-Instruct (4-bit)"
+  },
+  "held_out": {
+    "human": 1061,
+    "ai": 577
+  },
+  "false_flag_rate": {
+    "overall": 0.0028,
+    "non_native": 0.0,
+    "by_length": {
+      "20-49": 0.0054,
+      "50-149": 0.0,
+      "150+": 0.0031
+    }
+  },
+  "catch_rate": {
+    "overall": 0.0555,
+    "by_source": {
+      "chatgpt": 0.0,
+      "claude": 0.1107
+    },
+    "by_length": {
+      "20-49": 0.0,
+      "50-149": 0.0096,
+      "150+": 0.1807
+    }
+  },
+  "uncertain_rate": {
+    "human": 0.9538,
+    "ai": 0.8977
+  },
+  "sample_counts": {
+    "human": {
+      "by_length": {
+        "20-49": 369,
+        "50-149": 373,
+        "150+": 319
+      },
+      "non_native": 470,
+      "by_subset": {
+        "general": 295,
+        "non_native": 470,
+        "student": 296
+      },
+      "documents": 375
+    },
+    "ai": {
+      "by_length": {
+        "20-49": 203,
+        "50-149": 208,
+        "150+": 166
+      },
+      "by_source": {
+        "chatgpt": 288,
+        "claude": 289
+      },
+      "documents": 210
+    }
+  },
+  "notes": [
+    "Measured on 1061 human and 577 AI held-out samples that were not used to set the thresholds. Shorter samples are excerpts of longer documents, so there are 375 distinct human and 210 distinct AI documents behind them.",
+    "Non-native English writers: 0 of 470 wrongly flagged (0.0%, 95% range 0.0%-0.8%); this meets the 1% go-public gate on the point estimate.",
+    "With about 1061 human samples, a 1% false-flag rate can only be measured roughly (95% range for the overall figure: 0.1%-0.8%).",
+    "Not tested against gemini text: none was available for this run.",
+    "Length matters: AI text was caught 0.0% of the time at 20-49 words, 1.0% at 50-149 words and 18.1% at 150+ words.",
+    "AI samples were written by each model on its own (default model, via the vendor's command-line app, several pieces per request). Edited, paraphrased or 'humanized' AI text was not tested; expect misses there.",
+    "Human samples were written before ChatGPT existed: US school essays, English-learner essays, TOEFL practice essays, 1990s Reuters news and Reddit short stories. Other kinds of writing (technical, legal, poetry, very formal or formulaic text) were not tested.",
+    "On 31 documents that mix human and AI paragraphs, the '% AI' estimate was off by 48 percentage points on average."
+  ]
+}

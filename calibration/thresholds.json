@@ -1,0 +1,42 @@
+{
+  "version": "2026-10-08",
+  "model_pair": {
+    "observer": "Falcon-7B (4-bit)",
+    "performer": "Falcon-7B-Instruct (4-bit)"
+  },
+  "buckets": {
+    "20-49": {
+      "ai_below": 0.7092,
+      "human_above": 1.2058
+    },
+    "50-149": {
+      "ai_below": 0.7875,
+      "human_above": 1.0986
+    },
+    "150+": {
+      "ai_below": 0.8792,
+      "human_above": 1.0323
+    }
+  },
+  "segment": {
+    "window_words": 150,
+    "stride_words": 75,
+    "flag_below": 0.8443
+  },
+  "medians": {
+    "human": {
+      "top1_rate": 0.38265,
+      "top5_rate": 0.6571,
+      "mean_surprise": 3.00785,
+      "sentence_score_spread": 0.1301,
+      "mean_expected_surprise": 3.1113
+    },
+    "ai": {
+      "top1_rate": 0.3944,
+      "top5_rate": 0.65,
+      "mean_surprise": 2.9427,
+      "sentence_score_spread": 0.14455,
+      "mean_expected_surprise": 3.0331
+    }
+  }
+}

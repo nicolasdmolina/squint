@@ -97,10 +97,10 @@ export const notes = {
   privacy: 'Nothing you paste is stored. Squint runs on a private machine and forgets each result after 10 minutes.',
 };
 
-/** The known blind spot, said wherever a reading is shown. Source: docs/known-gaps.md (spot check, 8 Oct 2026). */
+/** The known blind spot, said wherever a reading is shown. Source: calibration/report.json (heldout, 8 Oct 2026). */
 export const gap = {
-  title: 'Squint misses most ChatGPT writing.',
-  body: 'In a spot check it caught 1 of 12 ChatGPT samples, so “Likely human” doesn’t clear a text. Claude writing is caught far more often. Gemini hasn’t been tested yet.',
-  short: 'It caught 1 of 12 ChatGPT samples in a spot check, so “Likely human” doesn’t clear a text.',
-  shortUntuned: 'It caught 1 of 12 ChatGPT samples in a spot check, so marks that look human-like don’t clear a text either.',
+  title: 'Squint misses most writing from current AI models.',
+  body: 'In testing it caught none of 288 ChatGPT samples and about 1 in 9 Claude samples, so “Likely human” doesn’t clear a text. Gemini hasn’t been tested.',
+  short: 'In testing it caught none of 288 ChatGPT samples and about 1 in 9 Claude samples, so “Likely human” doesn’t clear a text.',
+  shortUntuned: 'In testing it caught none of 288 ChatGPT samples and about 1 in 9 Claude samples, so marks that look human-like don’t clear a text either.',
 };

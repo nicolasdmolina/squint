@@ -191,10 +191,10 @@ export function HowItWorks({ status }: { status: Status | null }) {
         <p className="acc-lede">Squint is one clue, not a verdict. It is weakest in these places.</p>
         <dl className="rows blind">
           <div className="row">
-            <dt className="row-label">ChatGPT</dt>
+            <dt className="row-label">Current AI models</dt>
             <dd className="row-body">
-              ChatGPT&rsquo;s writing scores inside the range people write in, so Squint misses most of it: 1 of 12 caught in a
-              spot check. Gemini hasn&rsquo;t been tested. Claude writing is separated well.{' '}
+              Writing from current models scores inside the range people write in, so Squint misses most of it. In testing
+              it caught none of 288 ChatGPT samples and 32 of 289 Claude samples. Gemini hasn&rsquo;t been tested.{' '}
               <a className="text-link" href={hrefFor('accuracy')}>
                 See the accuracy page
               </a>

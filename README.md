@@ -19,8 +19,9 @@ accuracy report and Nicky's OK.
 
 ## Known gaps
 
-- **ChatGPT text is mostly missed.** Binoculars can't separate current ChatGPT output from
-  human writing. The fix is a trained classifier alongside it. See
+- **Current AI text is mostly missed.** At under 1% false flags, Binoculars caught 0 of 288
+  ChatGPT and 32 of 289 Claude heldout samples. The fix is a trained classifier, built
+  overnight on the mini (`classifier/`). See
   [`docs/known-gaps.md`](docs/known-gaps.md).
 - **Gemini is untested.** Its samples have not been generated yet.
 

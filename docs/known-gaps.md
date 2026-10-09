@@ -1,6 +1,20 @@
 # Known gaps
 
-## ChatGPT text is mostly missed (needs a trained classifier)
+## Current AI text is mostly missed (needs a trained classifier)
+
+### Full heldout result (2026-10-08, Falcon-7B pair, `calibration/report.json`)
+
+At thresholds that keep false flags under 1% (0.28% overall, 0 of 470 non-native), on 1,061
+human and 577 AI heldout samples:
+
+- ChatGPT: **0 of 288** caught. Claude: **32 of 289** (11%).
+- By length, AI text was caught 0% at 20–49 words, 1% at 50–149 and 18% at 150+.
+- 95% of human and 90% of AI samples land in "Uncertain".
+
+The 60-text spot check below was more optimistic about Claude. The full run replaces it.
+Binoculars on a 4-bit Falcon pair can't separate 2026 frontier-model writing from human
+writing at a 1% false-flag rate, so the trained classifier is the main path, not an add-on.
+
 
 **Status:** needed before public launch. Tracked locally in
 `.scratch/squint-chatgpt-classifier/spec.md`.

@@ -78,9 +78,9 @@ function KnownGap() {
         {gap.title}
       </h2>
       <p>
-        In a spot check on 8 October 2026, at the setting that keeps false flags near 1%, Squint caught 1 of 12 ChatGPT
-        samples. ChatGPT&rsquo;s writing scores inside the range people write in, so this method can&rsquo;t separate it yet.
-        Claude writing is separated well. Gemini hasn&rsquo;t been tested, because no samples could be generated.
+        In testing on 8 October 2026, at the setting that keeps false flags under 1%, Squint caught none of 288 ChatGPT
+        samples and 32 of 289 Claude samples. Writing from current models scores inside the range people write in, so this
+        method alone can&rsquo;t separate it. Gemini hasn&rsquo;t been tested, because no samples could be generated.
       </p>
       <p className="gap-sub">
         A &ldquo;Likely human&rdquo; reading doesn&rsquo;t clear a text. A second, trained check for ChatGPT is planned before
