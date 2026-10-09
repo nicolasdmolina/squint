@@ -44,6 +44,10 @@ CLI = {
 }
 LONG_BATCH = 5
 SHORT_BATCH = 15
+# kinds whose prompts carry a whole text (paraphrase / "humanize" requests) get smaller batches
+KIND_BATCH = {"paraphrase": 3}
+# long kinds in batching order; kinds from other plans (classifier/) follow, sorted
+LONG_KIND_ORDER = ("essay", "news", "creative", "blog")
 CALL_TIMEOUT_S = 900
 BACKOFF_S = (30, 120, 300)
 # subscription usage limits: stop the source instead of retrying into the wall
@@ -429,55 +433,69 @@ def acceptable(item: dict, text: str) -> str | None:
         return f"long item too short ({w} words)"
     if re.search(r"^\s*(#{1,6} |\*\*|- |\* )", text, re.M):
         return "markdown formatting"
-    if re.search(r"as an ai|i can't help|i cannot help|language model", text, re.I):
+    meta = r"as an ai|i can't help|i cannot help" + ("" if item["kind"] == "abstract" else r"|language model")
+    if re.search(meta, text, re.I):  # abstracts may legitimately be about language models
         return "refusal or meta text"
     return None
 
 
-def load_status() -> dict:
-    p = GEN_DIR / "status.json"
+def load_status(gen_dir: Path = GEN_DIR) -> dict:
+    p = gen_dir / "status.json"
     return json.loads(p.read_text()) if p.exists() else {}
 
 
-def save_status(source: str, entry: dict) -> None:
+def save_status(source: str, entry: dict, gen_dir: Path = GEN_DIR) -> None:
     """Merge this source's entry into status.json (several sources run in parallel)."""
-    p = GEN_DIR / "status.json"
-    st = load_status()
+    p = gen_dir / "status.json"
+    st = load_status(gen_dir)
     st[source] = entry
     tmp = p.with_suffix(f".{source}.tmp")
     tmp.write_text(json.dumps(st, indent=2) + "\n")
     tmp.replace(p)
 
 
-def run_source(source: str, limit_calls: int | None, max_rounds: int) -> None:
-    plan = [it for it in read_jsonl(GEN_DIR / "plan.jsonl") if it["source"] == source]
-    out_path = GEN_DIR / f"ai_{source}.jsonl"
+def plan_batches(todo: list[dict]) -> list[list[dict]]:
+    """Group pending items into calls: long kinds together (fixed order first), then short."""
+    long_items = [it for it in todo if it["kind"] != "short"]
+    short_items = [it for it in todo if it["kind"] == "short"]
+    kinds = list(LONG_KIND_ORDER) + sorted({it["kind"] for it in long_items} - set(LONG_KIND_ORDER))
+    batches = []
+    for kind in kinds:
+        # shuffle (deterministically) so one call never holds several pieces on one prompt
+        same = sorted([it for it in long_items if it["kind"] == kind], key=lambda it: stable_hash("batch", it["id"]))
+        batches += list(iter_chunks(same, KIND_BATCH.get(kind, LONG_BATCH)))
+    short_items = sorted(short_items, key=lambda it: stable_hash("batch", it["id"]))
+    batches += list(iter_chunks(short_items, SHORT_BATCH))
+    return batches
+
+
+def run_source(source: str, limit_calls: int | None, max_rounds: int, gen_dir: Path = GEN_DIR,
+               should_stop=None) -> None:
+    """Generate `source`'s pending plan items from gen_dir/plan.jsonl into gen_dir/ai_<source>.jsonl.
+    gen_dir defaults to calibration/generated; classifier/ passes its own. should_stop() is
+    checked before every call, so a caller can end the run cleanly at a deadline."""
+    plan = [it for it in read_jsonl(gen_dir / "plan.jsonl") if it["source"] == source]
+    out_path = gen_dir / f"ai_{source}.jsonl"
     done = {r["id"]: r for r in read_jsonl(out_path)} if out_path.exists() else {}
-    call_dir = GEN_DIR / source
+    call_dir = gen_dir / source
     call_dir.mkdir(parents=True, exist_ok=True)
     # run the CLIs from an empty directory outside the workspace so no project AGENTS.md /
     # CLAUDE.md / GEMINI.md context is loaded into the writing requests
     workdir = Path(tempfile.gettempdir()) / "squint-gen-cwd" / source
     calls = 0
-    st = dict(load_status().get(source, {}))
+    st = dict(load_status(gen_dir).get(source, {}))
     hint_ids = prior_rejects(call_dir, {it["id"]: it for it in plan}) - set(done)
     for rnd in range(max_rounds):
         todo = [it for it in plan if it["id"] not in done]
         if not todo:
             break
-        long_items = [it for it in todo if it["kind"] != "short"]
-        short_items = [it for it in todo if it["kind"] == "short"]
-        # keep registers together inside a batch
-        batches = []
-        for kind in ("essay", "news", "creative", "blog"):
-            # shuffle (deterministically) so one call never holds several pieces on one prompt
-            same = sorted([it for it in long_items if it["kind"] == kind], key=lambda it: stable_hash("batch", it["id"]))
-            batches += list(iter_chunks(same, LONG_BATCH))
-        short_items.sort(key=lambda it: stable_hash("batch", it["id"]))
-        batches += list(iter_chunks(short_items, SHORT_BATCH))
+        batches = plan_batches(todo)  # keeps registers together inside a batch
         print(f"[{source}] round {rnd + 1}: {len(todo)} items in {len(batches)} calls", flush=True)
         for batch in batches:
             if limit_calls is not None and calls >= limit_calls:
+                return
+            if should_stop is not None and should_stop():
+                print(f"[{source}] stop requested; ending cleanly", flush=True)
                 return
             prompt = batch_prompt(batch, hint_ids)
             res = None
@@ -494,14 +512,14 @@ def run_source(source: str, limit_calls: int | None, max_rounds: int) -> None:
                 (call_dir / f"call-{int(time.time() * 1000)}.json").write_text(json.dumps(rec, indent=1))
                 if res["auth_error"]:
                     st.update({"blocked": True, "reason": res["stderr"][-600:], "at": now()})
-                    save_status(source, st)
+                    save_status(source, st, gen_dir)
                     print(f"[{source}] AUTH BLOCKER - stopping this source:\n{res['stderr'][-600:]}", flush=True)
                     return
                 if res["ok"]:
                     break
                 if LIMIT_PATTERNS.search(res["stderr"] + res.get("text", "")):
                     st.update({"rate_limited": True, "reason": (res["stderr"] or res["text"])[-600:], "at": now()})
-                    save_status(source, st)
+                    save_status(source, st, gen_dir)
                     print(f"[{source}] USAGE LIMIT - stopping; rerun later to resume:\n{res['stderr'][-400:]}", flush=True)
                     return
                 wait = BACKOFF_S[min(attempt, len(BACKOFF_S) - 1)]
@@ -538,7 +556,7 @@ def run_source(source: str, limit_calls: int | None, max_rounds: int) -> None:
             write_jsonl(out_path, done.values())
             st.update({"blocked": False, "rate_limited": False, "model_id": res["model_id"], "done": len(done), "planned": len(plan),
                        "calls": st.get("calls", 0) + 1, "at": now()})
-            save_status(source, st)
+            save_status(source, st, gen_dir)
             print(f"[{source}] +{new} ({len(done)}/{len(plan)}) model={res['model_id']} {res['seconds']}s", flush=True)
             time.sleep(3)  # be gentle with rate limits
 

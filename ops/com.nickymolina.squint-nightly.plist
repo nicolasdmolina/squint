@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!-- Installed by ops/install-nightly.sh, which fills in __PROJECT__ and __HOME__.
+     Runs ops/nightly.sh every night at 00:30; the run stops itself at 07:30 (SQUINT_NIGHTLY_END).
+     If the Mac was asleep at 00:30, launchd starts it on wake; outside the window it just exits. -->
+<plist version="1.0">
+<dict>
+	<key>Label</key>
+	<string>com.nickymolina.squint-nightly</string>
+	<key>ProgramArguments</key>
+	<array>
+		<string>/bin/sh</string>
+		<string>__PROJECT__/ops/nightly.sh</string>
+	</array>
+	<key>WorkingDirectory</key>
+	<string>__PROJECT__</string>
+	<key>EnvironmentVariables</key>
+	<dict>
+		<key>HOME</key>
+		<string>__HOME__</string>
+		<key>PATH</key>
+		<string>__HOME__/.local/bin:__HOME__/.local/node/bin:/opt/homebrew/bin:/usr/bin:/bin:/usr/sbin:/sbin</string>
+		<key>SQUINT_NIGHTLY_START</key>
+		<string>00:30</string>
+		<key>SQUINT_NIGHTLY_END</key>
+		<string>07:30</string>
+	</dict>
+	<key>StartCalendarInterval</key>
+	<dict>
+		<key>Hour</key>
+		<integer>0</integer>
+		<key>Minute</key>
+		<integer>30</integer>
+	</dict>
+	<key>RunAtLoad</key>
+	<false/>
+	<key>ProcessType</key>
+	<string>Background</string>
+	<key>LowPriorityIO</key>
+	<true/>
+	<key>Nice</key>
+	<integer>5</integer>
+	<key>ExitTimeOut</key>
+	<integer>180</integer>
+	<key>Umask</key>
+	<integer>63</integer>
+	<key>StandardOutPath</key>
+	<string>__HOME__/Library/Logs/squint/nightly.log</string>
+	<key>StandardErrorPath</key>
+	<string>__HOME__/Library/Logs/squint/nightly.log</string>
+</dict>
+</plist>

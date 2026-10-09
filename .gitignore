@@ -14,3 +14,7 @@ calibration/generated/
 .env*
 .DS_Store
 .qa/
+classifier/data/
+classifier/generated/
+classifier/runs/
+classifier/state/

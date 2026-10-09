@@ -1,0 +1,32 @@
+{
+  "_about": "Human text sources for the classifier (all written before 2022-11-30; the four new ones before 2022). role: train = may appear in train/tune/heldout; holdout = never trained or tuned on (source-held-out test); ood = evaluation only. Raw texts stay in gitignored data/; rows carry their own licence string. Set in config.toml [data].",
+  "sources": [
+    {"source": "persuade", "role": "train", "subset": "student / non_native (ELL)", "new": false,
+     "docs": "calibration 305 + 800 extra (500 native, 300 ELL; ELLIPSE essays and calibration ids excluded)",
+     "url": "https://github.com/scrosseye/persuade_corpus_2.0", "license": "CC BY-NC-SA 4.0", "written": "2010-2020"},
+    {"source": "ghostbuster-news", "role": "train", "subset": "general", "new": false, "docs": "100 (calibration)",
+     "url": "https://github.com/vivek3141/ghostbuster-data", "license": "CC BY 3.0 (Ghostbuster LICENSE); articles (c) Reuters", "written": "1996-1997"},
+    {"source": "ghostbuster-wp", "role": "train", "subset": "general", "new": false, "docs": "100 (calibration)",
+     "url": "https://github.com/vivek3141/ghostbuster-data", "license": "CC BY 3.0 (Ghostbuster LICENSE); stories by Reddit users", "written": "scraped Oct 2022"},
+    {"source": "arxiv", "role": "train", "subset": "academic", "new": true, "docs": 300,
+     "url": "https://huggingface.co/datasets/gfissore/arxiv-abstracts-2021", "license": "CC0 1.0 (arXiv metadata)", "written": "up to 2021"},
+    {"source": "amazon-reviews", "role": "train", "subset": "review", "new": true, "docs": 300,
+     "url": "https://huggingface.co/datasets/fancyzhx/amazon_polarity", "license": "Apache-2.0 (dataset card); reviews by Amazon users", "written": "up to 2013 (McAuley & Leskovec; Zhang et al. 2015)"},
+    {"source": "stackexchange", "role": "train", "subset": "forum", "new": true, "docs": 300,
+     "url": "https://api.stackexchange.com/2.3 (top-voted answers on 14 prose sites)", "license": "CC BY-SA 3.0 / 4.0 per post (Stack Exchange)", "written": "2012-2021"},
+    {"source": "wikipedia", "role": "train", "subset": "encyclopedic", "new": true, "docs": "up to 300 (fetch resumes nightly until done; rate-limited)",
+     "url": "https://en.wikipedia.org/w/api.php (random articles, last revision before 2021-12-31)", "license": "CC BY-SA 3.0", "written": "before 2022"},
+    {"source": "ellipse", "role": "holdout", "subset": "non_native (student essays)", "new": false, "docs": "calibration 215",
+     "url": "https://github.com/scrosseye/ELLIPSE-Corpus", "license": "CC BY-NC-SA 4.0", "written": "before Aug 2022"},
+    {"source": "toefl91", "role": "holdout", "subset": "non_native", "new": false, "docs": "90 (calibration)",
+     "url": "https://github.com/Weixin-Liang/ChatGPT-Detector-Bias", "license": "Repo shows an MIT badge, no LICENSE file; essays are third-party forum posts", "written": "2020 or earlier"},
+    {"source": "ood-college-essay", "role": "ood", "subset": "student", "new": false, "docs": 70,
+     "url": "https://github.com/Weixin-Liang/ChatGPT-Detector-Bias", "license": "Repo shows an MIT badge, no LICENSE file; essays are third-party", "written": "pre-2022"},
+    {"source": "ood-cs224n", "role": "ood", "subset": "academic", "new": false, "docs": 145,
+     "url": "https://github.com/Weixin-Liang/ChatGPT-Detector-Bias", "license": "Repo shows an MIT badge, no LICENSE file; abstracts by Stanford CS224N students", "written": "pre-2022"},
+    {"source": "ood-hewlett", "role": "ood", "subset": "student", "new": false, "docs": 88,
+     "url": "https://github.com/Weixin-Liang/ChatGPT-Detector-Bias", "license": "ASAP data terms (Kaggle, research use)", "written": "2012"},
+    {"source": "ood-gb-essay", "role": "ood", "subset": "student", "new": false, "docs": 150,
+     "url": "https://github.com/vivek3141/ghostbuster-data", "license": "CC BY 3.0 (Ghostbuster LICENSE)", "written": "pre-2022"}
+  ]
+}

@@ -1,0 +1,52 @@
+# Squint classifier pipeline settings. Environment variables override the nightly window
+# (see ops/nightly.sh); everything else is read from here.
+
+[data]
+# Human sources that never appear in train/tune/heldout. AI rows written for these sources'
+# prompts are held out with them (otherwise the topic alone would give the label away).
+# ellipse = non-native student essays; toefl91 = non-native exam essays (Liang et al.).
+holdout_sources = ["ellipse", "toefl91"]
+# Out-of-distribution human sets (classifier/data/ood/, never trained on or tuned on).
+ood_sources = ["ood-college-essay", "ood-cs224n", "ood-hewlett", "ood-gb-essay"]
+# in-distribution split of the remaining base documents, by fraction
+train_frac = 0.70
+tune_frac = 0.15          # the rest is heldout
+seed = "squint-clf-2026-10-08"
+
+[human]
+# extra base documents per new source (fetch_human.py)
+arxiv = 300
+wikipedia = 300
+amazon_reviews = 300
+stackexchange = 300
+persuade_extra_native = 500
+persuade_extra_ell = 300
+
+[generate]
+# per-night call caps per generator (each call writes 3-15 pieces)
+caps = { chatgpt = 600, claude = 300, gemini = 300 }
+order = ["gemini", "chatgpt", "claude"]   # gemini first: it fails fast when its login is blocked
+max_rounds = 2
+# how many existing AI pieces each generator rewrites ("humanize" / paraphrase variants)
+paraphrase_per_generator = 600
+
+[train]
+model = "answerdotai/ModernBERT-base"
+fallback_model = "microsoft/deberta-v3-base"
+max_length = 512
+max_chunks_per_doc = 4    # long texts are cut into up to this many 512-token chunks
+batch_size = 8
+grad_accum = 4            # effective batch 32
+epochs = 2
+lr = 3e-5
+weight_decay = 0.01
+warmup_frac = 0.06
+checkpoint_every = 200    # optimizer steps
+amp = "auto"              # auto | bf16 | fp16 | none (auto: bf16 on MPS if it works, else fp32)
+mps_memory_fraction = 0.55 # PYTORCH_MPS_HIGH_WATERMARK_RATIO: hard cap near 6 GB on a 16 GB mini
+seed = 1234
+
+[evaluate]
+false_flag_cap = 0.01     # at most 1% of human texts flagged, overall and non-native
+min_chatgpt_catch = 0.50  # gate also needs this ChatGPT catch rate on held-out sources
+batch_size = 16

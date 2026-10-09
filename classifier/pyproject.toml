@@ -1,0 +1,16 @@
+[project]
+name = "squint-classifier"
+version = "0.1.0"
+description = "Overnight training pipeline for Squint's ChatGPT-text classifier (kept apart from the server's runtime env)."
+requires-python = ">=3.12,<3.13"
+dependencies = [
+    "torch>=2.5",
+    "transformers>=4.48",   # ModernBERT support
+    "numpy>=1.26",
+    "safetensors>=0.4",
+    "sentencepiece>=0.2",   # DeBERTa-v3 tokenizer (fallback model)
+    "protobuf>=4",          # DeBERTa-v3 tokenizer conversion
+]
+
+[tool.uv]
+package = false
