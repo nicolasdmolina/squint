@@ -107,11 +107,11 @@ export function HowItWorks({ status }: { status: Status | null }) {
 
       <section className="how-section" aria-labelledby="heat-title">
         <h2 id="heat-title" className="section-title">
-          Reading the colours
+          Reading the marks
         </h2>
         <div className="prose">
           <p>
-            In &ldquo;Show me why&rdquo;, every word is shaded by its own little score: was it more or less predictable than
+            In &ldquo;Look closer&rdquo;, every word is marked by its own little score: was it more or less predictable than
             the models expected at that spot?
           </p>
         </div>
@@ -135,8 +135,8 @@ export function HowItWorks({ status }: { status: Status | null }) {
           </div>
           <figcaption className="sr-only">
             Example sentence: &ldquo;In today&rsquo;s fast-paced world, it is important to note that my aunt kept bees on a fire
-            escape.&rdquo; The stock phrase at the start is shaded blue with solid underlines, meaning AI-like. The words about
-            the aunt and the bees are shaded amber with dotted underlines, meaning human-like.
+            escape.&rdquo; The stock phrase at the start is marked teal with solid underlines, meaning AI-like. The words about
+            the aunt and the bees are marked rose with dotted underlines, meaning human-like.
           </figcaption>
         </figure>
         <dl className="rows key-rows">
@@ -147,7 +147,7 @@ export function HowItWorks({ status }: { status: Status | null }) {
               </span>
             </dt>
             <dd className="row-body">
-              Blue with a solid underline: more predictable than expected, which is AI-like.
+              Teal with a solid underline: more predictable than expected, which is AI-like.
             </dd>
           </div>
           <div className="row">
@@ -156,7 +156,7 @@ export function HowItWorks({ status }: { status: Status | null }) {
                 word
               </span>
             </dt>
-            <dd className="row-body">Amber with a dotted underline: more surprising than expected, which is human-like.</dd>
+            <dd className="row-body">Rose with a dotted underline: more surprising than expected, which is human-like.</dd>
           </div>
           <div className="row">
             <dt className="row-label">
@@ -164,12 +164,12 @@ export function HowItWorks({ status }: { status: Status | null }) {
                 word
               </span>
             </dt>
-            <dd className="row-body">Unshaded: about as predictable as expected. No lean either way.</dd>
+            <dd className="row-body">Unmarked: about as predictable as expected. No lean either way.</dd>
           </div>
         </dl>
         <div className="prose">
           <p>
-            Deeper shading and a heavier underline mean a stronger lean. <b>Smoothed</b> view averages each word with its
+            A deeper tint and a heavier underline mean a stronger lean. <b>Smoothed</b> view averages each word with its
             neighbours, so you see stretches rather than single words. <b>Word by word</b> shows each word&rsquo;s own score,
             which is much noisier: plenty of human words are predictable, and that&rsquo;s fine.
           </p>
@@ -190,6 +190,16 @@ export function HowItWorks({ status }: { status: Status | null }) {
         </h2>
         <p className="acc-lede">Squint is one clue, not a verdict. It is weakest in these places.</p>
         <dl className="rows blind">
+          <div className="row">
+            <dt className="row-label">ChatGPT</dt>
+            <dd className="row-body">
+              ChatGPT&rsquo;s writing scores inside the range people write in, so Squint misses most of it: 1 of 12 caught in a
+              spot check. Gemini hasn&rsquo;t been tested. Claude writing is separated well.{' '}
+              <a className="text-link" href={hrefFor('accuracy')}>
+                See the accuracy page
+              </a>
+            </dd>
+          </div>
           <div className="row">
             <dt className="row-label">Edited or paraphrased AI text</dt>
             <dd className="row-body">

@@ -1,6 +1,6 @@
 import type { ReactNode, SVGProps } from 'react';
 
-// One drawn set: 20px grid, 1.5px pen stroke, square caps where it reads as engraved.
+// One drawn set: 20px grid, 1.5px stroke, round caps and joins.
 function Svg({ children, size = 18, ...rest }: SVGProps<SVGSVGElement> & { size?: number; children: ReactNode }) {
   return (
     <svg
@@ -23,12 +23,36 @@ function Svg({ children, size = 18, ...rest }: SVGProps<SVGSVGElement> & { size?
 
 type P = { size?: number; className?: string };
 
-/** The Squint mark: a narrowed eye with the chart trace running through it. */
+/** The Squint mark: an eye narrowed to read closely, the pupil a lens. */
 export const Mark = ({ size = 26, className }: P) => (
   <svg width={size} height={size} viewBox="0 0 32 32" fill="none" aria-hidden="true" className={className}>
-    <path d="M3 16C9 10.5 23 10.5 29 16C23 21.5 9 21.5 3 16Z" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" />
-    <path d="M8.5 16.5L12 14.2L15 17.6L18.2 13.6L21 16.4L23.5 15.2" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+    <path d="M3.5 17.5C8 10.5 24 10.5 28.5 17.5" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" />
+    <path d="M8 20.5C12.5 23.5 19.5 23.5 24 20.5" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" />
+    <circle cx="16" cy="17.25" r="3.6" fill="currentColor" />
   </svg>
+);
+
+/** Nav: check (a reading lens), accuracy (a target), how it works (an open card). */
+export const LensIcon = (p: P) => (
+  <Svg {...p}>
+    <circle cx="8.75" cy="8.75" r="5.5" />
+    <path d="m12.75 12.75 4 4" />
+  </Svg>
+);
+
+export const TargetIcon = (p: P) => (
+  <Svg {...p}>
+    <circle cx="10" cy="10" r="7.25" />
+    <circle cx="10" cy="10" r="3.75" />
+    <circle cx="10" cy="10" r="0.6" fill="currentColor" />
+  </Svg>
+);
+
+export const CardIcon = (p: P) => (
+  <Svg {...p}>
+    <rect x="3" y="3.25" width="14" height="13.5" rx="2.5" />
+    <path d="M6.5 7.5h7M6.5 10.5h7M6.5 13.5h4" />
+  </Svg>
 );
 
 export const UploadIcon = (p: P) => (
@@ -53,7 +77,7 @@ export const MoonIcon = (p: P) => (
 
 export const SystemIcon = (p: P) => (
   <Svg {...p}>
-    <rect x="2.75" y="3.75" width="14.5" height="9.5" rx="0.5" />
+    <rect x="2.75" y="3.75" width="14.5" height="9.5" rx="2" />
     <path d="M7 16.5h6M10 13.25v3.25" />
   </Svg>
 );
@@ -74,7 +98,7 @@ export const CheckIcon = (p: P) => (
 
 export const LockIcon = (p: P) => (
   <Svg {...p}>
-    <rect x="4" y="9" width="12" height="8.5" rx="0.5" />
+    <rect x="4" y="9" width="12" height="8.5" rx="2" />
     <path d="M6.75 9V6.5a3.25 3.25 0 0 1 6.5 0V9" />
   </Svg>
 );

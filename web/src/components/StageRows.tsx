@@ -18,7 +18,7 @@ const SLOW_S = 30;
 
 type RowState = 'pending' | 'active' | 'done' | 'skipped';
 
-/** Honest progress: each stage is one ruled row that restyles in place as the job moves. */
+/** Honest progress: each stage is one row that restyles in place as the job moves, and stays lit until the next lands. */
 export function StageRows({ p }: { p: Progress }) {
   const now = useNow(true);
   const s = p.status;
@@ -57,14 +57,12 @@ export function StageRows({ p }: { p: Progress }) {
   const current = rows.find(r => r.state === 'active');
 
   return (
-    <div className="stages">
-      <ol className="rows" aria-label="Check progress">
+    <div className="stages" id="check-progress">
+      <ol className="stage-list" aria-label="Check progress">
         {rows.map(r => (
-          <li key={r.key} className="row stage" data-state={r.state}>
-            <span className="row-label">
-              <StageMark state={r.state} />
-              {r.name}
-            </span>
+          <li key={r.key} className="stage" data-state={r.state}>
+            <StageMark state={r.state} />
+            <span className="stage-name">{r.name}</span>
             <span className="stage-text">{r.text}</span>
             <span className="stage-time" aria-hidden="true">
               {r.time != null ? `${r.time}s` : ''}
@@ -81,17 +79,19 @@ export function StageRows({ p }: { p: Progress }) {
 }
 
 function StageMark({ state }: { state: RowState }) {
-  if (state === 'done') return <CheckIcon size={14} className="stage-mark is-done" />;
-  if (state === 'active') {
-    return (
-      <svg className="stage-mark is-active" width="14" height="14" viewBox="0 0 14 14" aria-hidden="true">
-        <path className="pen" d="M1 8 L4 5 L6.5 9 L9 4 L11 7.5 L13 6" fill="none" pathLength={1} />
-      </svg>
-    );
-  }
+  if (state === 'done') return <CheckIcon size={16} className="stage-mark is-done" />;
   return (
-    <svg className={`stage-mark is-${state}`} width="14" height="14" viewBox="0 0 14 14" aria-hidden="true">
-      {state === 'skipped' ? <path d="M3 7h8" /> : <rect x="3.5" y="3.5" width="7" height="7" />}
+    <svg className={`stage-mark is-${state}`} width="16" height="16" viewBox="0 0 16 16" aria-hidden="true">
+      {state === 'active' ? (
+        <>
+          <circle cx="8" cy="8" r="6" className="ring-track" />
+          <path d="M8 2a6 6 0 0 1 6 6" className="ring-arc" />
+        </>
+      ) : state === 'skipped' ? (
+        <path d="M4 8h8" />
+      ) : (
+        <circle cx="8" cy="8" r="2.5" />
+      )}
     </svg>
   );
 }

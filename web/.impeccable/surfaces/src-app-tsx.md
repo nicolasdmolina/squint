@@ -7,33 +7,30 @@ related_targets: []
 
 ## Scope and mode
 
-Squint web app: checker (Operate, primary), How accurate is this? and How it works (Read), password gate. Phone and desktop, light and dark.
+Squint web app: checker (Operate, primary), How accurate is this? and How it works (Read), password gate. Phone and desktop, light and dark. Full redesign; the previous bench-instrument look (chart-paper grid, condensed caps, square corners, cobalt/amber) is the anti-reference.
 
-Audience and job: paste or upload one piece of writing, learn whether it was likely AI-written, how sure the tool is, and which words drove it, without mistaking it for proof.
+Audience and job: a student, teacher or writer at a desk or on a phone, often anxious, pastes or uploads one piece of writing to learn whether it reads as AI-written, how sure the tool is, and which words drove it, without mistaking it for proof.
 
 ## Direction contract
 
-THESIS: Squint is a calibrated bench instrument, not a judge. The text goes in the sample well, the instrument prints a reading on chart paper with the trace that produced it. It refuses the AI-detector default: one big red percentage gauge over a white SaaS card with alarm highlights.
+THESIS: Squint reads text the way an optician reads eyes: one card held at reading distance, a two-sided duochrome comparison where neither side is the bad side, and a lens for looking closer. It refuses the detector default of a red percentage gauge and alarm highlighter over a white SaaS card.
 
-OWN-WORLD: Bright cool chart paper (never cream) with a pale cyan graph grid whose pitch equals the specimen's line height; pen-ink near-black for every control; two signal inks only, cobalt (predictable, AI-like) and amber (surprising, human-like), never used on controls. Engraved condensed Archivo caps for panel labels, tabular readout numerals, the user's text set in a reading serif. One-device-pixel hairline rules, square corners, no shadows, no glass. Dark theme is graphite paper with the same grammar.
+OWN-WORLD: Matte card stock on a cool, faintly tinted near-white ground (never cream); graphite ink for every control. Duochrome pair used only on evidence: rose (#c23b61 family) for human-like, lens teal (#0b6f78 family) for AI-like, each with a non-colour cue (dotted underline vs solid underlay). Archivo at normal width, sentence case, for all UI; the user's own text set in Source Serif 4 like a reading-card paragraph. Soft rounded radii (card 16, control 10, pill), two soft shadow tiers, 1px borders. Dark theme is the dimmed exam room: deep blue-grey, same grammar.
 
-STORY: The visitor sees what they will get at this length, runs the check with honest stage-by-stage progress, reads the band and how sure it is, then follows the trace into the words and learns why, word by word.
+STORY: The visitor sees what they will get at this length, runs the check with honest stage-by-stage progress, reads the band and the plain caveat (ChatGPT is often missed), then looks closer through the lens, word by word.
 
-FIRST VIEWPORT: Nameplate strip (SQUINT, model plate, Accuracy and How-it-works tabs). Below, a wide sample well with the capacity rule (20 / 150 / 2500 detents) and a live "what you'll get" line; primary Analyze sits bottom right of the well with Upload beside it. After a run the readout panel replaces the well's top: band large, scale with cutoffs and needle, percent with its flagged-segment strip, then the chart strip and the printed text.
+FIRST VIEWPORT: Slim top bar: Squint wordmark, three routes (Check, Accuracy, How it works), theme, lock. Below, one wide reading card: textarea with an attached-file chip inside the composer, a length line (20 / 150 / 2,500), Check text primary bottom-right. After a run: verdict line (band in words, h1 at most 32px), the duochrome scale with needle and cutoffs, % AI-written only at 150+, then the marked text with a side column of reasons and passages on wide screens. Phone: bottom pill nav, stacked, word lens as a bottom sheet.
 
-FORM: Bench instrument with chart-recorder printout, grounded list position 3 of 7 (1 proofreader galley marks, 2 highlighter on photocopy, 3 instrument printout, 4 weather radar legend, 5 eye chart, 6 field-guide plate, 7 Swiss information design). Seed key 02c9a031.
-Raise from split-flap concourse: every readout and stage row lives on one ruled grid; state restyles a row in place, never adds chrome.
-Raise from cassette j-card: the word budget is drawn as a capacity rule with detents, like tape length against running time.
-Raise from warm consumer canon: colour on the page always means signal; the only control colour is pen ink.
-Raise from Crouwel grid specimen: the chart grid is the real baseline armature of the printed text, not wallpaper.
-Raise from vertical feed: one word owns the inspector at a time; arrow keys step to the next word.
-Competitive alternate kept: centre-rail reference setting (annotation margin apparatus); its one-device-pixel ruling discipline is adopted.
-Signature interaction: the chart strip. The whole document's smoothed signal drawn as an ink trace on chart paper, flagged windows bracketed, sentence ticks below; pointer or arrow-key scrubbing moves a cursor that lights and scrolls to the matching word, and a window marks which part of the text is on screen.
-Motion grammar: damped single-axis pen travel; the trace draws left to right once on arrival; stage changes restyle in place; all of it off under reduced motion.
+FORM: Optician's reading card with duochrome test, grounded list position 7 of 7 (1 highlighter on a photocopy, 2 field-guide plate, 3 weather forecast, 4 proofreader galley marks, 5 music dynamics marks, 6 tide almanac, 7 optician's reading card). Seed key a0c58abc. Decision page probed once unattended (no answer); assigned direction built.
+Raise from variable-font specimen: the word lens shows the selected word at specimen scale with its ranked guesses beneath.
+Raise from boarding pass and gate board (competitive): queue, warm-up and scoring rows restyle in place and stay lit until the next stage lands.
+Raise from design annual plate section: one grotesque carries display and caption alike; the ground is tinted, never pure white.
+Signature interaction: the lens. Hover, tap or arrow-key onto any word and a round-cornered lens opens with that word large, its rank, surprise against expected, and the top five guesses; arrows step word to word, Up/Down by sentence.
+Motion grammar: one moving element per view; the needle eases to its reading in 220ms ease-out; stage rows restyle in place; nothing moves under reduced motion.
 
 FINISH: unreviewed and undocumented is unfinished; this build ends with the finish review, the verdict, DESIGN.md, and every shipping raster carrying its provenance
 
 ## Unresolved
 
-- Direction chosen unattended (no question channel from the sub-agent); the orchestrator or Nicky may re-roll.
+- Direction chosen unattended (decision page probed once, unanswered); Nicky may re-roll.
 - Real accuracy numbers do not exist yet; the accuracy page renders only what the API returns.

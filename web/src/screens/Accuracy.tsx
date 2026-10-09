@@ -2,6 +2,7 @@ import { Button } from '@astryxdesign/core/Button';
 import { useCallback, useEffect, useState } from 'react';
 import { api, ApiError } from '../api';
 import { AlertIcon, ArrowRightIcon } from '../components/Icons';
+import { gap } from '../copy';
 import { fmtInt, fmtRate, oneIn } from '../lib/format';
 import { hrefFor } from '../lib/hooks';
 import type { Accuracy as AccuracyData, LengthBucket, Status } from '../types';
@@ -45,9 +46,10 @@ export function Accuracy({ status }: { status: Status | null }) {
         <h1>How accurate is this?</h1>
         <p className="lede">
           Squint is only worth listening to if it rarely flags people. Here is how it did on writing it had never seen, where the
-          true source was known.
+          true source was known, and where it falls short.
         </p>
       </header>
+      <KnownGap />
       {load.kind === 'loading' && (
         <p className="quiet" role="status">
           Loading the test results&hellip;
@@ -65,6 +67,26 @@ export function Accuracy({ status }: { status: Status | null }) {
       {load.kind === 'untuned' && <Untuned />}
       {load.kind === 'ready' && <Report data={load.data} />}
     </div>
+  );
+}
+
+/** The gap is stated before any number, tuned or not. Source: docs/known-gaps.md. */
+function KnownGap() {
+  return (
+    <section className="gap" aria-labelledby="gap-title">
+      <h2 id="gap-title" className="gap-title">
+        {gap.title}
+      </h2>
+      <p>
+        In a spot check on 8 October 2026, at the setting that keeps false flags near 1%, Squint caught 1 of 12 ChatGPT
+        samples. ChatGPT&rsquo;s writing scores inside the range people write in, so this method can&rsquo;t separate it yet.
+        Claude writing is separated well. Gemini hasn&rsquo;t been tested, because no samples could be generated.
+      </p>
+      <p className="gap-sub">
+        A &ldquo;Likely human&rdquo; reading doesn&rsquo;t clear a text. A second, trained check for ChatGPT is planned before
+        Squint is shared more widely.
+      </p>
+    </section>
   );
 }
 
@@ -96,12 +118,14 @@ function Report({ data }: { data: AccuracyData }) {
   const cr = data.catch_rate;
   const lengthRows = (m: Partial<Record<LengthBucket, number>>) => LENGTHS.filter(l => m[l.key] != null).map(l => ({ label: l.label, v: m[l.key]! }));
   const sources = Object.entries(cr.by_source).sort((a, b) => b[1] - a[1]);
+  const tested = new Set(sources.map(([k]) => k.toLowerCase()));
+  const untested = ['chatgpt', 'claude', 'gemini'].filter(k => !tested.has(k));
 
   return (
     <>
       <p className="test-meta">
         Tested on {fmtInt(data.held_out.human)} human and {fmtInt(data.held_out.ai)} AI-written texts held back from tuning.
-        Tuning version <span className="mono">{data.version}</span>.
+        Tuning version {data.version}.
       </p>
 
       <section className="acc-section" aria-labelledby="ff-title">
@@ -136,7 +160,18 @@ function Report({ data }: { data: AccuracyData }) {
           <span className="headline-num">{fmtRate(cr.overall)}</span>
           <span className="headline-cap">of AI writing was caught.</span>
         </p>
-        <RateRows caption="Catch rate by model" rows={sources.map(([k, v]) => ({ label: sourceName(k), v }))} noun="caught" />
+        <RateRows
+          caption="Catch rate by model"
+          rows={[
+            ...sources.map(([k, v]) => ({
+              label: sourceName(k),
+              v,
+              note: k.toLowerCase() === 'chatgpt' ? 'The known gap: most ChatGPT writing gets through.' : undefined,
+            })),
+            ...untested.map(k => ({ label: sourceName(k), v: null, note: 'Not tested yet.' })),
+          ]}
+          noun="caught"
+        />
         <RateRows caption="Catch rate by length" rows={lengthRows(cr.by_length)} noun="caught" />
       </section>
 
@@ -186,40 +221,37 @@ function reading(v: number, noun: string) {
   return s.replace(/^./, c => c.toUpperCase());
 }
 
-/** Ruled rows: plain-language reading first, then the rate as an ink bar on a fixed 0 to 100% rule. */
+/** Rows: the rate, a bar on a fixed 0 to 100% track, then the plain-language reading. */
 function RateRows({
   caption,
   rows,
   noun,
 }: {
   caption: string;
-  rows: { label: string; v: number; note?: string }[];
+  rows: { label: string; v: number | null; note?: string }[];
   noun: string;
 }) {
   if (!rows.length) return null;
   return (
     <figure className="rates">
       <figcaption className="rates-cap">{caption}</figcaption>
-      <dl className="rows">
+      <dl className="rate-list">
         {rows.map(r => (
-          <div className="row rate" key={r.label}>
-            <dt className="row-label">{r.label}</dt>
-            <dd className="row-body">
-              <span className="rate-value">{fmtRate(r.v)}</span>
-              <span className="rate-read">{reading(r.v, noun)}</span>
+          <div className="rate" key={r.label} data-untested={r.v == null || undefined}>
+            <dt className="rate-label">{r.label}</dt>
+            <dd className="rate-body">
+              <span className="rate-value">{r.v == null ? 'Untested' : fmtRate(r.v)}</span>
               <span className="rate-bar" aria-hidden="true">
-                <span style={{ width: `${Math.min(100, r.v * 100)}%` }} data-zero={r.v === 0 || undefined} />
+                {r.v != null && <span style={{ width: `${Math.min(100, r.v * 100)}%` }} data-zero={r.v === 0 || undefined} />}
               </span>
-              {r.note && <span className="rate-note">{r.note}</span>}
+              <span className="rate-read">
+                {r.v == null ? '' : reading(r.v, noun)}
+                {r.note && <span className="rate-note">{r.v == null ? r.note : ` ${r.note}`}</span>}
+              </span>
             </dd>
           </div>
         ))}
       </dl>
-      <div className="rates-scale" aria-hidden="true">
-        <span>0%</span>
-        <span>50%</span>
-        <span>100%</span>
-      </div>
     </figure>
   );
 }

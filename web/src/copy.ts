@@ -26,9 +26,9 @@ export function lengthGuide(n: number, limits: Status['limits'], calibrated: boo
 }
 
 export const bandLine: Record<Band, string> = {
-  likely_ai: 'Much more predictable than human writing usually is.',
-  likely_human: 'About as surprising as human writing usually is.',
-  uncertain: 'This score sits where human and AI writing overlap, so Squint won’t call it.',
+  likely_ai: 'Much more predictable than people usually write. Worth a closer look, not an accusation.',
+  likely_human: 'About as surprising as people usually are.',
+  uncertain: 'Human and AI writing both land here. Look at the marks below rather than the label.',
   uncalibrated: 'Squint isn’t tuned yet, so it won’t give a verdict. The evidence below still holds.',
 };
 
@@ -95,4 +95,12 @@ export const notes = {
   evidence: 'Evidence, not proof. Treat this as one clue among several, especially before saying anything to the writer.',
   stored: 'Nothing is saved. This result disappears after 10 minutes, or as soon as you check something else.',
   privacy: 'Nothing you paste is stored. Squint runs on a private machine and forgets each result after 10 minutes.',
+};
+
+/** The known blind spot, said wherever a reading is shown. Source: docs/known-gaps.md (spot check, 8 Oct 2026). */
+export const gap = {
+  title: 'Squint misses most ChatGPT writing.',
+  body: 'In a spot check it caught 1 of 12 ChatGPT samples, so “Likely human” doesn’t clear a text. Claude writing is caught far more often. Gemini hasn’t been tested yet.',
+  short: 'It caught 1 of 12 ChatGPT samples in a spot check, so “Likely human” doesn’t clear a text.',
+  shortUntuned: 'It caught 1 of 12 ChatGPT samples in a spot check, so marks that look human-like don’t clear a text either.',
 };

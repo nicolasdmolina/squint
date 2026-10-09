@@ -5,7 +5,6 @@ import { fmtInt } from '../lib/format';
 import { useMedia } from '../lib/hooks';
 import { buildWords, leanShares, stopAt, type Word } from '../lib/words';
 import type { Result } from '../types';
-import { ChartStrip, type ScrubHow } from './ChartStrip';
 import { HeatText } from './HeatText';
 import { ArrowLeftIcon, ArrowRightIcon, CloseIcon } from './Icons';
 import { WordDetails } from './WordDetails';
@@ -16,7 +15,10 @@ const fmtShare = (x: number) =>
 
 const TIP_ID = 'word-tip';
 
-/** "Show me why": the chart strip, the reprinted text with its heat, and the word inspector. */
+/** The bottom edge of the sticky top bar: nothing should hide under it. */
+const barBottom = () => document.querySelector('.bar')?.getBoundingClientRect().bottom ?? 0;
+
+/** "Look closer": the reprinted text with its marks, the word lens, and the reasons beside it. */
 export function Evidence({ result, text }: { result: Result; text: string }) {
   const { words, stops } = useMemo(() => buildWords(result, text), [result, text]);
   const [view, setView] = useState<'smooth' | 'raw'>('smooth');
@@ -28,13 +30,11 @@ export function Evidence({ result, text }: { result: Result; text: string }) {
   const [tipOpen, setTipOpen] = useState(false);
   const [sheetOpen, setSheetOpen] = useState(false);
   const [focusIdx, setFocusIdx] = useState(0);
-  const [visible, setVisible] = useState<[number, number] | null>(null);
   const [settled, setSettled] = useState(0);
   const [tipPos, setTipPos] = useState<{ left: number; top: number; above: boolean } | null>(null);
 
   const printRef = useRef<HTMLDivElement>(null);
   const sheetRef = useRef<HTMLDivElement>(null);
-  const dockRef = useRef<HTMLDivElement>(null);
   const tipRef = useRef<HTMLDivElement>(null);
   const hideTimer = useRef(0);
   const els = useRef<HTMLElement[]>([]);
@@ -72,7 +72,7 @@ export function Evidence({ result, text }: { result: Result; text: string }) {
     const b = box.getBoundingClientRect();
     const tw = tip.offsetWidth;
     const th = tip.offsetHeight;
-    const dockBottom = dockRef.current?.getBoundingClientRect().bottom ?? 0;
+    const dockBottom = barBottom();
     const vh = window.innerHeight;
     const vw = document.documentElement.clientWidth;
     const fitsBelow = r.bottom + 8 + th + 8 <= vh;
@@ -112,33 +112,6 @@ export function Evidence({ result, text }: { result: Result; text: string }) {
     };
   }, [tipOpen, sheetMode]);
 
-  // which words are on screen, for the strip's window
-  useEffect(() => {
-    let raf = 0;
-    const measure = () => {
-      raf = 0;
-      const list = els.current;
-      if (!list.length) return;
-      const topEdge = dockRef.current?.getBoundingClientRect().bottom ?? 0;
-      const bottomEdge = window.innerHeight;
-      const first = bsearch(list, el => el.getBoundingClientRect().bottom >= topEdge);
-      const last = bsearch(list, el => el.getBoundingClientRect().top > bottomEdge) - 1;
-      if (first >= list.length || last < 0 || last < first) setVisible(null);
-      else setVisible(v => (v && v[0] === first && v[1] === last ? v : [first, last]));
-    };
-    const schedule = () => {
-      if (!raf) raf = requestAnimationFrame(measure);
-    };
-    schedule();
-    window.addEventListener('scroll', schedule, { passive: true });
-    window.addEventListener('resize', schedule);
-    return () => {
-      cancelAnimationFrame(raf);
-      window.removeEventListener('scroll', schedule);
-      window.removeEventListener('resize', schedule);
-    };
-  }, [words, view]);
-
   const indexFromEvent = (e: { target: EventTarget }) => {
     const el = (e.target as HTMLElement).closest?.('.w[data-n]') as HTMLElement | null;
     return el ? Number(el.dataset.n) : null;
@@ -166,7 +139,7 @@ export function Evidence({ result, text }: { result: Result; text: string }) {
     const el = els.current[n];
     if (!el) return;
     const r = el.getBoundingClientRect();
-    const topEdge = (dockRef.current?.getBoundingClientRect().bottom ?? 0) + 24;
+    const topEdge = (barBottom()) + 24;
     // on phones the details sheet covers the bottom of the screen; it may not have rendered yet
     const sheetH = sheetMode ? (sheetRef.current?.offsetHeight ?? window.innerHeight * 0.48) : 0;
     const bottomEdge = window.innerHeight - sheetH - 24;
@@ -231,69 +204,35 @@ export function Evidence({ result, text }: { result: Result; text: string }) {
     else setTipOpen(true);
   };
 
-  const onScrub = (n: number, how: ScrubHow) => {
-    setFocusIdx(n);
-    setActive(n);
-    if (!sheetMode) setTipOpen(how !== 'hover');
-    scrollToWord(n);
-  };
-
   // close the inspector when the pointer leaves the text and nothing in it has focus
   useEffect(() => () => window.clearTimeout(hideTimer.current), []);
 
   const shares = leanShares(stops, smooth);
-  const flagged = useMemo(
-    () =>
-      result.segments
-        .filter(s => s.flagged)
-        .map(s => ({ from: stopAt(stops, s.start), to: Math.max(stopAt(stops, s.start), stopAt(stops, s.end - 1)) })),
-    [result, stops],
-  );
-  const sentenceMarks = useMemo(
-    () => result.sentences.map(s => ({ at: Math.min(stops.length - 1, stopAt(stops, s.start)), lean: s.lean })),
-    [result, stops],
-  );
   const current: Word | null = active != null ? stops[active] ?? null : null;
 
   return (
     <section className="evidence" aria-labelledby="why-title">
       <header className="evidence-head">
         <h2 id="why-title" className="section-title">
-          Show me why
+          Look closer
         </h2>
         <p className="evidence-lede">
-          Every word is shaded by how predictable it was to the models. Blue with a solid underline means more predictable than
-          expected, which is AI-like. Amber with a dotted underline means more surprising, which is human-like. Hover a word, or
-          tab into the text and use the arrow keys, to see what the model guessed.
+          Every word is marked by how predictable it was to the models. Hover or tap a word, or tab into the text and use the arrow
+          keys, to see what the model expected there.
         </p>
       </header>
 
       <div className="evidence-tools">
-        <SegmentedControl label="Shading" value={view} onChange={v => setView(v as 'smooth' | 'raw')} size="sm">
+        <SegmentedControl label="Marking" value={view} onChange={v => setView(v as 'smooth' | 'raw')} size="sm">
           <SegmentedControlItem value="smooth" label="Smoothed" />
           <SegmentedControlItem value="raw" label="Word by word" />
         </SegmentedControl>
         <Legend />
-        <p className="glance">
-          <strong>{fmtShare(shares.ai)}</strong> of words lean AI-like and <strong>{fmtShare(shares.hu)}</strong> lean
-          human-like. The rest show no clear lean.
-        </p>
       </div>
-
-      {/* the key sits above the dock so the strip that stays on screen is only the strip */}
-      <StripKey hasFlags={flagged.length > 0} />
-      <div className="strip-dock" ref={dockRef}>
-        <ChartStrip
-          stops={stops}
-          flagged={flagged}
-          sentences={sentenceMarks}
-          active={active}
-          visible={visible}
-          compact={sheetMode}
-          onScrub={onScrub}
-          onLeave={() => undefined}
-        />
-      </div>
+      <p className="glance" id="glance">
+        <strong>{fmtShare(shares.ai)}</strong> of words lean AI-like and <strong>{fmtShare(shares.hu)}</strong> lean human-like.
+        The rest show no clear lean.
+      </p>
 
       <div className="evidence-body">
         <div
@@ -314,13 +253,13 @@ export function Evidence({ result, text }: { result: Result; text: string }) {
           onBlur={() => !sheetMode && scheduleHide()}
           onKeyDown={onTextKey}
           onClick={onTextClick}
-          aria-label="Your text, shaded word by word"
+          aria-label="Your text, marked word by word"
           role="group"
-          aria-describedby="printout-hint"
+          aria-describedby="glance printout-hint"
         >
           <p id="printout-hint" className="sr-only">
-            Each word is a button. Use the left and right arrow keys to move between words, up and down to jump between sentences,
-            and Escape to hide the details.
+            Each word is a button that opens its details. Use the left and right arrow keys to move between words, up and down to
+            jump between sentences, Home and End for the first and last word, and Escape to hide the details.
           </p>
           <HeatText text={text} result={result} words={words} smooth={smooth} />
           {!sheetMode && current && (
@@ -345,6 +284,7 @@ export function Evidence({ result, text }: { result: Result; text: string }) {
 
       {sheetMode && current && sheetOpen && (
         <div className="sheet" role="region" aria-label="Word details" ref={sheetRef}>
+          <span className="sheet-handle" aria-hidden="true" />
           <div className="sheet-bar">
             <Button label="Previous word" icon={<ArrowLeftIcon size={16} />} isIconOnly variant="secondary" size="sm" onClick={() => goTo((active ?? 0) - 1)} />
             <Button label="Next word" icon={<ArrowRightIcon size={16} />} isIconOnly variant="secondary" size="sm" onClick={() => goTo((active ?? 0) + 1)} />
@@ -372,58 +312,22 @@ export function Evidence({ result, text }: { result: Result; text: string }) {
   );
 }
 
-function bsearch<T>(list: T[], pred: (x: T) => boolean) {
-  let lo = 0;
-  let hi = list.length;
-  while (lo < hi) {
-    const mid = (lo + hi) >> 1;
-    if (pred(list[mid])) hi = mid;
-    else lo = mid + 1;
-  }
-  return lo;
-}
-
 function Legend() {
   return (
     <ul className="legend" aria-label="Shading key">
       <li>
         <span className="legend-sample" data-heat="ai3">word</span>
-        More predictable, AI-like
+        AI-like: more predictable, solid underline
       </li>
       <li>
         <span className="legend-sample" data-heat="hu3">word</span>
-        More surprising, human-like
+        Human-like: more surprising, dotted underline
       </li>
       <li>
         <span className="legend-sample" data-heat="nu0">word</span>
         No clear lean
       </li>
     </ul>
-  );
-}
-
-function StripKey({ hasFlags }: { hasFlags: boolean }) {
-  return (
-    <p className="strip-key" aria-hidden="true">
-      {hasFlags && (
-        <span>
-          <svg width="22" height="8" viewBox="0 0 22 8"><path d="M1 7.5V1.5H21V7.5" /></svg>
-          Flagged passage
-        </span>
-      )}
-      <span>
-        <svg width="8" height="12" viewBox="0 0 8 12"><line className="tick-ai" x1="4" x2="4" y1="11" y2="3" /></svg>
-        Sentence leans AI-like
-      </span>
-      <span>
-        <svg width="8" height="12" viewBox="0 0 8 12"><line className="tick-hu" x1="4" x2="4" y1="1" y2="9" /></svg>
-        Sentence leans human-like
-      </span>
-      <span>
-        <svg width="16" height="10" viewBox="0 0 16 10"><rect className="strip-window" x="0.5" y="0.5" width="15" height="9" /></svg>
-        On screen now
-      </span>
-    </p>
   );
 }
 

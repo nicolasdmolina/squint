@@ -1,47 +1,59 @@
 /*
- * Squint tokens: chart paper, pen ink, and two signal inks.
- * Cobalt = more predictable than expected (AI-like). Amber = more surprising (human-like).
- * Signal inks never colour a control or a line of text; text always wears ink.
+ * Squint tokens: the optician's reading card.
+ * Card stock on a faintly tinted ground, graphite for every control, and one duochrome pair
+ * that appears only on evidence: teal = more predictable than expected (AI-like),
+ * rose = more surprising than expected (human-like). Neither side is the bad side.
  * Astryx reset.css maps html[data-theme] to color-scheme, so light-dark() follows the switch.
  */
 :root {
-  /* paper and ink */
-  --paper: light-dark(#f8fcfd, #13181d);
-  --panel: light-dark(#ffffff, #191f25);
-  --wash: light-dark(#eef5f7, #1b2228);
-  --grid: light-dark(#d6edf2, #1b272d);
-  --grid-major: light-dark(#bbdfe8, #1e343b);
-  --ink: light-dark(#141b24, #e7ecf0);
-  --ink-2: light-dark(#4b535e, #b8bfc5);
-  --muted: light-dark(#646d76, #97a0a7);
-  --rule: light-dark(#bccbd1, #2b363e);
-  --edge: light-dark(#7b8890, #66737c);
-  --select: light-dark(#cfe3ea, #2a4049);
+  /* ground, card and ink */
+  --ground: light-dark(#eef1f0, #11161a);
+  --card: light-dark(#fcfdfc, #182025);
+  --card-sunk: light-dark(#f4f6f5, #141b1f);
+  --ink: light-dark(#16191d, #e6eaec);
+  --ink-2: light-dark(#454b53, #b8c0c6);
+  --muted: light-dark(#5f666e, #949da4);
+  --line: light-dark(#dbe0de, #273137);
+  --line-strong: light-dark(#b4bcb9, #3b464d);
+  --hover: light-dark(rgba(22, 25, 29, 0.05), rgba(230, 234, 236, 0.07));
+  --press: light-dark(rgba(22, 25, 29, 0.1), rgba(230, 234, 236, 0.12));
+  --select: light-dark(#cfe6e6, #23474b);
+  --focus: light-dark(#16191d, #e6eaec);
 
-  /* signal poles and their tints, steps 1 to 4; each pole keeps 3:1 against its own step-4 tint
-     so the underline (the non-colour channel) stays readable on the strongest shading */
-  --ai: light-dark(#1f53b8, #78a2ef);
-  --hu: light-dark(#a0540a, #dd8e45);
-  --ai-1: light-dark(#e4efff, #1c263a);
-  --ai-2: light-dark(#cfe4ff, #1e3051);
-  --ai-3: light-dark(#b8d5ff, #203a6a);
-  --ai-4: light-dark(#9fc4ff, #234485);
-  --hu-1: light-dark(#ffefd8, #332619);
-  --hu-2: light-dark(#ffe2b9, #452d16);
-  --hu-3: light-dark(#ffcf96, #593513);
-  --hu-4: light-dark(#ffbb75, #6e3c0d);
+  /* the duochrome pair: poles carry text-level contrast, tints sit under ink text */
+  --ai: light-dark(#0a6870, #63c7c6);
+  --hu: light-dark(#ad2f4f, #f291a8);
+  --ai-1: light-dark(#e9f4f4, #15282b);
+  --ai-2: light-dark(#d3ebeb, #183539);
+  --ai-3: light-dark(#b5dddd, #1c4448);
+  --ai-4: light-dark(#94cdcd, #215559);
+  --hu-1: light-dark(#fcf0f3, #2c1c22);
+  --hu-2: light-dark(#f8dfe5, #3c2129);
+  --hu-3: light-dark(#f2c6d1, #4f2633);
+  --hu-4: light-dark(#eaabbb, #642c3e);
+  --mid: light-dark(#e6e9e8, #232c31);
 
-  /* lines: one device pixel where the screen has them */
-  --hair: 1px;
+  /* shape */
+  --r-card: 16px;
+  --r-ctl: 10px;
+  --r-mark: 4px;
+  --r-pill: 999px;
+  --border: 1px solid var(--line);
+  --shadow-1: light-dark(0 1px 2px rgba(20, 30, 34, 0.06), 0 1px 2px rgba(0, 0, 0, 0.4));
+  --shadow-2: light-dark(
+    0 18px 40px -12px rgba(20, 30, 34, 0.22),
+    0 18px 40px -12px rgba(0, 0, 0, 0.7)
+  );
 
-  /* type */
+  /* type: one grotesque for the interface, one reading serif for the writer's own words */
   --sans: 'Archivo Variable', 'Archivo', ui-sans-serif, system-ui, sans-serif;
   --serif: 'Source Serif 4 Variable', 'Source Serif 4', 'Iowan Old Style', Georgia, serif;
-  --mono: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
-
-  /* the chart pitch: one specimen line */
-  --pitch: 32px;
-  --specimen-size: 19px;
+  --t-xs: 0.8125rem; /* 13 */
+  --t-sm: 0.875rem; /* 14 */
+  --t-md: 1rem; /* 16 */
+  --t-read: 1.1875rem; /* 19 */
+  --t-lg: 1.4375rem; /* 23 */
+  --t-xl: 1.75rem; /* 28 */
 
   /* space */
   --s1: 4px;
@@ -52,48 +64,46 @@
   --s6: 32px;
   --s7: 48px;
   --s8: 64px;
-  --s9: 96px;
 
   --gutter: 32px;
-  --measure: 68ch;
-  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-@media (min-resolution: 2dppx) {
-  :root {
-    --hair: 0.5px;
-  }
+  --bar-h: 60px;
+  --measure: 66ch;
+  --ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --fast: 160ms;
+  --slow: 220ms;
 }
 
 @media (max-width: 720px) {
   :root {
-    --pitch: 28px;
-    --specimen-size: 17px;
     --gutter: 16px;
+    --t-read: 1.0625rem; /* 17 */
+    --t-xl: 1.5rem; /* 24 */
+    --bar-h: 56px;
   }
 }
 
-/* Heat: tint carries strength, the underline carries direction without colour.
-   Solid underline = AI-like, dotted = human-like, heavier = stronger. */
+/* Evidence marks. Tint carries strength; the underline carries direction without colour:
+   solid = AI-like, dotted = human-like, heavier = stronger. The faintest step is underline only,
+   so fill is kept for words that actually lean. */
 [data-heat] {
   --tint: transparent;
-  --line: transparent;
+  --mark: transparent;
   --weight: 0px;
   --style: solid;
   background-color: var(--tint);
   text-decoration-line: underline;
-  text-decoration-color: var(--line);
+  text-decoration-color: var(--mark);
   text-decoration-style: var(--style);
   text-decoration-thickness: var(--weight);
-  text-underline-offset: 0.24em;
+  text-underline-offset: 0.26em;
   text-decoration-skip-ink: none;
 }
-[data-heat='ai1'] { --tint: var(--ai-1); --line: var(--ai); --weight: 1px; }
-[data-heat='ai2'] { --tint: var(--ai-2); --line: var(--ai); --weight: 1.5px; }
-[data-heat='ai3'] { --tint: var(--ai-3); --line: var(--ai); --weight: 2px; }
-[data-heat='ai4'] { --tint: var(--ai-4); --line: var(--ai); --weight: 2.5px; }
-[data-heat='hu1'] { --tint: var(--hu-1); --line: var(--hu); --weight: 1.5px; --style: dotted; }
-[data-heat='hu2'] { --tint: var(--hu-2); --line: var(--hu); --weight: 2px; --style: dotted; }
-[data-heat='hu3'] { --tint: var(--hu-3); --line: var(--hu); --weight: 2.5px; --style: dotted; }
-[data-heat='hu4'] { --tint: var(--hu-4); --line: var(--hu); --weight: 3px; --style: dotted; }
+[data-heat='ai1'] { --tint: transparent; --mark: var(--ai); --weight: 1px; }
+[data-heat='ai2'] { --tint: var(--ai-2); --mark: var(--ai); --weight: 1.5px; }
+[data-heat='ai3'] { --tint: var(--ai-3); --mark: var(--ai); --weight: 2px; }
+[data-heat='ai4'] { --tint: var(--ai-4); --mark: var(--ai); --weight: 2.5px; }
+[data-heat='hu1'] { --tint: transparent; --mark: var(--hu); --weight: 1.5px; --style: dotted; }
+[data-heat='hu2'] { --tint: var(--hu-2); --mark: var(--hu); --weight: 2px; --style: dotted; }
+[data-heat='hu3'] { --tint: var(--hu-3); --mark: var(--hu); --weight: 2.5px; --style: dotted; }
+[data-heat='hu4'] { --tint: var(--hu-4); --mark: var(--hu); --weight: 3px; --style: dotted; }
 [data-heat='nu0'] { text-decoration-line: none; }

@@ -1,85 +1,86 @@
 import { Button } from '@astryxdesign/core/Button';
 import { SegmentedControl, SegmentedControlItem } from '@astryxdesign/core/SegmentedControl';
+import type { ReactNode } from 'react';
 import { notes } from '../copy';
 import { hrefFor, type Route, type ThemePref } from '../lib/hooks';
 import type { Status } from '../types';
-import { LockIcon, Mark, MoonIcon, SunIcon, SystemIcon } from './Icons';
+import { CardIcon, LensIcon, LockIcon, Mark, MoonIcon, SunIcon, SystemIcon, TargetIcon } from './Icons';
 
-const NAV: { route: Route; label: string }[] = [
-  { route: 'check', label: 'Check text' },
-  { route: 'accuracy', label: 'How accurate is this?' },
-  { route: 'how', label: 'How it works' },
+const NAV: { route: Route; label: string; short: string; icon: ReactNode }[] = [
+  { route: 'check', label: 'Check text', short: 'Check', icon: <LensIcon size={18} /> },
+  { route: 'accuracy', label: 'Accuracy', short: 'Accuracy', icon: <TargetIcon size={18} /> },
+  { route: 'how', label: 'How it works', short: 'How it works', icon: <CardIcon size={18} /> },
 ];
 
-export function Nameplate({
+export function TopBar({
   route,
-  status,
   unlocked,
   pref,
   onPref,
+  canLock,
+  onLock,
 }: {
   route: Route;
-  status: Status | null;
   unlocked: boolean;
   pref: ThemePref;
   onPref: (p: ThemePref) => void;
+  canLock: boolean;
+  onLock: () => void;
 }) {
   return (
-    <header className="nameplate">
-      <div className="nameplate-row">
+    <header className="bar">
+      <div className="bar-inner">
         <a className="brand" href="#/" aria-label="Squint, check text">
-          <Mark />
+          <Mark size={28} />
           <span className="brand-name">Squint</span>
         </a>
-        {unlocked && status && <ModelPlate status={status} />}
-        <div className="nameplate-end">
+        {unlocked && (
+          <nav className="nav nav-top" aria-label="Sections">
+            {NAV.map(item => (
+              <a key={item.route} href={hrefFor(item.route)} className="nav-link" aria-current={route === item.route ? 'page' : undefined}>
+                {item.label}
+              </a>
+            ))}
+          </nav>
+        )}
+        <div className="bar-end">
           <SegmentedControl label="Colour theme" value={pref} onChange={v => onPref(v as ThemePref)} size="sm" className="theme-switch">
             <SegmentedControlItem value="system" label="Match system" isLabelHidden icon={<SystemIcon size={16} />} />
             <SegmentedControlItem value="light" label="Light" isLabelHidden icon={<SunIcon size={16} />} />
             <SegmentedControlItem value="dark" label="Dark" isLabelHidden icon={<MoonIcon size={16} />} />
           </SegmentedControl>
+          {canLock && (
+            <Button label="Lock" variant="ghost" size="sm" icon={<LockIcon size={16} />} className="lock-button" onClick={onLock} />
+          )}
         </div>
       </div>
-      {unlocked && (
-        <nav className="tabs" aria-label="Sections">
-          {NAV.map(item => (
-            <a key={item.route} href={hrefFor(item.route)} className="tab" aria-current={route === item.route ? 'page' : undefined}>
-              {item.label}
-            </a>
-          ))}
-        </nav>
-      )}
     </header>
   );
 }
 
-function ModelPlate({ status }: { status: Status }) {
-  const pair = status.model_pair.observer.replace(/\s*\(.*\)$/, '');
+/** Phones get their own navigation: a pill of three routes in the thumb zone. */
+export function BottomNav({ route }: { route: Route }) {
   return (
-    <p className="plate">
-      <span className="plate-cell">
-        <span className="plate-key">Method</span> Binoculars
-      </span>
-      <span className="plate-cell">
-        <span className="plate-key">Models</span> {pair} pair
-      </span>
-      <span className="plate-cell">
-        <span className="plate-key">Tuned</span> {status.calibration.ready ? status.calibration.version ?? 'yes' : 'not yet'}
-      </span>
-    </p>
+    <nav className="nav-bottom" aria-label="Sections">
+      {NAV.map(item => (
+        <a key={item.route} href={hrefFor(item.route)} className="nav-tab" aria-current={route === item.route ? 'page' : undefined}>
+          {item.icon}
+          <span>{item.short}</span>
+        </a>
+      ))}
+    </nav>
   );
 }
 
-export function Footer({ status, canLock, onLock }: { status: Status | null; canLock: boolean; onLock: () => void }) {
+export function Footer({ status }: { status: Status | null }) {
   return (
     <footer className="footer">
-      <p className="footer-note">{notes.privacy}</p>
+      <p>{notes.privacy}</p>
       {status && (
-        <p className="footer-meta">
-          {status.model_pair.observer} and {status.model_pair.performer}
+        <p className="footer-models">
+          Binoculars on {status.model_pair.observer} and {status.model_pair.performer}
         </p>
       )}
-      {canLock && <Button label="Lock Squint" variant="ghost" size="sm" icon={<LockIcon size={16} />} onClick={onLock} />}
     </footer>
   );
 }

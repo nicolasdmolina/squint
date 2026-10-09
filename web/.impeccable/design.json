@@ -1,0 +1,232 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-10-08T23:53:45.867969+00:00",
+  "title": "Design System: Squint",
+  "extensions": {
+    "colorMeta": {
+      "graphite-ink": {
+        "role": "primary",
+        "displayName": "Graphite Ink",
+        "canonical": "#16191d",
+        "tonalRamp": [
+          "#0b0d0f",
+          "#16191d",
+          "#2a2f35",
+          "#454b53",
+          "#5f666e",
+          "#949da4",
+          "#c9ced2",
+          "#eef1f0"
+        ]
+      },
+      "lens-teal": {
+        "role": "secondary",
+        "displayName": "Lens Teal (AI-like evidence)",
+        "canonical": "#0a6870",
+        "tonalRamp": [
+          "#06393d",
+          "#0a6870",
+          "#2f8f95",
+          "#63c7c6",
+          "#94cdcd",
+          "#b5dddd",
+          "#d3ebeb",
+          "#e9f4f4"
+        ]
+      },
+      "duochrome-rose": {
+        "role": "tertiary",
+        "displayName": "Duochrome Rose (human-like evidence)",
+        "canonical": "#ad2f4f",
+        "tonalRamp": [
+          "#5e1a2b",
+          "#ad2f4f",
+          "#c9566f",
+          "#f291a8",
+          "#eaabbb",
+          "#f2c6d1",
+          "#f8dfe5",
+          "#fcf0f3"
+        ]
+      },
+      "ground": {
+        "role": "neutral",
+        "displayName": "Exam-room Ground",
+        "canonical": "#eef1f0",
+        "tonalRamp": [
+          "#11161a",
+          "#182025",
+          "#273137",
+          "#3b464d",
+          "#b4bcb9",
+          "#dbe0de",
+          "#eef1f0",
+          "#fcfdfc"
+        ]
+      },
+      "card": {
+        "role": "neutral",
+        "displayName": "Card Stock",
+        "canonical": "#fcfdfc"
+      }
+    },
+    "typographyMeta": {
+      "headline": {
+        "displayName": "Headline",
+        "purpose": "One h1 per screen; on a result, the band in words."
+      },
+      "title": {
+        "displayName": "Title",
+        "purpose": "Section titles, the known-gap title, headline numbers."
+      },
+      "body": {
+        "displayName": "Body",
+        "purpose": "Ledes, explanations, prose capped at 64ch."
+      },
+      "label": {
+        "displayName": "Label",
+        "purpose": "Field labels, meter stops, stage names, legend."
+      },
+      "reading": {
+        "displayName": "Reading",
+        "purpose": "The writer's own words in the composer and the marked printout; the lens word at 32px."
+      }
+    },
+    "shadows": [
+      {
+        "name": "shadow-1",
+        "value": "0 1px 2px rgba(20,30,34,0.06)",
+        "purpose": "Resting reading card, gate panel, current nav pill."
+      },
+      {
+        "name": "shadow-2",
+        "value": "0 18px 40px -12px rgba(20,30,34,0.22)",
+        "purpose": "Floating only: the lens, the phone sheet, the bottom nav."
+      }
+    ],
+    "motion": [
+      {
+        "name": "ease",
+        "value": "cubic-bezier(0.22, 1, 0.36, 1)",
+        "purpose": "All state transitions (ease-out)."
+      },
+      {
+        "name": "fast",
+        "value": "160ms",
+        "purpose": "Hover, lens open/close, nav."
+      },
+      {
+        "name": "slow",
+        "value": "220ms",
+        "purpose": "Stage row restyle, meter fill, sheet in."
+      },
+      {
+        "name": "needle",
+        "value": "420ms",
+        "purpose": "The duochrome needle easing to its reading once."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "phone",
+        "value": "720px"
+      },
+      {
+        "name": "stack",
+        "value": "1040px"
+      },
+      {
+        "name": "narrow",
+        "value": "520px"
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "The one main action per view (Check text, Unlock, Check another text).",
+      "html": "<button class=\"ds-btn-primary\">Check text</button>",
+      "css": ".ds-btn-primary{background:#16191d;color:#fcfdfc;border:0;border-radius:10px;padding:0 14px;height:36px;font:500 14px/1 'Archivo Variable',system-ui,sans-serif;cursor:pointer;transition:background-color 160ms cubic-bezier(.22,1,.36,1)}.ds-btn-primary:hover{background:#2a2f35}.ds-btn-primary:focus-visible{outline:2px solid #16191d;outline-offset:2px}"
+    },
+    {
+      "name": "Secondary Button",
+      "kind": "button",
+      "refersTo": "button-secondary",
+      "description": "Outlined graphite on card (Edit this text).",
+      "html": "<button class=\"ds-btn-secondary\">Edit this text</button>",
+      "css": ".ds-btn-secondary{background:#fcfdfc;color:#16191d;border:0;box-shadow:inset 0 0 0 1px #b4bcb9;border-radius:10px;padding:0 14px;height:36px;font:500 14px/1 'Archivo Variable',system-ui,sans-serif;cursor:pointer}.ds-btn-secondary:hover{background:#f1f3f2;box-shadow:inset 0 0 0 1px #454b53}.ds-btn-secondary:focus-visible{outline:2px solid #16191d;outline-offset:2px}"
+    },
+    {
+      "name": "Top navigation",
+      "kind": "nav",
+      "refersTo": "nav",
+      "description": "Pill track of three routes; current route lifted on card.",
+      "html": "<nav class=\"ds-nav\"><a aria-current=\"page\" href=\"#\">Check text</a><a href=\"#\">Accuracy</a><a href=\"#\">How it works</a></nav>",
+      "css": ".ds-nav{display:inline-flex;gap:2px;padding:3px;border-radius:999px;background:#f4f6f5;border:1px solid #dbe0de;font:500 14px 'Archivo Variable',system-ui,sans-serif}.ds-nav a{display:inline-flex;align-items:center;min-height:34px;padding:0 14px;border-radius:999px;color:#454b53;text-decoration:none}.ds-nav a:hover{color:#16191d;background:rgba(22,25,29,.05)}.ds-nav a[aria-current=page]{background:#fcfdfc;color:#16191d;box-shadow:0 1px 2px rgba(20,30,34,.06),inset 0 0 0 1px #dbe0de}.ds-nav a:focus-visible{outline:2px solid #16191d;outline-offset:2px}"
+    },
+    {
+      "name": "Reading card",
+      "kind": "card",
+      "refersTo": "reading-card",
+      "description": "The composer and the marked printout: the writer's words in serif on card stock.",
+      "html": "<div class=\"ds-card\"><div class=\"ds-card-head\"><b>Your text</b><span>214 words</span></div><p>Paste an essay, an email, a cover letter.</p></div>",
+      "css": ".ds-card{background:#fcfdfc;border:1px solid #dbe0de;border-radius:16px;box-shadow:0 1px 2px rgba(20,30,34,.06);padding:16px 24px;max-width:560px}.ds-card-head{display:flex;justify-content:space-between;font:14px 'Archivo Variable',system-ui,sans-serif;color:#5f666e}.ds-card-head b{color:#16191d;font-weight:600}.ds-card p{font:19px/1.65 'Source Serif 4 Variable',Georgia,serif;color:#16191d;margin:12px 0 0}"
+    },
+    {
+      "name": "Heat marks",
+      "kind": "custom",
+      "refersTo": "heat",
+      "description": "Word evidence: teal tint + solid underline for AI-like, rose tint + dotted underline for human-like.",
+      "html": "<p class=\"ds-heat\"><span class=\"ai\">It is important</span> to note that my <span class=\"hu\">aunt kept bees</span> on a fire escape.</p>",
+      "css": ".ds-heat{font:19px/1.8 'Source Serif 4 Variable',Georgia,serif;color:#16191d}.ds-heat span{border-radius:4px;padding:3px 2px;text-decoration-line:underline;text-underline-offset:.26em;text-decoration-skip-ink:none}.ds-heat .ai{background:#b5dddd;text-decoration-color:#0a6870;text-decoration-thickness:2px}.ds-heat .hu{background:#f2c6d1;text-decoration-color:#ad2f4f;text-decoration-style:dotted;text-decoration-thickness:2.5px}"
+    },
+    {
+      "name": "Duochrome scale",
+      "kind": "custom",
+      "refersTo": "duochrome",
+      "description": "Three labelled zones with a graphite needle at the score.",
+      "html": "<div class=\"ds-duo\"><span style=\"width:42%\" class=\"z ai\">Likely AI</span><span style=\"width:16%\" class=\"z mid here\">Uncertain</span><span style=\"width:42%\" class=\"z hu\">Likely human</span><i style=\"left:50%\"></i></div>",
+      "css": ".ds-duo{position:relative;display:flex;height:44px;max-width:560px;border-radius:10px;font:500 14px 'Archivo Variable',system-ui,sans-serif;color:#16191d}.ds-duo .z{display:flex;align-items:center;justify-content:center}.ds-duo .ai{background:#d3ebeb;border-radius:10px 0 0 10px}.ds-duo .mid{background:#e6e9e8}.ds-duo .hu{background:#f8dfe5;border-radius:0 10px 10px 0}.ds-duo .here{box-shadow:inset 0 0 0 2px #16191d}.ds-duo i{position:absolute;top:-6px;bottom:-6px;width:3px;margin-left:-1.5px;background:#16191d;box-shadow:0 0 0 2px #fcfdfc;border-radius:2px}"
+    }
+  ],
+  "narrative": {
+    "northStar": "The optician's reading card",
+    "overview": "Squint reads text the way an optician reads eyes: one card held at reading distance, a two-sided duochrome comparison where neither side is the bad side, and a lens for looking closer. Graphite carries every control; colour appears only where there is evidence. It refuses the detector default of a red percentage gauge and an alarm highlighter over a white SaaS card.",
+    "keyCharacteristics": [
+      "One reading card per view",
+      "Teal/rose duochrome only on evidence, always with a non-colour cue",
+      "Graphite controls; errors in ink, never red",
+      "Archivo for Squint, Source Serif 4 for the writer",
+      "One moving element per view"
+    ],
+    "rules": [
+      {
+        "name": "The Evidence-Only Rule",
+        "body": "Teal and rose never touch a control, heading or error.",
+        "section": "colors"
+      },
+      {
+        "name": "The Two-Cues Rule",
+        "body": "Every colour meaning repeats without colour: solid vs dotted underline, stripes, labels.",
+        "section": "colors"
+      },
+      {
+        "name": "The Two Voices Rule",
+        "body": "Archivo for the interface, Source Serif for the person. No caps, mono or eyebrows.",
+        "section": "typography"
+      }
+    ],
+    "dos": [
+      "Do put the ChatGPT gap beside every verdict and atop Accuracy",
+      "Do cap h1 at 28px (24px phone)",
+      "Do render only what /api/accuracy returns"
+    ],
+    "donts": [
+      "Don't use red or amber for errors or for AI",
+      "Don't add uppercase eyebrows, mono numerals or card grids",
+      "Don't animate more than one element per view"
+    ]
+  }
+}

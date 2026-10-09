@@ -1,0 +1,112 @@
+{
+  "title": "Choose the visual world",
+  "question": "The roll assigned the Optician's Reading Card. Keep it, take an alternate, or re-roll.",
+  "options": [
+    {
+      "id": "assigned",
+      "label": "Optician's Reading Card",
+      "kicker": "THE ROLL",
+      "lineage": "near-vision reading cards and the duochrome test",
+      "thesis": "Squint reads your text the way an optician reads your eyes: one card, two sides, no blame.",
+      "palette": ["#f7f8f6", "#16191d", "#c23b61", "#0b6f78", "#e7e9e6"],
+      "materials": ["matte card stock", "duochrome split field", "round loupe lens"],
+      "viewport": "Top bar with three real routes; one wide reading card holding the text; a duochrome scale with the score needle above the marked text after a run.",
+      "risk": "Brand pun risk: the optician world has to stay functional, not decorative.",
+      "raised": [
+        {"from": "variable-font-specimen", "raise": "The word lens shows the selected word at specimen scale with its ranked guesses beneath."},
+        {"from": "vernacular-ephemera-boarding-pass-and-gate-board", "raise": "Queue and warm-up rows restyle in place and stay lit until the next stage lands."},
+        {"from": "design-annual-s-plate-section", "raise": "One grotesque carries display and caption alike; the near-white ground is tinted, never pure."}
+      ],
+      "comp": ".impeccable/mocks/decision/assigned.webp"
+    },
+    {
+      "id": "model-pick",
+      "label": "Highlighter on a photocopy",
+      "kicker": "IMPECCABLE’S PICK",
+      "lineage": "study-desk highlighting",
+      "thesis": "The essay as a photocopy, marked up in two highlighter inks.",
+      "palette": ["#fbfbf8", "#1a1a1a", "#f5e663", "#9ad1f5"],
+      "materials": ["photocopy toner", "highlighter ink"],
+      "viewport": "One sheet of text with marks; verdict above.",
+      "risk": "The most familiar AI-detector look; yellow highlight reads as accusation.",
+      "comp": ".impeccable/mocks/decision/model-pick.webp"
+    },
+    {
+      "id": "challenger-variable-font-specimen",
+      "label": "Variable font specimen",
+      "verdict": "declined",
+      "lineage": "foundry specimen sites",
+      "palette": ["#fafafa", "#111111"],
+      "materials": ["glyph grid", "axis slider"],
+      "case": "Fuses poorly: words are not glyphs to be morphed; legibility of the user's text must not vary.",
+      "kept": "Specimen-scale display of a single selected word.",
+      "hero": "https://impeccable.style/worlds/cards/variable-font-specimen-hero.webp"
+    },
+    {
+      "id": "challenger-design-annual-s-plate-section",
+      "label": "Design annual plate section",
+      "verdict": "declined",
+      "lineage": "design annuals",
+      "palette": ["#f5f4f6", "#16181a", "#dcddf3"],
+      "materials": ["uncoated stock", "registration marks"],
+      "case": "Fuses poorly: editorial-hairline-mono is a calibration trap and adds furniture to a tool.",
+      "kept": "One grotesque throughout; tinted near-white ground.",
+      "hero": "https://impeccable.style/worlds/cards/design-annual-s-plate-section-hero.webp"
+    },
+    {
+      "id": "challenger-pop-culture-shelf-streaming-title-card-wall",
+      "label": "Streaming title wall",
+      "verdict": "declined",
+      "lineage": "streaming catalogs",
+      "palette": ["#111111", "#e50914"],
+      "materials": ["poster tiles"],
+      "case": "Fuses poorly: Squint has one document, not a catalog.",
+      "kept": "Focus expands one item while the rest dims.",
+      "hero": "https://impeccable.style/worlds/cards/pop-culture-shelf-streaming-title-card-wall-hero.webp"
+    },
+    {
+      "id": "challenger-vernacular-ephemera-boarding-pass-and-gate-board",
+      "label": "Boarding pass and gate board",
+      "verdict": "competitive",
+      "lineage": "airport gate boards",
+      "palette": ["#ffffff", "#111111", "#ffb000"],
+      "materials": ["segmented pass", "gate board rows"],
+      "case": "Holds clarity for queue state; loses audience identification for the verdict and heat view.",
+      "kept": "State restyles a row in place and stays lit until noticed.",
+      "hero": "https://impeccable.style/worlds/cards/vernacular-ephemera-boarding-pass-and-gate-board-hero.webp"
+    },
+    {
+      "id": "challenger-brand-identity-canon-saville-catalog-sleeve",
+      "label": "Factory catalog sleeve",
+      "verdict": "declined",
+      "lineage": "Factory Records identity",
+      "palette": ["#0b0b0b", "#ffffff"],
+      "materials": ["matte black", "pulse plot"],
+      "case": "Fuses poorly: coded colour strips hide meaning the user needs in plain words.",
+      "kept": "One plot owns the field.",
+      "hero": "https://impeccable.style/worlds/cards/brand-identity-canon-saville-catalog-sleeve-hero.webp"
+    },
+    {
+      "id": "challenger-notation-diagram-systems-star-atlas",
+      "label": "Star atlas",
+      "verdict": "declined",
+      "lineage": "celestial charts",
+      "palette": ["#0d1a33", "#f2f2f2", "#d9472b"],
+      "materials": ["chart ground", "magnitude dots"],
+      "case": "Fuses poorly: dark-navy chart ground fights long-form reading.",
+      "kept": "Importance carried by mark size on a fixed ramp.",
+      "hero": "https://impeccable.style/worlds/cards/notation-diagram-systems-star-atlas-hero.webp"
+    }
+  ],
+  "reroll": {"registers": ["safer", "bolder"]},
+  "canon": true,
+  "canonCard": {
+    "label": "The category standard",
+    "thesis": "A white SaaS checker with a big percentage gauge, executed well.",
+    "palette": ["#ffffff", "#111827", "#2563eb"],
+    "materials": ["clean grid", "gauge"],
+    "viewport": "Text box left, percentage gauge right.",
+    "risk": "Indistinguishable from every detector; the gauge overstates certainty."
+  },
+  "steer": true
+}

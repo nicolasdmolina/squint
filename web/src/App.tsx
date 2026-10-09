@@ -2,7 +2,7 @@ import { Button } from '@astryxdesign/core/Button';
 import { Theme } from '@astryxdesign/core/theme';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { api, onAuthRequired } from './api';
-import { Footer, Nameplate } from './components/Chrome';
+import { BottomNav, Footer, TopBar } from './components/Chrome';
 import { useHashRoute, useThemePref } from './lib/hooks';
 import { Accuracy } from './screens/Accuracy';
 import { Checker } from './screens/Checker';
@@ -11,7 +11,7 @@ import { Login } from './screens/Login';
 import { squintTheme } from './theme';
 import type { Session, Status } from './types';
 
-const TITLES = { check: 'Squint', accuracy: 'How accurate is this? · Squint', how: 'How it works · Squint' };
+const TITLES = { check: 'Squint', accuracy: 'Accuracy · Squint', how: 'How it works · Squint' };
 
 export function App() {
   const route = useHashRoute();
@@ -72,11 +72,18 @@ export function App() {
 
   return (
     <Theme theme={squintTheme} mode={pref}>
-      <div className="app">
+      <div className={`app${unlocked ? ' is-unlocked' : ''}`}>
         <button type="button" className="skip" onClick={() => mainRef.current?.focus()}>
           Skip to content
         </button>
-        <Nameplate route={route} status={status} unlocked={unlocked} pref={pref} onPref={setPref} />
+        <TopBar
+          route={route}
+          unlocked={unlocked}
+          pref={pref}
+          onPref={setPref}
+          canLock={!!session?.password_required && unlocked}
+          onLock={lock}
+        />
         <main id="main" ref={mainRef} tabIndex={-1} className="main">
           {!session && (bootFailed ? <BootFailed onRetry={loadSession} /> : <Booting />)}
           {session && !unlocked && (
@@ -96,7 +103,8 @@ export function App() {
           {unlocked && route === 'accuracy' && <Accuracy status={status} />}
           {unlocked && route === 'how' && <HowItWorks status={status} />}
         </main>
-        <Footer status={status} canLock={!!session?.password_required && unlocked} onLock={lock} />
+        {unlocked && <Footer status={status} />}
+        {unlocked && <BottomNav route={route} />}
       </div>
     </Theme>
   );

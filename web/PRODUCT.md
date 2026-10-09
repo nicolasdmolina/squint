@@ -61,6 +61,10 @@ public inside the app.
 - Rate limited (30 checks per hour by default).
 - Both the band and the percentage are shown (Nicky's explicit choice).
 - Undecided: public launch, final accuracy numbers.
+- Known gap (docs/known-gaps.md, 2026-10-08): Binoculars on the Falcon pair mostly misses
+  ChatGPT writing (1 of 12 caught in a spot check at the ≤1% false-flag setting); Claude text
+  separates well; Gemini is untested. The UI states this near every verdict and on the
+  accuracy page, and a "Likely human" reading must never read as clearing a text.
 
 ## Brand Commitments
 
@@ -86,7 +90,7 @@ public inside the app.
 
 ## Accessibility & Inclusion
 
-- WCAG 2.1 AA. The heat map must never rely on colour alone (colour-blind-safe diverging
+- WCAG 2.2 AA. The heat map must never rely on colour alone (colour-blind-safe diverging
   palette plus a non-colour channel and a text summary).
 - Every word's details are reachable by keyboard, not only on hover.
 - Non-native English writers are a named group in the accuracy report; copy must not imply

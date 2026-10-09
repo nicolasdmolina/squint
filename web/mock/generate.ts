@@ -563,13 +563,14 @@ export const MOCK_ACCURACY: Accuracy = {
   held_out: { human: 420, ai: 450 },
   false_flag_rate: { overall: 0.008, non_native: 0.009, by_length: { '20-49': 0, '50-149': 0.006, '150+': 0.01 } },
   catch_rate: {
-    overall: 0.83,
-    by_source: { chatgpt: 0.86, claude: 0.79, gemini: 0.84 },
+    overall: 0.52,
+    // Mirrors the known gap in docs/known-gaps.md: ChatGPT mostly missed, Gemini untested (absent).
+    by_source: { claude: 0.91, chatgpt: 0.083 },
     by_length: { '20-49': 0.2, '50-149': 0.61, '150+': 0.9 },
   },
   uncertain_rate: { human: 0.12, ai: 0.1 },
   notes: [
-    'Development mock: these are placeholder numbers copied from the API contract example, not a calibration run.',
+    'Development mock: placeholder numbers shaped like the known ChatGPT gap, not a calibration run.',
     'Edited or paraphrased AI text was not tested; expect misses there.',
   ],
 };

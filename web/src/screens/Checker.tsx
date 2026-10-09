@@ -1,12 +1,12 @@
 import { Button } from '@astryxdesign/core/Button';
 import { useEffect, useMemo, useRef, useState, type ChangeEvent, type DragEvent, type KeyboardEvent } from 'react';
 import { api, ApiError } from '../api';
-import { CapacityRule } from '../components/CapacityRule';
 import { Evidence } from '../components/Evidence';
-import { AlertIcon, FileIcon, InfoIcon, RedoIcon, UploadIcon } from '../components/Icons';
+import { AlertIcon, CloseIcon, FileIcon, InfoIcon, RedoIcon, UploadIcon } from '../components/Icons';
+import { LengthMeter } from '../components/LengthMeter';
 import { Readout } from '../components/Readout';
 import { StageRows, type Progress } from '../components/StageRows';
-import { describeError, lengthGuide, LIMITS_FALLBACK, type UiError } from '../copy';
+import { describeError, gap, lengthGuide, LIMITS_FALLBACK, notes, type UiError } from '../copy';
 import { countWords, fmtInt, words } from '../lib/format';
 import { reflowPdfText } from '../lib/reflow';
 import { useMedia } from '../lib/hooks';
@@ -74,6 +74,12 @@ export function Checker({ status, onChecked }: { status: Status | null; onChecke
       titleRef.current?.scrollIntoView({ block: 'start' });
     }
   }, [run.kind]);
+
+  // Keep progress and errors in view: on short screens they land below the composer.
+  useEffect(() => {
+    const id = inputError || run.kind === 'failed' ? 'sample-error' : run.kind === 'running' ? 'check-progress' : null;
+    if (id) document.getElementById(id)?.scrollIntoView({ block: 'nearest' });
+  }, [inputError, run.kind]);
 
   const edit = (value: string) => {
     if (running) return;
@@ -213,19 +219,9 @@ export function Checker({ status, onChecked }: { status: Status | null; onChecke
   };
 
   if (run.kind === 'done') {
-    const t = run.result.timing_ms;
-    const secs = (t.queue + t.load + t.score) / 1000;
     return (
       <div className="screen checker is-done">
-        <header className="screen-head">
-          <h1 id="checker-title" ref={titleRef} tabIndex={-1}>
-            The reading
-          </h1>
-          <p className="screen-meta">
-            {words(run.result.word_count)}, checked in {secs < 10 ? secs.toFixed(1) : Math.round(secs)} seconds.
-          </p>
-        </header>
-        <Readout result={run.result} percentMin={limits.percent_min_words} onAnother={startOver} onEdit={backToEdit} />
+        <Readout result={run.result} percentMin={limits.percent_min_words} titleRef={titleRef} onAnother={startOver} onEdit={backToEdit} />
         <Evidence result={run.result} text={run.text} />
         <div className="end-actions">
           <Button label="Check another text" variant="primary" onClick={startOver} />
@@ -236,140 +232,160 @@ export function Checker({ status, onChecked }: { status: Status | null; onChecke
   }
 
   const error = inputError ?? (run.kind === 'failed' ? run.error : null);
-  const wellState = running ? 'running' : dropping ? 'drop' : error ? 'error' : guide.tone;
+  const state = running ? 'running' : dropping ? 'drop' : error ? 'error' : guide.tone;
+  const restore = () => {
+    setText(upload.undo ?? '');
+    setUpload({ busy: false, note: 'Your earlier text is back.', undo: null });
+    areaRef.current?.focus();
+  };
 
   return (
     <div className="screen checker">
-      <header className="screen-head">
-        <h1 id="checker-title" ref={titleRef} tabIndex={-1}>
-          Squint at a piece of writing
-        </h1>
-        <p className="lede">
-          Paste some writing and Squint shows how predictable each word was to a pair of language models. AI writing tends to be
-          more predictable than people are. You get a reading, and the evidence behind it.
-        </p>
-      </header>
+      <div className="check-layout">
+        <div className="check-main">
+          <header className="screen-head">
+            <h1 id="checker-title" ref={titleRef} tabIndex={-1}>
+              Check a piece of writing
+            </h1>
+            <p className="lede">
+              Paste it in and Squint reads it with two language models, word by word. You get a reading and the evidence behind
+              it, never a ruling.
+            </p>
+          </header>
 
-      {status && !calibrated && (
-        <p className="notice">
-          <InfoIcon size={18} />
-          <span>
-            <strong>Squint isn&rsquo;t tuned yet.</strong> You&rsquo;ll see the word-by-word evidence, but no verdict or
-            AI-written share until it&rsquo;s been tested on known writing.
-          </span>
-        </p>
-      )}
+          {status && !calibrated && (
+            <p className="notice">
+              <InfoIcon size={18} />
+              <span>
+                <strong>Squint isn&rsquo;t tuned yet.</strong> You&rsquo;ll see the word-by-word evidence, but no verdict or
+                AI-written share until it&rsquo;s been tested on writing whose source is known.
+              </span>
+            </p>
+          )}
 
-      <div
-        className="well"
-        data-state={wellState}
-        onDragEnter={e => onDrag(e, true)}
-        onDragOver={e => onDrag(e, true)}
-        onDragLeave={e => {
-          if (!e.currentTarget.contains(e.relatedTarget as Node | null)) onDrag(e, false);
-        }}
-        onDrop={e => {
-          if (!Array.from(e.dataTransfer.types).includes('Files')) return;
-          e.preventDefault();
-          setDropping(false);
-          void takeFile(e.dataTransfer.files[0]);
-        }}
-      >
-        <div className="well-head">
-          <label className="well-label" htmlFor="sample">
-            Your text
-          </label>
-          <span className="well-count" aria-live="off">
-            <b>{fmtInt(n)}</b> {n === 1 ? 'word' : 'words'}
-          </span>
-          <Button
-            label={upload.busy ? 'Reading the file' : 'Upload a file'}
-            variant="ghost"
-            size="sm"
-            icon={<UploadIcon size={16} />}
-            isLoading={upload.busy}
-            isDisabled={running}
-            className="well-upload"
-            onClick={() => fileRef.current?.click()}
-          />
-          <input ref={fileRef} type="file" accept={ACCEPT} className="sr-only" tabIndex={-1} aria-hidden="true" onChange={onFile} />
-        </div>
-        {/* A native textarea: Astryx's TextArea replaces id, aria-describedby, aria-invalid and readOnly with its own. */}
-        <textarea
-          ref={areaRef}
-          id="sample"
-          className="well-input"
-          value={text}
-          onChange={e => edit(e.target.value)}
-          onKeyDown={onKey}
-          rows={12}
-          placeholder="Paste an essay, an email, a cover letter: anything someone wrote, or says they wrote."
-          spellCheck={false}
-          readOnly={running}
-          aria-describedby="sample-guide sample-error"
-          aria-invalid={error && (error.code === 'too_short' || error.code === 'too_long') ? true : undefined}
-        />
-        {dropping && (
-          <div className="well-drop" aria-hidden="true">
-            <FileIcon size={20} />
-            Drop a .docx, .pdf or .txt file to load its text
-          </div>
-        )}
-        <CapacityRule n={n} limits={limits} />
-        <p id="sample-guide" className="guide" data-tone={guide.tone}>
-          {guide.text}
-        </p>
-        {upload.note && (
-          <p className="file-note">
-            <FileIcon size={16} />
-            <span>{upload.note}</span>
-            {upload.undo != null && (
-              <button
-                type="button"
-                className="link-button"
-                onClick={() => {
-                  setText(upload.undo ?? '');
-                  setUpload({ busy: false, note: 'Your earlier text is back.', undo: null });
-                  areaRef.current?.focus();
-                }}
-              >
-                Undo
-              </button>
+          <div
+            className="composer"
+            data-state={state}
+            onDragEnter={e => onDrag(e, true)}
+            onDragOver={e => onDrag(e, true)}
+            onDragLeave={e => {
+              if (!e.currentTarget.contains(e.relatedTarget as Node | null)) onDrag(e, false);
+            }}
+            onDrop={e => {
+              if (!Array.from(e.dataTransfer.types).includes('Files')) return;
+              e.preventDefault();
+              setDropping(false);
+              void takeFile(e.dataTransfer.files[0]);
+            }}
+          >
+            <div className="composer-head">
+              <label className="composer-label" htmlFor="sample">
+                Your text
+              </label>
+              <span className="composer-count" aria-live="off">
+                {fmtInt(n)} {n === 1 ? 'word' : 'words'}
+              </span>
+            </div>
+            {/* A native textarea: Astryx's TextArea replaces id, aria-describedby, aria-invalid and readOnly with its own. */}
+            <textarea
+              ref={areaRef}
+              id="sample"
+              className="composer-input"
+              value={text}
+              onChange={e => edit(e.target.value)}
+              onKeyDown={onKey}
+              rows={12}
+              placeholder="Paste an essay, an email, a cover letter: anything someone wrote, or says they wrote."
+              spellCheck={false}
+              readOnly={running}
+              aria-describedby="sample-guide sample-error"
+              aria-invalid={error && (error.code === 'too_short' || error.code === 'too_long') ? true : undefined}
+            />
+            {dropping && (
+              <div className="composer-drop" aria-hidden="true">
+                <FileIcon size={22} />
+                Drop a .docx, .pdf or .txt file to load its text
+              </div>
             )}
-          </p>
-        )}
-      </div>
+            {upload.note && (
+              <div className="file-chip">
+                <FileIcon size={16} />
+                <span className="file-chip-text">{upload.note}</span>
+                {upload.undo != null && (
+                  <button type="button" className="text-button" onClick={restore}>
+                    Undo
+                  </button>
+                )}
+                <button
+                  type="button"
+                  className="icon-button"
+                  aria-label="Dismiss file note"
+                  onClick={() => setUpload(u => ({ ...u, note: null, undo: null }))}
+                >
+                  <CloseIcon size={14} />
+                </button>
+              </div>
+            )}
+            <div className="composer-foot">
+              <Button
+                label={upload.busy ? 'Reading the file' : 'Upload a file'}
+                variant="ghost"
+                size="sm"
+                icon={<UploadIcon size={16} />}
+                isLoading={upload.busy}
+                isDisabled={running}
+                onClick={() => fileRef.current?.click()}
+              />
+              <input ref={fileRef} type="file" accept={ACCEPT} className="sr-only" tabIndex={-1} aria-hidden="true" onChange={onFile} />
+              <span className="composer-types">.docx, .pdf or .txt</span>
+              {fine && !running && (
+                <span className="shortcut" aria-hidden="true">
+                  <kbd>{isMac ? '⌘' : 'Ctrl'}</kbd>
+                  <kbd>Enter</kbd>
+                </span>
+              )}
+              <Button
+                label={running ? 'Checking' : run.kind === 'failed' && run.error.retry ? 'Try again' : 'Check text'}
+                variant="primary"
+                isLoading={running}
+                isDisabled={upload.busy || running}
+                onClick={() => void submit()}
+              />
+            </div>
+          </div>
 
-      <div id="sample-error" className="error-slot" role="alert">
-        {error && (
-          <div className="form-error">
-            <AlertIcon size={18} />
-            <p>
-              <strong>{error.title}</strong> {error.body}
+          <div className="length">
+            <LengthMeter n={n} limits={limits} />
+            <p id="sample-guide" className="guide" data-tone={guide.tone}>
+              {guide.text}
             </p>
           </div>
-        )}
-      </div>
 
-      {running ? (
-        <StageRows p={run.progress} />
-      ) : (
-        <div className="check-bar">
-          <Button
-            label={run.kind === 'failed' && run.error.retry ? 'Try again' : 'Check this text'}
-            variant="primary"
-            isDisabled={upload.busy}
-            onClick={() => void submit()}
-          />
-          {fine && (
-            <span className="shortcut" aria-hidden="true">
-              <kbd>{isMac ? 'Cmd' : 'Ctrl'}</kbd>
-              <kbd>Enter</kbd>
-            </span>
-          )}
-          <ModelNote status={status} />
+          <div id="sample-error" className="error-slot" role="alert">
+            {error && (
+              <div className="form-error">
+                <AlertIcon size={18} />
+                <p>
+                  <strong>{error.title}</strong> {error.body}
+                </p>
+              </div>
+            )}
+          </div>
+
+          {running ? <StageRows p={run.progress} /> : <ModelNote status={status} />}
         </div>
-      )}
+
+        <aside className="check-aside" aria-label="Before you check">
+          <div className="aside-item">
+            <h2 className="aside-title">One clue, not a verdict</h2>
+            <p>{notes.evidence}</p>
+          </div>
+          <div className="aside-item">
+            <h2 className="aside-title">{gap.title}</h2>
+            <p>{gap.body}</p>
+          </div>
+        </aside>
+      </div>
 
       <p className="sr-only" role="status" aria-live="polite">
         {announce}
@@ -386,5 +402,10 @@ function ModelNote({ status }: { status: Status | null }) {
   if (status.model_state !== 'ready') parts.push('The models are asleep, so the first check takes about 20 seconds longer.');
   if (q > 0) parts.push(`${q} ${q === 1 ? 'check is' : 'checks are'} already in line.`);
   if (!parts.length) parts.push('The models are awake, so there’s no warm-up wait.');
-  return <span className="model-note">{parts.join(' ')}</span>;
+  return (
+    <p className="model-note" data-state={status.model_state === 'ready' && q === 0 ? 'ready' : 'wait'}>
+      <span className="model-dot" aria-hidden="true" />
+      {parts.join(' ')}
+    </p>
+  );
 }
