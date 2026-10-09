@@ -10,6 +10,8 @@ human and 577 AI heldout samples:
 - ChatGPT: **0 of 288** caught. Claude: **32 of 289** (11%).
 - By length, AI text was caught 0% at 20–49 words, 1% at 50–149 and 18% at 150+.
 - 95% of human and 90% of AI samples land in "Uncertain".
+- On 100 human essays from four sources never used for tuning (college essays, CS224N
+  abstracts, Hewlett student essays, Ghostbuster essays): **0 wrongly flagged**, 83 Uncertain.
 
 The 60-text spot check below was more optimistic about Claude. The full run replaces it.
 Binoculars on a 4-bit Falcon pair can't separate 2026 frontier-model writing from human
