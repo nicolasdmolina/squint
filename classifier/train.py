@@ -110,6 +110,9 @@ def main() -> int:
     ap.add_argument("--weight-decay", type=float, default=tc["weight_decay"])
     ap.add_argument("--warmup-frac", type=float, default=tc["warmup_frac"])
     ap.add_argument("--checkpoint-every", type=int, default=tc["checkpoint_every"])
+    ap.add_argument("--gradient-checkpointing", action=argparse.BooleanOptionalAction,
+                    default=tc.get("gradient_checkpointing", False),
+                    help="recompute activations in backward: less memory, and faster on a swapping 16 GB mini")
     ap.add_argument("--max-steps", type=int, default=None, help="cap on optimizer steps (smoke tests)")
     ap.add_argument("--amp", default=tc["amp"], choices=["auto", "bf16", "fp16", "none"])
     ap.add_argument("--device", default="auto")
@@ -197,6 +200,8 @@ def main() -> int:
         write_json(run_json, run)
     amp = run.get("amp_used", amp)
     model.to(device)
+    if s.get("gradient_checkpointing"):
+        model.gradient_checkpointing_enable()
 
     # ---- chunks, schedule, optimizer -------------------------------------------------------
     chunks, labels, row_of = [], [], []
@@ -253,7 +258,7 @@ def main() -> int:
             scheduler.step()
             optimizer.zero_grad(set_to_none=True)
             opt_step += 1
-            if opt_step % 20 == 0 or opt_step == total_steps:
+            if opt_step % 5 == 0 or opt_step == total_steps:
                 mem = torch.mps.driver_allocated_memory() / 1e9 if device.type == "mps" else None
                 log(run_dir, {"step": opt_step, "of": total_steps, "loss": round(loss_acc / n_acc, 4),
                               "lr": scheduler.get_last_lr()[0],
