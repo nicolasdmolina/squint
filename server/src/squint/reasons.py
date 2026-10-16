@@ -28,7 +28,7 @@ def classifier_explanation(band: str, cfg: dict, bucket: str, low_confidence: bo
         short = _share(((cfg.get("by_length") or {}).get("20-49") or {}).get("false_flag"))
         text = f"Squint needs at least {int(cfg['min_words'])} words to give a verdict."
         if short and short != "none":
-            text += f" On shorter snippets its detector wrongly flagged about {short} of human writers in testing, which is too many."
+            text += f" On shorter snippets its detector wrongly flagged about {short} of human texts in testing, which is too many."
         return text
     if band == "likely_ai":
         text = "Squint's detector, trained on human writing and on text from ChatGPT and Claude, says this reads like AI writing."

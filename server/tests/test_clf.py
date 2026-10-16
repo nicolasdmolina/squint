@@ -260,3 +260,24 @@ def test_accuracy_includes_classifier_numbers(settings):
         assert r["classifier"]["min_words"] == 50
         assert r["classifier"]["by_length"]["150+"]["false_flag"] == 0.0
         assert "path" not in r["classifier"]
+
+
+def test_classifier_loads_before_the_pair(settings):
+    order = []
+
+    class Clf(FakeClassifier):
+        def load(self):
+            order.append("classifier")
+            super().load()
+
+    class Pair(FakeBackend):
+        def load(self):
+            order.append("pair")
+            super().load()
+
+    (settings.calibration_dir / "classifier.json").write_text(json.dumps(clf_cfg()))
+    app = create_app(settings, backend_factory=Pair, tokenizer=FakeTokenizer(), password=None,
+                     job_tick_s=0.02, classifier_factory=lambda c: Clf())
+    with TestClient(app) as c:
+        assert _run(c, words(200, "robot"))["result"]["verdict"]["band"] == "likely_ai"
+    assert order == ["classifier", "pair"]

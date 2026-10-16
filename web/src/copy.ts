@@ -42,7 +42,7 @@ export const stage = {
   warmup: {
     name: 'Warm-up',
     pending: 'Only needed if the models are asleep',
-    active: 'Warming up the models. The first check after a break takes about 20 seconds.',
+    active: 'Warming up the models. The first check after a break takes about half a minute.',
     done: 'Models ready',
     skipped: 'Models were already warm',
   },

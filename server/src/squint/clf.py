@@ -56,7 +56,7 @@ def weighted_mean(values: list[float], weights: list[float]) -> float:
 class AiClassifier:
     """Loaded on the first check, unloaded together with the Binoculars pair."""
 
-    def __init__(self, model_dir: Path, max_length: int, max_chunks: int, batch_size: int = 8):
+    def __init__(self, model_dir: Path, max_length: int, max_chunks: int, batch_size: int = 4):
         self.model_dir = Path(model_dir)
         self.max_length = max_length
         self.max_chunks = max_chunks
@@ -98,7 +98,9 @@ class AiClassifier:
         raise RuntimeError("cannot work out the tokenizer's special-token template")
 
     def predict(self, texts: list[str]) -> list[float]:
-        """P(AI) per text, on the CPU (the GPU belongs to the Binoculars pair)."""
+        """P(AI) per text, on the CPU (the GPU belongs to the Binoculars pair). bf16 would halve
+        the weights but runs many times slower on the M4's CPU, so it stays fp32. Batches of 4
+        chunks were faster and lighter than 8 on a 2,500-word check (2.3 s, ~600 MB peak)."""
         import torch
 
         if self._model is None:

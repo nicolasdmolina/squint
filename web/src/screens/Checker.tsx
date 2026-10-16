@@ -401,7 +401,7 @@ function ModelNote({ status }: { status: Status | null }) {
   if (!status) return null;
   const q = status.queue_length;
   const parts: string[] = [];
-  if (status.model_state !== 'ready') parts.push('The models are asleep, so the first check takes about 20 seconds longer.');
+  if (status.model_state !== 'ready') parts.push('The models are asleep, so the first check takes about half a minute longer.');
   if (q > 0) parts.push(`${q} ${q === 1 ? 'check is' : 'checks are'} already in line.`);
   if (!parts.length) parts.push('The models are awake, so there’s no warm-up wait.');
   return (

@@ -152,7 +152,13 @@ class Services:
         self.extract_slot = threading.Lock()  # one file extraction at a time, server-wide
         self.login_limiter = SlidingWindowLimiter(settings.login_max_failures, settings.login_window_s)
         self.login_global = SlidingWindowLimiter(settings.login_global_max_failures, settings.login_global_window_s)
-        factory = backend_factory or (lambda: LlamaCppPair(self.profile))
+        pair_factory = backend_factory or (lambda: LlamaCppPair(self.profile))
+
+        def factory():
+            # load the classifier first, while memory is still free; the pair takes ~10 GB
+            self.classifier.get(self.calibration.current().classifier)
+            return pair_factory()
+
         self.manager = ModelManager(factory, settings.idle_unload_s)
         self.classifier = ClassifierHolder(REPO_DIR, classifier_factory)
         self.manager.on_unload = self.classifier.unload
