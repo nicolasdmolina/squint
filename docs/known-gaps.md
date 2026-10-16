@@ -14,12 +14,21 @@ server's CPU path with identical counts:
 - Under 50 words the classifier wrongly flagged 2.9% of human texts, so Squint shows
   "Too short to tell" there.
 
+Fresh re-check (2026-10-16, `classifier/reports/2026-10-16-fresh-check.md`), on sources and
+prompts never used before: **0 of 1,000** pre-ChatGPT human texts flagged (0 of 600 learner
+essays from W&I); current ChatGPT caught 74 of 75 and Claude 107 of 120 on fresh prompts.
+
 Gaps that remain:
+
+- **Older and other models.** ChatGPT answers from December 2022 (HC3) were caught 1 of 350
+  times. The classifier recognises the current ChatGPT and Claude, not AI writing in general.
+- **Claude imitating a learner.** Asked to write like a B1 English learner, Claude was called
+  "Likely human" 6 of 20 times.
 
 - **Claude in short texts.** About 1 in 8 Claude texts of 50–149 words is called "Likely human".
 - **Selection bias.** The 50-word minimum was chosen after seeing the evaluation results, and
-  the evaluation sets were reused across runs. A fresh set of human essays is needed for an
-  honest re-check before public launch.
+  the evaluation sets were reused across runs. The fresh re-check above eases this, but its AI
+  side is small (195 texts).
 - **Untested:** Gemini, edited or paraphrased AI text, and new model versions released after
   the training data was generated.
 - Combining the classifier with Binoculars (flag if either says AI) was worse: 0.8% false flags

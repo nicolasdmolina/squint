@@ -31,8 +31,9 @@ accuracy report and Nicky's OK.
   94% at 150+). Binoculars alone missed nearly all current AI text, which is why the trained
   classifier now gives the verdict. See [`docs/known-gaps.md`](docs/known-gaps.md).
 - **Edited or paraphrased AI text** has not been tested.
-- The 50-word minimum was chosen after looking at the evaluation results, and the evaluation
-  sets were reused across runs, so a fresh test set would give a more honest number.
+- **Older or other AI models** are mostly missed: 2022-era ChatGPT answers got through almost
+  every time. A fresh re-check on new sources matched the main results for current ChatGPT
+  and Claude, with 0 of 1,000 new human texts flagged.
 - **Gemini is untested.** Its samples have not been generated yet.
 
 ## Layout
