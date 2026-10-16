@@ -19,6 +19,9 @@ where the last one stopped and finished pieces stay joined to their plan item. I
               calibration leads that the calibration plan did not use
   student     "write it the way a real grade-N student would" on PERSUADE and ELLIPSE topics
   nonnative   "write as an English learner" on PERSUADE topics and TOEFL questions
+  learner     "write as a CEFR A2/B1/B2 learner whose first language is X" on PERSUADE and ELLIPSE
+              topics, varied in task type; added 2026-10-16 because Claude imitating a B1 learner
+              got past the classifier about a third of the time (reports/2026-10-16-fresh-check.md)
   casual      quick casual replies (forum comment / message register)
   paraphrase  an existing AI piece, paraphrased or "humanized" (rewritten to sound human);
               it keeps its origin's group, so it always lands in the origin's split
@@ -172,6 +175,43 @@ def student_items(gen: str, cal_human: list[dict]) -> list[dict]:
     return out
 
 
+LEVELS = (
+    ("A2", "short simple sentences, a small vocabulary, frequent grammar mistakes (verb forms, articles, "
+           "plurals) and some spelling mistakes"),
+    ("B1", "mostly simple sentences with some longer ones, everyday vocabulary used a little wrongly at "
+           "times, regular grammar and spelling mistakes, and ideas that are clear but not well organised"),
+    ("B2", "generally correct but plain writing with occasional errors in prepositions, articles and word "
+           "choice, a few awkward phrases translated from the first language"),
+)
+LEARNER_FORMS = ("an essay for English class", "a short opinion piece for a school website",
+                 "an answer in an English exam", "a letter to the school principal")
+
+
+def learner_items(gen: str, cal_human: list[dict]) -> list[dict]:
+    """English learners at a given CEFR level and first language. ELLIPSE topics land in the held-out
+    split (family ellipse), so the evaluation measures these on prompts the model never trained on."""
+    out = []
+    topics = {}
+    for h in cal_human:
+        if h["source"] == "persuade":
+            topics.setdefault(h["prompt_id"], h["prompt_text"] if len(h["prompt_text"]) < 500 else h["topic"])
+    for topic in sorted({h["topic"] for h in cal_human if h["source"] == "ellipse"}):
+        pid = "ellipse:" + re.sub(r"[^a-z0-9]+", "-", topic.lower()).strip("-")
+        topics.setdefault(pid, g.ELLIPSE_ASSIGNMENTS.get(topic, f"Write about: {topic}."))
+    for pid, task in sorted(topics.items()):
+        for v in range(6 if pid.startswith("persuade") else 2):
+            h = stable_hash("learner", gen, pid, v, seed=SEED)
+            level, how = LEVELS[h % len(LEVELS)]
+            l1 = L1S[(h >> 8) % len(L1S)]
+            form = LEARNER_FORMS[(h >> 16) % len(LEARNER_FORMS)]
+            n = (150, 200, 250, 300)[(h >> 24) % 4]
+            ins = (f"Write {form} (about {n} words) exactly as a real {level}-level English learner whose first "
+                   f"language is {l1} would write it: {how}. Do not write a polished answer and do not "
+                   f"exaggerate the mistakes.\n\nTask: {task}")
+            out.append(item(gen, "learner", "essay", "non_native", pid, ins, "student_essay", f"{pid}|lea{v}", n))
+    return out
+
+
 def paraphrase_items(gen: str, pool: list[dict], have: int, limit: int) -> list[dict]:
     out = []
     pool = sorted(pool, key=lambda r: stable_hash("para", gen, r["id"], seed=SEED))
@@ -207,7 +247,7 @@ def build_plan(existing: list[dict], cfg: dict) -> list[dict]:
     plan = list(existing)
     pool = ai_pool()
     for gen in g.SOURCES:
-        new = matched_items(gen, extra, cal_human) + student_items(gen, cal_human)
+        new = matched_items(gen, extra, cal_human) + student_items(gen, cal_human) + learner_items(gen, cal_human)
         plan += [it for it in new if it["id"] not in have]
         have |= {it["id"] for it in new}
         n_para = sum(1 for it in plan if it["source"] == gen and it["variant"] == "paraphrase")
