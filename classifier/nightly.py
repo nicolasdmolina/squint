@@ -30,9 +30,10 @@ Environment (defaults in brackets):
   SQUINT_NIGHTLY_EVAL_RESERVE_MIN [45]   minutes kept free at the end for evaluation
   SQUINT_NIGHTLY_MIN_FREE_PCT [20]       memory_pressure free % needed to start a heavy stage
   SQUINT_NIGHTLY_MIN_FREE_PCT_RUNNING [5]  ... below which a running heavy stage is paused
-  SQUINT_NIGHTLY_MIN_DISK_GB [6]         free disk needed to start a heavy stage
-SQUINT_NIGHTLY_MIN_DISK_GB_RUNNING [2] pause a running heavy stage below this (macOS swap grows on disk)
+  SQUINT_NIGHTLY_MIN_DISK_GB [4]         free disk needed to start a heavy stage
+  SQUINT_NIGHTLY_MIN_DISK_GB_RUNNING [2] pause a running heavy stage below this (macOS swap grows on disk)
   SQUINT_NIGHTLY_POLL_S [60]             guard interval
+  SQUINT_NIGHTLY_TIMEOUTS_TO_PAUSE [3]   slow /api/status answers in a row before a running stage pauses
   SQUINT_NIGHTLY_GRACE_S [90]            SIGTERM -> SIGKILL grace
   SQUINT_NIGHTLY_YIELD_TO [squint-score] comma list of process patterns that pause heavy stages
   SQUINT_NIGHTLY_GENERATORS              comma list; default config.toml [generate].order
@@ -95,9 +96,11 @@ class Night:
         self.eval_reserve = float(env("SQUINT_NIGHTLY_EVAL_RESERVE_MIN", "45")) * 60
         self.min_free = int(env("SQUINT_NIGHTLY_MIN_FREE_PCT", "20"))
         self.min_free_running = int(env("SQUINT_NIGHTLY_MIN_FREE_PCT_RUNNING", "5"))
-        self.min_disk = float(env("SQUINT_NIGHTLY_MIN_DISK_GB", "6"))
+        self.min_disk = float(env("SQUINT_NIGHTLY_MIN_DISK_GB", "4"))
         self.min_disk_running = float(env("SQUINT_NIGHTLY_MIN_DISK_GB_RUNNING", "2"))
         self.poll = float(env("SQUINT_NIGHTLY_POLL_S", "60"))
+        self.timeouts_to_pause = int(env("SQUINT_NIGHTLY_TIMEOUTS_TO_PAUSE", "3"))
+        self.status_timeouts = 0
         self.grace = float(env("SQUINT_NIGHTLY_GRACE_S", "90"))
         self.yield_to = [p for p in env("SQUINT_NIGHTLY_YIELD_TO", "squint-score").split(",") if p.strip()]
         self.status_url = env("SQUINT_STATUS_URL", "http://127.0.0.1:8017/api/status")
@@ -190,6 +193,13 @@ class Night:
         status = guards.probe_status(self.status_url)
         if status and status.get("_http_error"):
             status = None
+        # A running training job slows the server too, so one slow /api/status answer while a
+        # stage runs is not proof that someone is waiting; pause only after several in a row.
+        timed_out = bool(status and status.get("_timeout"))
+        self.status_timeouts = self.status_timeouts + 1 if timed_out else 0
+        if timed_out and not starting and self.status_timeouts < self.timeouts_to_pause:
+            log(f"Squint /api/status slow ({self.status_timeouts}/{self.timeouts_to_pause}); not pausing yet")
+            status = None
         own = {os.getpid(), *(p.pid for p in self.children.values())}
         procs = guards.probe_busy_processes(self.yield_to, own)
         free = guards.probe_memory_free_pct()
@@ -262,8 +272,8 @@ class Night:
             if rc == EXIT_DONE:
                 self.mark(stage, "done", rc=rc)
                 return EXIT_DONE
-            if rc == EXIT_STOPPED and paused:
-                self.mark(stage, "paused", reason=paused)
+            if paused:  # we stopped it; even a SIGKILL leaves the last checkpoint to resume from
+                self.mark(stage, "paused", reason=paused, rc=rc)
                 continue
             if rc == EXIT_STOPPED:
                 self.mark(stage, "stopped", rc=rc, reason="stage deadline")

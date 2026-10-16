@@ -41,6 +41,8 @@ from common import read_jsonl, write_json  # noqa: E402
 import modeling  # noqa: E402
 
 EXIT_DONE, EXIT_STOPPED, EXIT_ERROR = 0, 3, 1
+CHECKPOINT_GUESS_BYTES = 2 * 10**9  # ModernBERT-base weights + AdamW state is about 1.7 GB
+CHECKPOINT_MARGIN_BYTES = 2 * 10**9  # swap grows on this volume at night
 
 
 class Stop:
@@ -65,32 +67,54 @@ def sampling_weights(rows: list[dict]) -> list[float]:
     return [0.5 / per_label[r["y"]] / groups[(r["y"], r["source"])] for r in rows]
 
 
-def save_checkpoint(run_dir: Path, model, tok, optimizer, scheduler, state: dict) -> None:
+def dir_bytes(path: Path) -> int:
+    return sum(f.stat().st_size for f in path.rglob("*") if f.is_file()) if path.exists() else 0
+
+
+def save_checkpoint(run_dir: Path, model, tok, optimizer, scheduler, state: dict) -> bool:
+    """Write checkpoint/ via checkpoint.tmp. Skips (returns False) when the disk is too full to
+    hold a second copy plus a margin, or when a write fails: a full disk must not crash training;
+    the previous checkpoint stays usable."""
     import torch
 
     tmp = run_dir / "checkpoint.tmp"
     if tmp.exists():
         shutil.rmtree(tmp)
-    tmp.mkdir(parents=True)
-    model.save_pretrained(tmp)
-    tok.save_pretrained(tmp)
-    torch.save(optimizer.state_dict(), tmp / "optimizer.pt")
-    torch.save(scheduler.state_dict(), tmp / "scheduler.pt")
-    write_json(tmp / "trainer_state.json", state)
     final = run_dir / "checkpoint"
+    need = (dir_bytes(final) or CHECKPOINT_GUESS_BYTES) + CHECKPOINT_MARGIN_BYTES
+    free = shutil.disk_usage(run_dir).free
+    if free < need:
+        log(run_dir, {"event": "checkpoint_skipped", "step": state["opt_step"],
+                      "reason": f"disk free {free / 1e9:.1f} GB < {need / 1e9:.1f} GB needed"})
+        return False
+    try:
+        tmp.mkdir(parents=True)
+        model.save_pretrained(tmp)
+        tok.save_pretrained(tmp)
+        torch.save(optimizer.state_dict(), tmp / "optimizer.pt")
+        torch.save(scheduler.state_dict(), tmp / "scheduler.pt")
+        write_json(tmp / "trainer_state.json", state)
+    except (OSError, RuntimeError) as e:  # torch reports ENOSPC as a RuntimeError
+        shutil.rmtree(tmp, ignore_errors=True)
+        log(run_dir, {"event": "checkpoint_failed", "step": state["opt_step"], "error": str(e)[:300]})
+        return False
     old = run_dir / "checkpoint.old"
     if final.exists():
         final.rename(old)
     tmp.rename(final)
     if old.exists():
         shutil.rmtree(old)  # previous checkpoint written by this script
+    return True
 
 
 def log(run_dir: Path, rec: dict) -> None:
     rec = {"at": time.strftime("%Y-%m-%dT%H:%M:%S"), **rec}
     print(json.dumps(rec), flush=True)
-    with open(run_dir / "train.log.jsonl", "a") as f:
-        f.write(json.dumps(rec) + "\n")
+    try:
+        with open(run_dir / "train.log.jsonl", "a") as f:
+            f.write(json.dumps(rec) + "\n")
+    except OSError:
+        pass  # a full disk loses a log line, not the run
 
 
 def main() -> int:
@@ -139,6 +163,7 @@ def main() -> int:
         dhash = json.loads(manifest_path.read_text())["dataset_hash"] if manifest_path.exists() else "nohash"
         run_dir = args.run_dir or default_run_dir(args.model, dhash)
     run_dir.mkdir(parents=True, exist_ok=True)
+    shutil.rmtree(run_dir / "checkpoint.tmp", ignore_errors=True)  # left by an interrupted save
     if (run_dir / "final" / "config.json").exists():
         print(f"{run_dir} already finished; nothing to do")
         return EXIT_DONE
@@ -277,12 +302,20 @@ def main() -> int:
             status = EXIT_STOPPED
             break
     if status == EXIT_DONE:
-        final = run_dir / "final"
-        model.save_pretrained(final)
-        tok.save_pretrained(final)
-        write_json(final / "trained.json", {"finished_at": time.strftime("%Y-%m-%dT%H:%M:%S%z"),
-                                            "steps": opt_step, "model": model_name, "amp": amp,
-                                            "dataset_hash": run["dataset_hash"], "train_rows": len(rows)})
+        final, final_tmp = run_dir / "final", run_dir / "final.tmp"
+        shutil.rmtree(final_tmp, ignore_errors=True)
+        try:  # via final.tmp so a failed write never leaves a final/ that looks finished
+            model.save_pretrained(final_tmp)
+            tok.save_pretrained(final_tmp)
+            write_json(final_tmp / "trained.json", {"finished_at": time.strftime("%Y-%m-%dT%H:%M:%S%z"),
+                                                    "steps": opt_step, "model": model_name, "amp": amp,
+                                                    "dataset_hash": run["dataset_hash"], "train_rows": len(rows)})
+        except (OSError, RuntimeError) as e:
+            shutil.rmtree(final_tmp, ignore_errors=True)
+            saved = save_checkpoint(run_dir, model, tok, optimizer, scheduler, {**state, "opt_step": opt_step})
+            log(run_dir, {"event": "final_failed", "error": str(e)[:300], "checkpoint_saved": saved})
+            return EXIT_STOPPED
+        final_tmp.rename(final)
         if ckpt.exists():
             shutil.rmtree(ckpt)  # the optimizer state is ~2x the model; final/ supersedes it
         log(run_dir, {"event": "finished", "steps": opt_step})
