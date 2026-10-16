@@ -148,3 +148,30 @@ Returns `404 not_calibrated` before the first calibration run.
    an emoji, are merged), so `tokens.length` can be smaller than `token_count`.
 7. The document `score` keeps the reference implementation's last-position term, so it can differ
    very slightly from Σ surprise / Σ expected_surprise over `tokens`.
+
+## v1.2 amendments (trained classifier, 2026-10-15)
+
+When `calibration/classifier.json` is present and valid (written by `classifier/promote.py`),
+a ModernBERT classifier trained on human, ChatGPT and Claude writing sets the verdict. Without
+it, the server behaves as in v1.1.
+
+1. New band `too_short` (label "Too short to tell") for texts under `classifier.min_words`
+   (50). The classifier is not run; tokens, sentences and reasons are still returned.
+2. From 50 words: `likely_ai` when P(AI) > `ai_above`, `likely_human` when P(AI) <
+   `human_below`, otherwise `uncertain`. The Binoculars `score` and `thresholds` are still
+   returned for the word view but no longer set the band.
+3. New verdict fields: `detector` (`"classifier"` or `"binoculars"`) and `classifier`
+   (`{ai_probability, ai_above, human_below, min_words, version}`, or `null` under Binoculars).
+   `ai_probability` is `null` for `too_short`.
+4. `segments[].flagged` comes from running the classifier on each 150-word segment
+   (P(AI) > `ai_above`); `ai_percent` follows from those flags. `segments[].score` stays the
+   Binoculars score.
+5. `reasons` starts with a `detector` reason when the classifier is on.
+6. `GET /api/status` adds `"classifier": {"version": "...", "ready": true, "min_words": 50}`
+   (`{"version": null, "ready": false, "min_words": null}` when it is off).
+7. `GET /api/accuracy` adds `classifier`: `{version, model, min_words, held_out, by_length}`
+   from `classifier.json`. `held_out` has `false_flags`, `false_flags_non_native` and
+   `chatgpt_catch` as `{n, flagged, rate, ci95}`; `by_length[bucket]` has `humans`,
+   `false_flag`, `humans_likely_human` and per generator `{n, caught, called_human}`.
+8. The classifier runs on the CPU, loads with the model pair on the first check and unloads
+   with it. If it fails to load, the server falls back to Binoculars verdicts.

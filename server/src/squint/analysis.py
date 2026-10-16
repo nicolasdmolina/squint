@@ -13,8 +13,9 @@ import numpy as np
 
 from .backend import PairBackend, PositionStats
 from .calibration import Calibration, length_bucket
+from .clf import config_ok
 from .config import Limits
-from .reasons import LABELS, explanation, reasons
+from .reasons import LABELS, classifier_explanation, classifier_reason, explanation, reasons
 from .textproc import (
     TextTokenizer,
     core_index,
@@ -71,8 +72,12 @@ def segment_windows(n_words: int, window: int, stride: int) -> list[tuple[int, i
 
 
 class Analysis:
-    def __init__(self, scored: ScoredText, calibration: Calibration, limits: Limits, tokenizer: TextTokenizer | None):
+    def __init__(self, scored: ScoredText, calibration: Calibration, limits: Limits, tokenizer: TextTokenizer | None,
+                 classifier=None):
+        """classifier: a loaded clf.AiClassifier. With it and a valid calibration/classifier.json
+        the verdict and the flagged segments come from the classifier; otherwise from Binoculars."""
         self.s = scored
+        self.clf = classifier
         self.text = scored.text
         self.cal = calibration
         self.limits = limits
@@ -155,8 +160,32 @@ class Analysis:
     def thresholds(self) -> dict | None:
         return self.cal.bucket(self.bucket, self.pair)
 
+    # ---------------------------------------------------------------- trained classifier
+    @cached_property
+    def clf_cfg(self) -> dict | None:
+        cfg = self.cal.classifier
+        return cfg if self.clf is not None and config_ok(cfg) else None
+
+    @cached_property
+    def clf_p(self) -> float | None:
+        """P(AI) for the whole text; None when the classifier is off or the text is too short."""
+        cfg = self.clf_cfg
+        if cfg is None or self.n_words < cfg["min_words"]:
+            return None
+        return float(self.clf.predict([self.text])[0])
+
     @cached_property
     def band(self) -> str:
+        cfg = self.clf_cfg
+        if cfg is not None:
+            p = self.clf_p
+            if p is None:
+                return "too_short"
+            if p > cfg["ai_above"]:
+                return "likely_ai"
+            if p < cfg["human_below"]:
+                return "likely_human"
+            return "uncertain"
         t, sc = self.thresholds, self.score
         if t is None or sc is None:
             return "uncalibrated"
@@ -260,15 +289,24 @@ class Analysis:
 
     @cached_property
     def segments(self) -> list[dict]:
-        flag_below = self.cal.flag_below(self.pair)
         segs = self._segments(require_min_words=True)
+        cfg = self.clf_cfg
+        if cfg is not None:
+            if segs:
+                texts = [self.text[self.words[x["word_start"]][0]:self.words[x["word_end"] - 1][1]] for x in segs]
+                for seg, p in zip(segs, self.clf.predict(texts)):
+                    seg["flagged"] = bool(p > cfg["ai_above"])
+            return segs
+        flag_below = self.cal.flag_below(self.pair)
         for seg in segs:
             seg["flagged"] = bool(flag_below is not None and seg["score"] is not None and seg["score"] < flag_below)
         return segs
 
     @cached_property
     def ai_percent(self) -> int | None:
-        if not self.segments or self.cal.flag_below(self.pair) is None or self.n_words == 0:
+        if not self.segments or self.n_words == 0:
+            return None
+        if self.clf_cfg is None and self.cal.flag_below(self.pair) is None:
             return None
         covered = np.zeros(self.n_words, dtype=bool)
         for seg in self.segments:
@@ -324,15 +362,26 @@ class Analysis:
     def verdict(self) -> dict:
         low = self.n_words < self.limits.percent_min_words
         score = self.score if self.score is not None else float("nan")
+        cfg = self.clf_cfg
+        if cfg is not None:
+            text = classifier_explanation(self.band, cfg, self.bucket, low)
+            clf = {"ai_probability": _r(self.clf_p), "ai_above": _r(cfg["ai_above"], 6),
+                   "human_below": _r(cfg["human_below"], 6), "min_words": int(cfg["min_words"]),
+                   "version": cfg.get("version")}
+        else:
+            text = explanation(self.band, score, self.thresholds, self.bucket, low)
+            clf = None
         return {
             "band": self.band,
             "label": LABELS[self.band],
             "confidence": "low" if low else "normal",
             "length_bucket": self.bucket,
+            "detector": "classifier" if cfg is not None else "binoculars",
             "score": _r(score),
             "thresholds": {k: _r(v) for k, v in self.thresholds.items()} if self.thresholds else None,
+            "classifier": clf,
             "ai_percent": self.ai_percent,
-            "explanation": explanation(self.band, score, self.thresholds, self.bucket, low),
+            "explanation": text,
         }
 
     def result(self) -> dict:
@@ -341,13 +390,20 @@ class Analysis:
             "token_count": len(self.s.ids),
             "model_pair": dict(self.pair),
             "verdict": self.verdict(),
-            "reasons": reasons(self.stats, self.cal.medians(self.pair)),
+            "reasons": self.reasons,
             "stats": self.stats,
             "tokens": self.tokens,
             "sentences": self.sentences,
             "paragraphs": self.paragraphs,
             "segments": self.segments,
         }
+
+    @cached_property
+    def reasons(self) -> list[dict]:
+        out = reasons(self.stats, self.cal.medians(self.pair))
+        if self.clf_cfg is not None:
+            out.insert(0, classifier_reason(self.band, self.clf_p, self.clf_cfg))
+        return out
 
     def batch_row(self, row_id) -> dict:
         segs = [{k: s[k] for k in ("word_start", "word_end", "start", "end", "score")}

@@ -11,14 +11,18 @@ export const LIMITS_FALLBACK: Status['limits'] = { min_words: 20, percent_min_wo
 
 export type Guide = { tone: 'idle' | 'short' | 'partial' | 'full' | 'over' | 'evidence'; text: string };
 
-export function lengthGuide(n: number, limits: Status['limits'], calibrated: boolean): Guide {
+/** clfMin: the trained detector's minimum (verdicts start there), or null when it is off. */
+export function lengthGuide(n: number, limits: Status['limits'], calibrated: boolean, clfMin: number | null = null): Guide {
   const { min_words: min, percent_min_words: pct, max_words: max } = limits;
   if (n === 0) return { tone: 'idle', text: `Paste or type at least ${min} words.` };
   if (n < min) return { tone: 'short', text: `${min - n} more ${plural(min - n, 'word')} to get a verdict.` };
   if (n > max) {
     return { tone: 'over', text: `${fmtInt(n - max)} ${plural(n - max, 'word')} over the ${fmtInt(max)}-word limit. Trim it, or check it in parts.` };
   }
-  if (!calibrated) return { tone: 'evidence', text: "You'll get the word-by-word evidence. Verdicts wait until Squint is tuned." };
+  if (clfMin != null && n < clfMin) {
+    return { tone: 'partial', text: `You'll get the evidence word by word. Add ${clfMin - n} more ${plural(clfMin - n, 'word')} for a verdict.` };
+  }
+  if (!calibrated && clfMin == null) return { tone: 'evidence', text: "You'll get the word-by-word evidence. Verdicts wait until Squint is tuned." };
   if (n < pct) {
     return { tone: 'partial', text: `You'll get a rough verdict. Add ${pct - n} more ${plural(pct - n, 'word')} for the AI-written share.` };
   }
@@ -26,10 +30,11 @@ export function lengthGuide(n: number, limits: Status['limits'], calibrated: boo
 }
 
 export const bandLine: Record<Band, string> = {
-  likely_ai: 'Much more predictable than people usually write. Worth a closer look, not an accusation.',
-  likely_human: 'About as surprising as people usually are.',
+  likely_ai: 'Reads like AI writing. Worth a closer look, not an accusation.',
+  likely_human: 'No sign of AI writing. That still doesn’t prove a person wrote it.',
   uncertain: 'Human and AI writing both land here. Look at the marks below rather than the label.',
   uncalibrated: 'Squint isn’t tuned yet, so it won’t give a verdict. The evidence below still holds.',
+  too_short: 'There isn’t enough text for a verdict. The marks below still show which words read as AI-like.',
 };
 
 export const stage = {
@@ -97,8 +102,17 @@ export const notes = {
   privacy: 'Nothing you paste is stored. Squint runs on a private machine and forgets each result after 10 minutes.',
 };
 
-/** The known blind spot, said wherever a reading is shown. Source: calibration/report.json (heldout, 8 Oct 2026). */
+/** The known blind spot, said wherever a reading is shown. Source: calibration/classifier.json
+ * (held-out texts of 50+ words, 14 Oct 2026 run). */
 export const gap = {
+  title: 'Squint still misses some Claude writing.',
+  body: 'On texts of 50 words or more it caught 599 of 607 ChatGPT samples but 478 of 537 Claude samples, so “Likely human” doesn’t clear a text. Gemini and edited AI text haven’t been tested.',
+  short: 'In testing it caught 599 of 607 ChatGPT samples but 478 of 537 Claude samples, so “Likely human” doesn’t clear a text.',
+  shortUntuned: 'In testing it caught 599 of 607 ChatGPT samples but 478 of 537 Claude samples, so marks that look human-like don’t clear a text either.',
+};
+
+/** The same, for a server without the trained detector (Binoculars alone). Source: calibration/report.json (8 Oct 2026). */
+export const gapBinoculars = {
   title: 'Squint misses most writing from current AI models.',
   body: 'In testing it caught none of 288 ChatGPT samples and about 1 in 9 Claude samples, so “Likely human” doesn’t clear a text. Gemini hasn’t been tested.',
   short: 'In testing it caught none of 288 ChatGPT samples and about 1 in 9 Claude samples, so “Likely human” doesn’t clear a text.',

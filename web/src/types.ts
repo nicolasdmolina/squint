@@ -1,4 +1,4 @@
-// Shapes from docs/api-contract.md (v1 plus the v1.1 amendments). The server is the source of truth; keep these in step.
+// Shapes from docs/api-contract.md (v1 plus the v1.1 and v1.2 amendments). The server is the source of truth; keep these in step.
 
 export type ModelPair = { observer: string; performer: string };
 
@@ -9,10 +9,12 @@ export type Status = {
   queue_length: number;
   model_pair: ModelPair;
   calibration: { version: string | null; ready: boolean };
+  /** v1.2: the trained detector that decides verdicts at 50+ words */
+  classifier?: { version: string | null; ready: boolean; min_words: number | null };
   limits: { min_words: number; percent_min_words: number; max_words: number; checks_per_hour: number };
 };
 
-export type Band = 'likely_human' | 'uncertain' | 'likely_ai' | 'uncalibrated';
+export type Band = 'likely_human' | 'uncertain' | 'likely_ai' | 'uncalibrated' | 'too_short';
 export type Lean = 'ai' | 'neutral' | 'human';
 export type LengthBucket = '20-49' | '50-149' | '150+';
 
@@ -63,8 +65,18 @@ export type Verdict = {
   label: string;
   confidence: 'normal' | 'low';
   length_bucket: LengthBucket;
+  /** v1.2: which method set the band. Absent from older servers, which means binoculars. */
+  detector?: 'classifier' | 'binoculars';
+  /** the Binoculars score; it sets the band only when detector is binoculars */
   score: number;
   thresholds: { ai_below: number; human_above: number } | null;
+  classifier?: {
+    ai_probability: number | null;
+    ai_above: number;
+    human_below: number;
+    min_words: number;
+    version: string | null;
+  } | null;
   ai_percent: number | null;
   explanation: string;
 };
@@ -112,6 +124,18 @@ export type Accuracy = {
   };
   uncertain_rate: { human: number; ai: number };
   notes: string[];
+  /** v1.2: held-out results for the trained detector (calibration/classifier.json) */
+  classifier?: ClassifierAccuracy;
+};
+
+export type Count = { n: number; flagged: number; rate: number; ci95?: [number, number] };
+export type GenCell = { n: number; caught: number; called_human: number };
+export type ClassifierAccuracy = {
+  version: string;
+  model: string;
+  min_words: number;
+  held_out: { false_flags: Count; false_flags_non_native: Count; chatgpt_catch: Count };
+  by_length: Partial<Record<LengthBucket, { humans: number; false_flag: number | null; humans_likely_human: number | null } & Record<string, unknown>>>;
 };
 
 export type ApiErrorBody = { error: { code: string; message: string; retry_after_s?: number } };

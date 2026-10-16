@@ -29,6 +29,7 @@ class ModelManager:
         self._last_used = clock()
         self.loads = 0
         self.unloads = 0
+        self.on_unload: Callable[[], None] | None = None  # also drop models loaded alongside the pair
 
     @property
     def ready(self) -> bool:
@@ -91,6 +92,8 @@ class ModelManager:
         backend, self._backend = self._backend, None
         try:
             backend.unload()
+            if self.on_unload is not None:
+                self.on_unload()
         finally:
             self.state = "unloaded"
             self.unloads += 1

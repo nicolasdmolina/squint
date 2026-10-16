@@ -46,19 +46,47 @@ const SPECIMEN: Piece[] = [
 
 export function HowItWorks({ status }: { status: Status | null }) {
   const pair = status?.model_pair;
+  const clf = !!status?.classifier?.ready;
+  const minWords = status?.classifier?.min_words ?? 50;
   return (
     <div className="screen how">
       <header className="screen-head">
         <h1>How it works</h1>
         <p className="lede">
-          Squint doesn&rsquo;t hunt for giveaway words. It measures how predictable each word is, and compares that with how
-          predictable it ought to be.
+          {clf
+            ? 'Squint uses two methods. A detector trained on human and AI writing gives the verdict. A second method measures how predictable each word is, and that is what the word marks show.'
+            : 'Squint doesn’t hunt for giveaway words. It measures how predictable each word is, and compares that with how predictable it ought to be.'}
         </p>
       </header>
 
+      {clf && (
+        <section className="how-section" aria-labelledby="detector-title">
+          <h2 id="detector-title" className="section-title">
+            The verdict: a trained detector
+          </h2>
+          <div className="prose">
+            <p>
+              The verdict comes from a language model that was trained to tell the two apart. It learned from thousands of
+              texts by people, including students writing in a second language, and from text written by ChatGPT and Claude
+              on the same kinds of topics.
+            </p>
+            <p>
+              It reads the whole text and rates how likely it is to be AI writing. Squint only says{' '}
+              <em className="term">Likely AI</em> when that rating is very high, high enough that in testing it flagged fewer
+              than 1 in 400 human texts. When the rating is low it says <em className="term">Likely human</em>, and in between
+              it says <em className="term">Uncertain</em>.
+            </p>
+            <p>
+              Under {minWords} words it won&rsquo;t give a verdict. Short snippets don&rsquo;t carry enough signal, and in
+              testing the detector wrongly flagged about 3% of short human texts.
+            </p>
+          </div>
+        </section>
+      )}
+
       <section className="how-section" aria-labelledby="method-title">
         <h2 id="method-title" className="section-title">
-          Two models, one ratio
+          {clf ? 'The word marks: two models, one ratio' : 'Two models, one ratio'}
         </h2>
         <div className="prose">
           <p>
@@ -85,8 +113,10 @@ export function HowItWorks({ status }: { status: Status | null }) {
             </li>
             <li>
               <div>
-                <b>Divide one by the other.</b> That ratio is the score. Below the cutoffs it reads as AI-like, above them as
-                human-like. In between, Squint says Uncertain and leaves it there.
+                <b>Divide one by the other.</b> That ratio is the score.{' '}
+                {clf
+                  ? 'Lower means more predictable. Squint shows it for every word, but the verdict comes from the trained detector.'
+                  : 'Below the cutoffs it reads as AI-like, above them as human-like. In between, Squint says Uncertain and leaves it there.'}
               </div>
             </li>
           </ol>
@@ -178,8 +208,8 @@ export function HowItWorks({ status }: { status: Status | null }) {
             and paragraph leans are hints for where to look, never verdicts on their own.
           </p>
           <p>
-            For texts of 150 words or more, Squint also scores overlapping 150-word passages. The AI-written share is the share
-            of words that sit inside a flagged passage.
+            For texts of 150 words or more, Squint also {clf ? 'runs the detector on' : 'scores'} overlapping 150-word
+            passages. The AI-written share is the share of words that sit inside a flagged passage.
           </p>
         </div>
       </section>
@@ -193,8 +223,9 @@ export function HowItWorks({ status }: { status: Status | null }) {
           <div className="row">
             <dt className="row-label">Current AI models</dt>
             <dd className="row-body">
-              Writing from current models scores inside the range people write in, so Squint misses most of it. In testing
-              it caught none of 288 ChatGPT samples and 32 of 289 Claude samples. Gemini hasn&rsquo;t been tested.{' '}
+              {clf
+                ? 'The detector was trained on ChatGPT and Claude. In testing it caught 599 of 607 ChatGPT samples and 478 of 537 Claude samples, so some Claude writing gets through. Gemini and other models haven’t been tested, and new model versions may slip past it until it is retrained.'
+                : 'Writing from current models scores inside the range people write in, so Squint misses most of it. In testing it caught none of 288 ChatGPT samples and 32 of 289 Claude samples. Gemini hasn’t been tested.'}{' '}
               <a className="text-link" href={hrefFor('accuracy')}>
                 See the accuracy page
               </a>
@@ -210,8 +241,9 @@ export function HowItWorks({ status }: { status: Status | null }) {
           <div className="row">
             <dt className="row-label">Short text</dt>
             <dd className="row-body">
-              A few sentences don&rsquo;t give the models much to measure. Under 20 words Squint won&rsquo;t try. Under 150 it
-              gives a rough verdict marked low confidence, and no AI-written share.
+              {clf
+                ? `A few sentences don’t give the models much to measure. Under 20 words Squint won’t try. Under ${minWords} it shows the word marks but no verdict. Under 150 the verdict is marked low confidence, and there is no AI-written share.`
+                : 'A few sentences don’t give the models much to measure. Under 20 words Squint won’t try. Under 150 it gives a rough verdict marked low confidence, and no AI-written share.'}
             </dd>
           </div>
           <div className="row">

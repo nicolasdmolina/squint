@@ -7,7 +7,56 @@ LABELS = {
     "uncertain": "Uncertain",
     "likely_ai": "Likely AI",
     "uncalibrated": "Not tuned yet",
+    "too_short": "Too short to tell",
 }
+
+
+def _share(x) -> str | None:
+    """0.004 -> "0.4%", 0.127 -> "13%", 0 -> "none"."""
+    if not isinstance(x, (int, float)):
+        return None
+    if x == 0:
+        return "none"
+    return f"{x * 100:.1f}%" if x < 0.01 else f"{round(x * 100)}%"
+
+
+def classifier_explanation(band: str, cfg: dict, bucket: str, low_confidence: bool) -> str:
+    """Verdict text when the trained classifier decides. Numbers come from classifier.json's
+    held-out results for this length bucket, so the text says what testing showed."""
+    stats = (cfg.get("by_length") or {}).get(bucket) or {}
+    if band == "too_short":
+        short = _share(((cfg.get("by_length") or {}).get("20-49") or {}).get("false_flag"))
+        text = f"Squint needs at least {int(cfg['min_words'])} words to give a verdict."
+        if short and short != "none":
+            text += f" On shorter snippets its detector wrongly flagged about {short} of human writers in testing, which is too many."
+        return text
+    if band == "likely_ai":
+        text = "Squint's detector, trained on human writing and on text from ChatGPT and Claude, says this reads like AI writing."
+        ff = _share(stats.get("false_flag"))
+        if ff == "none":
+            text += f" In testing it flagged none of {stats.get('humans')} human texts of this length."
+        elif ff:
+            text += f" In testing it wrongly flagged {ff} of human texts of this length."
+    elif band == "likely_human":
+        text = "Squint's detector found no sign of AI writing."
+        misses = [f"{_share(stats[g]['called_human'])} of {name} texts" for g, name in (("chatgpt", "ChatGPT"), ("claude", "Claude"))
+                  if isinstance(stats.get(g), dict) and stats[g].get("called_human")]
+        if misses:
+            text += f" It still misses some: in testing on texts this long it called {' and '.join(misses)} human."
+    else:
+        text = "The detector's reading sits between its cutoffs for AI and human writing, so Squint won't call it either way."
+    if low_confidence:
+        text += " With fewer than 150 words, treat this as a rough read."
+    return text
+
+
+def classifier_reason(band: str, p: float | None, cfg: dict) -> dict:
+    if p is None:
+        return {"kind": "detector", "text": "The trained detector does not rate texts this short.", "weight": "weak"}
+    side = {"likely_ai": "AI-like", "likely_human": "human-like"}.get(band, "in between")
+    return {"kind": "detector",
+            "text": f"A detector trained on ChatGPT and Claude writing rated this text {side}.",
+            "weight": "weak" if band == "uncertain" else "strong"}
 
 
 def explanation(band: str, score: float, thresholds: dict | None, bucket: str, low_confidence: bool) -> str:

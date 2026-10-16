@@ -23,7 +23,8 @@ from .analysis import Analysis, TextTooShortToScore, score_text
 from .auth import COOKIE_NAME, PasswordMissing, SessionSigner, password_matches, read_keychain_password
 from .backend import LlamaCppPair, PairBackend
 from .calibration import CalibrationStore
-from .config import Settings
+from .clf import ClassifierHolder, config_ok
+from .config import REPO_DIR, Settings
 from .extract import ExtractError, extract_text
 from .jobs import JobFailed, JobQueue, ModelManager, QueueFull
 from .ratelimit import SlidingWindowLimiter
@@ -133,7 +134,7 @@ class Services:
     """Everything the routes share; one instance per app."""
 
     def __init__(self, settings: Settings, backend_factory: Callable[[], PairBackend] | None,
-                 tokenizer: TextTokenizer | None, password, job_tick_s: float = 1.0):
+                 tokenizer: TextTokenizer | None, password, job_tick_s: float = 1.0, classifier_factory=None):
         self.settings = settings
         self.profile = settings.profile
         self.calibration = CalibrationStore(settings.calibration_dir)
@@ -153,6 +154,8 @@ class Services:
         self.login_global = SlidingWindowLimiter(settings.login_global_max_failures, settings.login_global_window_s)
         factory = backend_factory or (lambda: LlamaCppPair(self.profile))
         self.manager = ModelManager(factory, settings.idle_unload_s)
+        self.classifier = ClassifierHolder(REPO_DIR, classifier_factory)
+        self.manager.on_unload = self.classifier.unload
         self.queue = JobQueue(self.process, self.manager, result_ttl_s=settings.result_ttl_s,
                               max_queue=settings.max_queue, tick_s=job_tick_s)
 
@@ -175,7 +178,8 @@ class Services:
             scored = score_text(text, tok, backend)
         except TextTooShortToScore as exc:
             raise JobFailed("too_short", "This text is too short to check.") from exc
-        return Analysis(scored, self.calibration.current(), self.settings.limits, tok).result()
+        cal = self.calibration.current()
+        return Analysis(scored, cal, self.settings.limits, tok, self.classifier.get(cal.classifier)).result()
 
     def authenticated(self, request: Request) -> bool:
         return self.password is None or self.signer.verify(request.cookies.get(COOKIE_NAME))
@@ -192,8 +196,9 @@ def create_app(
     tokenizer: TextTokenizer | None = None,
     password=FROM_KEYCHAIN,
     job_tick_s: float = 1.0,
+    classifier_factory=None,
 ) -> FastAPI:
-    svc = Services(settings, backend_factory, tokenizer, password, job_tick_s)
+    svc = Services(settings, backend_factory, tokenizer, password, job_tick_s, classifier_factory)
 
     @asynccontextmanager
     async def lifespan(app: FastAPI):
@@ -290,15 +295,23 @@ def create_app(
             "queue_length": svc.queue.queue_length(),
             "model_pair": svc.model_pair,
             "calibration": {"version": cal.version, "ready": cal.ready_for(svc.model_pair)},
+            "classifier": ({"version": cal.classifier.get("version"), "ready": True,
+                            "min_words": int(cal.classifier["min_words"])} if config_ok(cal.classifier)
+                           else {"version": None, "ready": False, "min_words": None}),
             "limits": settings.limits.public(),
         }
 
     @app.get("/api/accuracy")
     async def accuracy(request: Request):
         svc.require_auth(request)
-        report = svc.calibration.current().report_for(svc.model_pair)
+        cal = svc.calibration.current()
+        report = cal.report_for(svc.model_pair)
         if report is None:
             raise ApiError(404, "not_calibrated", "The accuracy report isn't ready yet.")
+        if config_ok(cal.classifier):
+            c = cal.classifier
+            report = {**report, "classifier": {k: c.get(k) for k in (
+                "version", "model", "min_words", "held_out", "by_length")}}
         return report
 
     # ------------------------------------------------------------------ extract

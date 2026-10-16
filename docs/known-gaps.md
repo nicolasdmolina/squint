@@ -1,6 +1,33 @@
 # Known gaps
 
-## Current AI text is mostly missed (needs a trained classifier)
+## Status (2026-10-15): the trained classifier sets the verdict
+
+The ModernBERT-base classifier from the 2026-10-14 overnight run (`calibration/classifier.json`,
+report `classifier/reports/2026-10-14-min50.json`) now decides verdicts for texts of 50+ words.
+Binoculars still drives the word marks. Held-out results at 50+ words, re-checked on the
+server's CPU path with identical counts:
+
+- False flags: **3 of 1,340** human texts (0.22%), **0 of 512** non-native.
+- ChatGPT caught: **599 of 607** (98.7%). Claude caught: **478 of 537** (89%).
+- 50–149 words: ChatGPT 97.7% caught, Claude 85% caught and 12.7% called "Likely human".
+- 150+ words: 0 of 587 human texts flagged, ChatGPT 100%, Claude 94%.
+- Under 50 words the classifier wrongly flagged 2.9% of human texts, so Squint shows
+  "Too short to tell" there.
+
+Gaps that remain:
+
+- **Claude in short texts.** About 1 in 8 Claude texts of 50–149 words is called "Likely human".
+- **Selection bias.** The 50-word minimum was chosen after seeing the evaluation results, and
+  the evaluation sets were reused across runs. A fresh set of human essays is needed for an
+  honest re-check before public launch.
+- **Untested:** Gemini, edited or paraphrased AI text, and new model versions released after
+  the training data was generated.
+- Combining the classifier with Binoculars (flag if either says AI) was worse: 0.8% false flags
+  and 1.4% for non-native writers. Not used.
+
+The history below explains why the classifier was needed.
+
+## Current AI text is mostly missed by Binoculars alone
 
 ### Full heldout result (2026-10-08, Falcon-7B pair, `calibration/report.json`)
 

@@ -2,10 +2,10 @@ import { Button } from '@astryxdesign/core/Button';
 import { useCallback, useEffect, useState } from 'react';
 import { api, ApiError } from '../api';
 import { AlertIcon, ArrowRightIcon } from '../components/Icons';
-import { gap } from '../copy';
+import { gap, gapBinoculars } from '../copy';
 import { fmtInt, fmtRate, oneIn } from '../lib/format';
 import { hrefFor } from '../lib/hooks';
-import type { Accuracy as AccuracyData, LengthBucket, Status } from '../types';
+import type { Accuracy as AccuracyData, ClassifierAccuracy, GenCell, LengthBucket, Status } from '../types';
 
 type Load = { kind: 'loading' } | { kind: 'ready'; data: AccuracyData } | { kind: 'untuned' } | { kind: 'failed' };
 
@@ -49,7 +49,7 @@ export function Accuracy({ status }: { status: Status | null }) {
           true source was known, and where it falls short.
         </p>
       </header>
-      <KnownGap />
+      <KnownGap clf={status ? !!status.classifier?.ready : load.kind === 'ready' && !!load.data.classifier} />
       {load.kind === 'loading' && (
         <p className="quiet" role="status">
           Loading the test results&hellip;
@@ -65,17 +65,35 @@ export function Accuracy({ status }: { status: Status | null }) {
         </div>
       )}
       {load.kind === 'untuned' && <Untuned />}
-      {load.kind === 'ready' && <Report data={load.data} />}
+      {load.kind === 'ready' && (load.data.classifier ? <ClassifierReport c={load.data.classifier} /> : <Report data={load.data} />)}
     </div>
   );
 }
 
 /** The gap is stated before any number, tuned or not. Source: docs/known-gaps.md. */
-function KnownGap() {
+function KnownGap({ clf }: { clf: boolean }) {
+  if (clf) {
+    return (
+      <section className="gap" aria-labelledby="gap-title">
+        <h2 id="gap-title" className="gap-title">
+          {gap.title}
+        </h2>
+        <p>
+          In testing on texts of 50 words or more that it had never seen, Squint caught 599 of 607 ChatGPT samples and 478 of
+          537 Claude samples. The Claude texts it missed were mostly short: under 150 words it caught about 85% of them.
+          Gemini hasn&rsquo;t been tested, and neither has AI text that a person edited or ran through a paraphrasing tool.
+        </p>
+        <p className="gap-sub">
+          A &ldquo;Likely human&rdquo; reading doesn&rsquo;t clear a text. Under 50 words Squint won&rsquo;t give a verdict
+          at all.
+        </p>
+      </section>
+    );
+  }
   return (
     <section className="gap" aria-labelledby="gap-title">
       <h2 id="gap-title" className="gap-title">
-        {gap.title}
+        {gapBinoculars.title}
       </h2>
       <p>
         In testing on 8 October 2026, at the setting that keeps false flags under 1%, Squint caught none of 288 ChatGPT
@@ -205,6 +223,104 @@ function Report({ data }: { data: AccuracyData }) {
 
       <p className="acc-foot">
         None of these numbers cover edited or paraphrased AI text, or very short pieces.{' '}
+        <a className="text-link" href={`${hrefFor('how')}`}>
+          Read about the blind spots
+          <ArrowRightIcon size={16} />
+        </a>
+      </p>
+    </>
+  );
+}
+
+const GENS = ['chatgpt', 'claude'] as const;
+
+/** Held-out results for the trained detector, which sets every verdict at min_words+ words. */
+function ClassifierReport({ c }: { c: ClassifierAccuracy }) {
+  const ff = c.held_out.false_flags;
+  const nn = c.held_out.false_flags_non_native;
+  const long = LENGTHS.filter(l => l.key !== '20-49');
+  const cell = (b: LengthBucket, g: string) => c.by_length[b]?.[g] as GenCell | undefined;
+  const pooled = (g: string, k: 'caught' | 'called_human') => {
+    const cells = long.map(l => cell(l.key, g)).filter((x): x is GenCell => !!x);
+    const n = cells.reduce((a, x) => a + x.n, 0);
+    return n ? cells.reduce((a, x) => a + x[k] * x.n, 0) / n : null;
+  };
+  const lengthRows = (f: (b: LengthBucket) => number | null | undefined) =>
+    long.map(l => ({ label: l.label, v: f(l.key) ?? null }));
+  return (
+    <>
+      <p className="test-meta">
+        Tested on {fmtInt(ff.n)} human texts and {fmtInt(GENS.reduce((a, g) => a + long.reduce((b, l) => b + (cell(l.key, g)?.n ?? 0), 0), 0))}{' '}
+        AI-written texts of {c.min_words} words or more, all held back from training. Detector version {c.version}.
+      </p>
+
+      <section className="acc-section" aria-labelledby="ff-title">
+        <h2 id="ff-title" className="section-title">
+          How often it wrongly flags people
+        </h2>
+        <p className="acc-lede">
+          A false flag is human writing that Squint called <em className="term">Likely AI</em>. This is the number to watch.
+        </p>
+        <p className="headline">
+          <span className="headline-num">{fmtRate(ff.rate)}</span>
+          <span className="headline-cap">
+            of human writing was flagged: {fmtInt(ff.flagged)} of {fmtInt(ff.n)} texts.
+          </span>
+        </p>
+        <RateRows
+          caption="False flags by writer and length"
+          rows={[
+            {
+              label: 'Non-native English writers',
+              v: nn.rate,
+              note: `${fmtInt(nn.flagged)} of ${fmtInt(nn.n)}. Often flagged by other detectors, so Squint is tested on them on purpose.`,
+            },
+            ...lengthRows(b => c.by_length[b]?.false_flag),
+          ]}
+          noun="human texts flagged"
+        />
+      </section>
+
+      <section className="acc-section" aria-labelledby="catch-title">
+        <h2 id="catch-title" className="section-title">
+          How often it catches AI writing
+        </h2>
+        <p className="acc-lede">The share of AI-written texts that Squint called Likely AI. Missing some is the price of rarely flagging people.</p>
+        <RateRows
+          caption="Catch rate by model"
+          rows={[
+            ...GENS.map(g => ({
+              label: sourceName(g),
+              v: pooled(g, 'caught'),
+              note: g === 'claude' ? 'The known gap: some Claude writing gets through, mostly in short texts.' : undefined,
+            })),
+            { label: sourceName('gemini'), v: null, note: 'Not tested yet.' },
+          ]}
+          noun="caught"
+        />
+        {GENS.map(g => (
+          <RateRows key={g} caption={`${sourceName(g)} by length`} rows={lengthRows(b => cell(b, g)?.caught)} noun="caught" />
+        ))}
+      </section>
+
+      <section className="acc-section" aria-labelledby="unsure-title">
+        <h2 id="unsure-title" className="section-title">
+          How often AI writing passes as human
+        </h2>
+        <p className="acc-lede">
+          The share of AI-written texts that Squint called <em className="term">Likely human</em>. The rest of the misses landed
+          in Uncertain.
+        </p>
+        <RateRows
+          caption="Called likely human"
+          rows={GENS.map(g => ({ label: sourceName(g), v: pooled(g, 'called_human') }))}
+          noun="called human"
+        />
+      </section>
+
+      <p className="acc-foot">
+        None of these numbers cover edited or paraphrased AI text. Under {c.min_words} words Squint gives no verdict, because in
+        testing it wrongly flagged {fmtRate(c.by_length['20-49']?.false_flag ?? 0)} of short human texts.{' '}
         <a className="text-link" href={`${hrefFor('how')}`}>
           Read about the blind spots
           <ArrowRightIcon size={16} />

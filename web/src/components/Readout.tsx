@@ -1,6 +1,6 @@
 import { Button } from "@astryxdesign/core/Button";
 import { useEffect, useState, type RefObject } from "react";
-import { bandLine, gap, notes } from "../copy";
+import { bandLine, gap, gapBinoculars, notes } from "../copy";
 import { fmtInt, plural, words } from "../lib/format";
 import type { Result, Segment } from "../types";
 import { InfoIcon, RedoIcon } from "./Icons";
@@ -21,6 +21,9 @@ export function Readout({
 }) {
   const v = result.verdict;
   const t = result.timing_ms;
+  const byClf = v.detector === "classifier";
+  const noVerdict = v.band === "uncalibrated" || v.band === "too_short";
+  const known = byClf ? gap : gapBinoculars;
   const secs = (t.queue + t.load + t.score) / 1000;
   return (
     <section className="readout" aria-labelledby="checker-title">
@@ -33,7 +36,7 @@ export function Readout({
           data-band={v.band}
         >
           {v.label}
-          {v.confidence === "low" && v.band !== "uncalibrated" && (
+          {v.confidence === "low" && !noVerdict && (
             <span className="sr-only">, low confidence</span>
           )}
         </h1>
@@ -41,7 +44,7 @@ export function Readout({
         <p className="verdict-meta">
           {words(result.word_count)} &middot; checked in{" "}
           {secs < 10 ? secs.toFixed(1) : Math.round(secs)} seconds
-          {v.confidence === "low" && v.band !== "uncalibrated" && (
+          {v.confidence === "low" && !noVerdict && (
             <>
               {" "}
               &middot;{" "}
@@ -53,7 +56,7 @@ export function Readout({
         </p>
       </header>
 
-      <Duochrome score={v.score} thresholds={v.thresholds} />
+      {!byClf && <Duochrome score={v.score} thresholds={v.thresholds} />}
 
       <dl className="facts">
         <div className="fact">
@@ -80,13 +83,15 @@ export function Readout({
           </dd>
         </div>
         <div className="fact">
-          <dt>Score</dt>
+          <dt>{byClf ? "Predictability score" : "Score"}</dt>
           <dd>
             <span className="fact-num">{v.score.toFixed(3)}</span>
             <span className="fact-note">
-              {v.thresholds
-                ? `Likely AI below ${v.thresholds.ai_below.toFixed(3)}, likely human above ${v.thresholds.human_above.toFixed(3)}`
-                : "No cutoffs until Squint is tuned"}
+              {byClf
+                ? "Lower is more predictable. It drives the word marks below; the verdict comes from a detector trained on ChatGPT and Claude writing."
+                : v.thresholds
+                  ? `Likely AI below ${v.thresholds.ai_below.toFixed(3)}, likely human above ${v.thresholds.human_above.toFixed(3)}`
+                  : "No cutoffs until Squint is tuned"}
             </span>
           </dd>
         </div>
@@ -98,8 +103,8 @@ export function Readout({
         <InfoIcon size={18} />
         <div>
           <p>
-            <strong>{gap.title}</strong>{" "}
-            {v.band === "uncalibrated" ? gap.shortUntuned : gap.short}{" "}
+            <strong>{known.title}</strong>{" "}
+            {noVerdict ? known.shortUntuned : known.short}{" "}
             {notes.evidence}
           </p>
           <p className="caveat-sub">{notes.stored}</p>

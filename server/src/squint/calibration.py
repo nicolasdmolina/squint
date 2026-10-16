@@ -1,4 +1,5 @@
-"""calibration/thresholds.json and calibration/report.json (docs/calibration-format.md)."""
+"""calibration/thresholds.json and calibration/report.json (docs/calibration-format.md), plus
+calibration/classifier.json for the trained classifier (see clf.py)."""
 
 from __future__ import annotations
 
@@ -36,6 +37,7 @@ def _num(x) -> bool:
 class Calibration:
     thresholds: dict | None
     report: dict | None
+    classifier: dict | None = None
 
     @property
     def version(self) -> str | None:
@@ -131,4 +133,5 @@ class CalibrationStore:
             return data
 
     def current(self) -> Calibration:
-        return Calibration(thresholds=self._read("thresholds.json"), report=self._read("report.json"))
+        return Calibration(thresholds=self._read("thresholds.json"), report=self._read("report.json"),
+                           classifier=self._read("classifier.json"))

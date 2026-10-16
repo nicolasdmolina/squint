@@ -506,6 +506,7 @@ const LABELS: Record<Band, string> = {
   uncertain: 'Uncertain',
   likely_ai: 'Likely AI',
   uncalibrated: 'Not tuned yet',
+  too_short: 'Too short to tell',
 };
 
 function explanation(band: Band, score: number, t: { ai_below: number; human_above: number } | null, low: boolean): string {

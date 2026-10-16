@@ -176,8 +176,9 @@ def test_result_shape():
     r = analyse(words(160), 1.8, cal()).result()
     assert set(r) == {"word_count", "token_count", "model_pair", "verdict", "reasons", "stats", "tokens",
                       "sentences", "paragraphs", "segments"}
-    assert set(r["verdict"]) == {"band", "label", "confidence", "length_bucket", "score", "thresholds",
-                                 "ai_percent", "explanation"}
+    assert set(r["verdict"]) == {"band", "label", "confidence", "length_bucket", "detector", "score", "thresholds",
+                                 "classifier", "ai_percent", "explanation"}
+    assert r["verdict"]["detector"] == "binoculars" and r["verdict"]["classifier"] is None
     assert r["model_pair"] == PAIR
     json.dumps(r, allow_nan=False)
 

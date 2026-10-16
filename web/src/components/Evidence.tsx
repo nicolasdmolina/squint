@@ -364,7 +364,10 @@ function Passages({ result, stops, onShow }: { result: Result; stops: Word[]; on
       <h3 id="passages-title" className="side-title">
         Passages
       </h3>
-      <p className="side-note">Overlapping {result.segments[0].word_end - result.segments[0].word_start}-word stretches, each scored on its own.</p>
+      <p className="side-note">
+        Overlapping {result.segments[0].word_end - result.segments[0].word_start}-word stretches, each scored on its own.
+        {result.verdict.detector === 'classifier' && ' The trained detector decides the flag; the number is the predictability score.'}
+      </p>
       <ol>
         {result.segments.map((s, i) => (
           <li key={i} className="passage" data-flagged={s.flagged || undefined}>

@@ -6,7 +6,7 @@ import { AlertIcon, CloseIcon, FileIcon, InfoIcon, RedoIcon, UploadIcon } from '
 import { LengthMeter } from '../components/LengthMeter';
 import { Readout } from '../components/Readout';
 import { StageRows, type Progress } from '../components/StageRows';
-import { describeError, gap, lengthGuide, LIMITS_FALLBACK, notes, type UiError } from '../copy';
+import { describeError, gap, gapBinoculars, lengthGuide, LIMITS_FALLBACK, notes, type UiError } from '../copy';
 import { countWords, fmtInt, words } from '../lib/format';
 import { reflowPdfText } from '../lib/reflow';
 import { useMedia } from '../lib/hooks';
@@ -44,7 +44,9 @@ export function Checker({ status, onChecked }: { status: Status | null; onChecke
   const focusAfter = useRef<'area' | 'title' | null>(null);
 
   const n = useMemo(() => countWords(text), [text]);
-  const guide = lengthGuide(n, limits, calibrated);
+  const clfMin = status?.classifier?.ready ? status.classifier.min_words : null;
+  const guide = lengthGuide(n, limits, calibrated, clfMin);
+  const known = status && !status.classifier?.ready ? gapBinoculars : gap;
   const running = run.kind === 'running';
 
   // announce only when what you'd get changes, not on every keystroke
@@ -253,7 +255,7 @@ export function Checker({ status, onChecked }: { status: Status | null; onChecke
             </p>
           </header>
 
-          {status && !calibrated && (
+          {status && !calibrated && !status.classifier?.ready && (
             <p className="notice">
               <InfoIcon size={18} />
               <span>
@@ -381,8 +383,8 @@ export function Checker({ status, onChecked }: { status: Status | null; onChecke
             <p>{notes.evidence}</p>
           </div>
           <div className="aside-item">
-            <h2 className="aside-title">{gap.title}</h2>
-            <p>{gap.body}</p>
+            <h2 className="aside-title">{known.title}</h2>
+            <p>{known.body}</p>
           </div>
         </aside>
       </div>
