@@ -50,4 +50,5 @@ seed = 1234
 [evaluate]
 false_flag_cap = 0.01     # at most 1% of human texts flagged, overall and non-native
 min_chatgpt_catch = 0.50  # gate also needs this ChatGPT catch rate on held-out sources
+min_words = 50           # gate counts texts this long or longer; shorter ones get "too short to tell"
 batch_size = 16

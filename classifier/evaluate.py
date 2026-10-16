@@ -19,7 +19,9 @@ Cutoffs (fitted on the tune split only, then frozen):
                     have a Binoculars score; rows without one use the classifier-only cutoff
 Gate (on human texts the model never saw in training or tuning: held-out sources + OOD sets):
   false flags <= cap overall and for non-native writers, and the ChatGPT catch rate on the
-  held-out sources' AI texts >= min_chatgpt_catch. Reported for both rules.
+  held-out sources' AI texts >= min_chatgpt_catch. Reported for both rules. Only texts of at
+  least min_words words count: shorter texts get "too short to tell" in the product, and their
+  numbers are reported separately for information.
 """
 
 from __future__ import annotations
@@ -99,7 +101,8 @@ def summarize(rows: list[dict], flag) -> dict:
     return out
 
 
-def gate(rows: list[dict], flag, cap: float, min_catch: float) -> dict:
+def gate(rows: list[dict], flag, cap: float, min_catch: float, min_words: int = 0) -> dict:
+    rows = [r for r in rows if r["n_words"] >= min_words]
     hum = [r for r in rows if r["split"] in GATE_SPLITS and r["label"] == "human"]
     nn = [r for r in hum if r["subset"] == "non_native"]
     cg = [r for r in rows if r["split"] == "holdout" and r["label"] == "ai" and r["generator"] == "chatgpt"]
@@ -130,17 +133,23 @@ def render_markdown(rep: dict) -> str:
              f"(bound by {rep['cutoffs']['classifier_only']['binding']}); combined "
              + (f"P(AI) > {rep['cutoffs']['combined']['t']:.4f} or Binoculars < {rep['cutoffs']['combined']['b_cut']:.4f}"
                 if rep["cutoffs"].get("combined") else "not fitted (no Binoculars scores on tune)") + ".",
+             f"- Gate counts texts of {g.get('min_words', 0)}+ words; shorter ones are shown below it for information.",
              "", "| Rule | Pass | False flags, held-out humans | Non-native | ChatGPT caught (held-out sources) |",
              "|---|---|---|---|---|"]
+
+    def cell(d):
+        return "n/a" if d["rate"] is None else f"{d['rate']:.1%} ({d['flagged']}/{d['n']}, CI to {d['ci95'][1]:.1%})"
     for name in ("classifier_only", "combined"):
         x = g["rules"].get(name)
-        if not x:
-            continue
-
-        def cell(d):
-            return "n/a" if d["rate"] is None else f"{d['rate']:.1%} ({d['flagged']}/{d['n']}, CI to {d['ci95'][1]:.1%})"
-        lines.append(f"| {name} | {'yes' if x['pass'] else 'no'} | {cell(x['false_flags_overall'])} | "
-                     f"{cell(x['false_flags_non_native'])} | {cell(x['chatgpt_catch_holdout'])} |")
+        if x:
+            lines.append(f"| {name} | {'yes' if x['pass'] else 'no'} | {cell(x['false_flags_overall'])} | "
+                         f"{cell(x['false_flags_non_native'])} | {cell(x['chatgpt_catch_holdout'])} |")
+    for name in ("classifier_only", "combined"):
+        x = g.get("short_texts_info", {}).get(name)
+        if x:
+            lines.append(f"| {name}, under {g['min_words']} words (info) | {'yes' if x['pass'] else 'no'} | "
+                         f"{cell(x['false_flags_overall'])} | {cell(x['false_flags_non_native'])} | "
+                         f"{cell(x['chatgpt_catch_holdout'])} |")
     lines += ["", "Per held-out human source (classifier-only false flags):", ""]
     for split in GATE_SPLITS:
         for src, v in rep["by_rule"]["classifier_only"].get(split, {}).get("human", {}).items():
@@ -240,12 +249,16 @@ def main() -> int:
 
     # ---- metrics and gate -----------------------------------------------------------------
     by_rule = {name: summarize(rows, f) for name, f in rules.items()}
-    gates = {name: gate(rows, f, cap, ec["min_chatgpt_catch"]) for name, f in rules.items()}
+    min_words = ec.get("min_words", 0)
+    gates = {name: gate(rows, f, cap, ec["min_chatgpt_catch"], min_words) for name, f in rules.items()}
+    short_rows = [r for r in rows if r["n_words"] < min_words]
+    short = {name: gate(short_rows, f, cap, ec["min_chatgpt_catch"]) for name, f in rules.items()} if short_rows else {}
     passing = [n for n in ("combined", "classifier_only") if n in gates and gates[n]["pass"]]
     rep = {
         "date": args.date, "run": run_dir.name, "model": trained["model"], "dataset_hash": trained["dataset_hash"],
         "trained": trained, "cap": cap, "min_chatgpt_catch": ec["min_chatgpt_catch"],
-        "gate": {"pass": bool(passing), "recommended_rule": passing[0] if passing else "none", "rules": gates},
+        "gate": {"pass": bool(passing), "recommended_rule": passing[0] if passing else "none", "rules": gates,
+                 "min_words": min_words, "short_texts_info": short},
         "cutoffs": {k: {kk: (None if isinstance(vv, float) and vv == float("-inf") else vv) for kk, vv in v.items()}
                     for k, v in cutoffs.items()},
         "by_rule": by_rule,
