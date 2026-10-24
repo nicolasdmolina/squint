@@ -19,13 +19,15 @@ arxiv = 300
 wikipedia = 300
 amazon_reviews = 300
 stackexchange = 300
+reddit = 300              # Webis-TLDR-17: first-person posts and comments, 2006-2016
 persuade_extra_native = 500
 persuade_extra_ell = 300
 
 [generate]
 # per-night call caps per generator (each call writes 3-15 pieces)
 caps = { chatgpt = 600, claude = 300, gemini = 300 }
-order = ["gemini", "chatgpt", "claude"]   # gemini first: it fails fast when its login is blocked
+# gemini is parked (docs/roadmap.md): its CLI no longer works with a personal Google login
+order = ["chatgpt", "claude"]
 max_rounds = 2
 # how many existing AI pieces each generator rewrites ("humanize" / paraphrase variants)
 paraphrase_per_generator = 600

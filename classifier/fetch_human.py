@@ -352,6 +352,36 @@ def se_rows(n: int, refresh: bool) -> list[dict]:
                 f"{p['license']} (Stack Exchange)", {"site": p["site"]}) for p in picked]
 
 
+# --- Reddit posts and comments (Webis-TLDR-17, 2006-2016) ---------------------------------
+
+# subreddits whose posts are mostly links, images or game jargon rather than prose
+REDDIT_SKIP = {"pics", "funny", "gifs", "videos", "gaming", "leagueoflegends", "starcraft", "DotA2", "trees",
+               "circlejerk", "pokemon", "Minecraft", "wow", "nfl", "nba", "soccer", "hockey", "baseball"}
+
+
+def reddit_rows(n: int, refresh: bool) -> list[dict]:
+    """First-person, informal writing by ordinary people. The posts' own tl;dr lines are the
+    prompts for the matched AI rows (Webis strips them from the body)."""
+    raw = cached_json("reddit_blocks.json", refresh,
+                      lambda: hf_blocks("webis/tldr-17", "default", "train", 14, "reddit"))
+    items = []
+    for r in raw:
+        sub = r.get("subreddit") or ""
+        text = html.unescape(r.get("content") or "")
+        summary = re.sub(r"\s+", " ", html.unescape(r.get("summary") or "")).strip()
+        # links, markdown and edit notes are cues the AI side never has
+        if sub in REDDIT_SKIP or re.search(r"https?://|www\.|\]\(|^\s*>|\b(edit|EDIT|Edit)\s*\d*:", text, re.M):
+            continue
+        text = normalize_text(re.sub(r"[ \t]*\n[ \t]*", "\n", text).strip())
+        if not 80 <= word_count(text) <= 450 or not 4 <= word_count(summary) <= 60:
+            continue
+        items.append({"_uid": r.get("id") or str(r["_row"]), "_row": r["_row"], "text": text, "sub": sub,
+                      "summary": summary})
+    picked = balanced(items, "sub", n, "reddit-pick")
+    return [row("reddit", str(p["_row"]), p["text"], "personal", f"reddit:{p['_row']}", p["summary"], p["sub"],
+                "CC BY 4.0 (Webis-TLDR-17); posts by Reddit users", {"subreddit": p["sub"]}) for p in picked]
+
+
 # --- PERSUADE extra -----------------------------------------------------------------------
 
 def persuade_extra_rows(n_native: int, n_ell: int) -> list[dict]:
@@ -448,7 +478,7 @@ def import_ood(src_dir: Path) -> None:
 
 # --- main --------------------------------------------------------------------------------
 
-FETCHERS = ("persuade", "arxiv", "wikipedia", "amazon-reviews", "stackexchange")
+FETCHERS = ("persuade", "arxiv", "wikipedia", "amazon-reviews", "stackexchange", "reddit")
 
 
 def main() -> None:
@@ -484,6 +514,8 @@ def main() -> None:
                 got = amazon_rows(cfg["amazon_reviews"], args.refresh)
             elif name == "stackexchange":
                 got = se_rows(cfg["stackexchange"], args.refresh)
+            elif name == "reddit":
+                got = reddit_rows(cfg["reddit"], args.refresh)
             else:
                 raise SystemExit(f"unknown source {name}; choose from {FETCHERS}")
         except (OSError, ValueError, KeyError) as e:  # network or API trouble: keep the others

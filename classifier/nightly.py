@@ -10,11 +10,12 @@ stopped.
 How a night goes (all stages are separate processes in their own process groups):
   1. fetch     human data still missing from data/human_extra.jsonl (network; once, then cached)
   2. plan      extend classifier/generated/plan.jsonl (seconds)
-  3. generate  one process per generator (gemini, chatgpt, claude), started together and left
+  3. generate  one process per generator (config.toml [generate].order), started together and left
                running in the background for the whole window; each stops at its per-night
                call cap, on auth/usage-limit errors, or 2 minutes before the window ends
-  4. build     data/dataset.jsonl from everything generated so far (minutes) -- skipped when
-               an unfinished training run is waiting to be resumed
+  4. build     data/dataset.jsonl from everything generated so far (minutes), after waiting up to
+               BUILD_WAIT_MIN for the generators -- skipped when an unfinished training run
+               is waiting to be resumed
   5. train     heavy: resumes an unfinished run or starts one on the new dataset; must end
                EVAL_RESERVE minutes before the window closes (it checkpoints and exits 3)
   6. evaluate  heavy: the newest finished run without a report -> classifier/reports/<date>.*
@@ -37,6 +38,7 @@ Environment (defaults in brackets):
   SQUINT_NIGHTLY_GRACE_S [90]            SIGTERM -> SIGKILL grace
   SQUINT_NIGHTLY_YIELD_TO [squint-score] comma list of process patterns that pause heavy stages
   SQUINT_NIGHTLY_GENERATORS              comma list; default config.toml [generate].order
+  SQUINT_NIGHTLY_BUILD_WAIT_MIN          minutes the build waits for generators (default 120)
   SQUINT_NIGHTLY_SKIP                    comma list of stages to skip (fetch,plan,generate,...)
   SQUINT_STATUS_URL [http://127.0.0.1:8017/api/status]
 """
@@ -104,6 +106,7 @@ class Night:
         self.grace = float(env("SQUINT_NIGHTLY_GRACE_S", "90"))
         self.yield_to = [p for p in env("SQUINT_NIGHTLY_YIELD_TO", "squint-score").split(",") if p.strip()]
         self.status_url = env("SQUINT_STATUS_URL", "http://127.0.0.1:8017/api/status")
+        self.build_wait = 0 if self.args.stub else float(env("SQUINT_NIGHTLY_BUILD_WAIT_MIN", "120")) * 60
         gens = env("SQUINT_NIGHTLY_GENERATORS", ",".join(self.cfg["generate"]["order"]))
         self.generators = [g for g in gens.split(",") if g.strip()]
         self.skip = {s for s in env("SQUINT_NIGHTLY_SKIP", "").split(",") if s.strip()}
@@ -282,6 +285,17 @@ class Night:
             return EXIT_ERROR
 
     # ---- helpers for the real stages -------------------------------------------------------
+    def wait_for_generators(self, limit: float) -> None:
+        """Give tonight's generators up to `limit` seconds to finish, so the dataset built next
+        includes what they wrote (otherwise new plan items reach training a night late)."""
+        gens = [p for n, p in self.children.items() if n.startswith("generate-")]
+        if not gens or limit <= 0:
+            return
+        until = min(time.time() + limit, self.window_end - self.eval_reserve - 3600)
+        log(f"build waits up to {max(0, until - time.time()) / 60:.0f} min for the generators")
+        while any(p.poll() is None for p in gens) and time.time() < until and not self.should_stop():
+            time.sleep(2)
+
     def unfinished_run(self) -> Path | None:
         runs = [p for p in RUNS_DIR.glob("*/run.json") if not (p.parent / "final" / "trained.json").exists()]
         return max(runs, key=lambda p: p.stat().st_mtime).parent if runs else None
@@ -300,7 +314,7 @@ class Night:
         return done[0] if done[0].name not in reported else None
 
     def human_sources_missing(self) -> bool:
-        want = {"arxiv", "wikipedia", "amazon-reviews", "stackexchange", "persuade"}
+        want = {"arxiv", "wikipedia", "amazon-reviews", "stackexchange", "persuade", "reddit"}
         path = DATA_DIR / "human_extra.jsonl"
         if not path.exists():
             return True
@@ -354,6 +368,7 @@ class Night:
             self.mark("build", "skipped", reason=f"resuming unfinished run {resume.name}")
             train_argv = lambda dl: [PY, "-u", "classifier/train.py", "--run-dir", str(resume), "--deadline", str(dl)]  # noqa: E731
         else:
+            self.wait_for_generators(self.build_wait)
             rc = self.run_light("build", [PY, "-u", "classifier/build_dataset.py"], 2, 30 * 60)
             if rc != 0:
                 final_rc = EXIT_ERROR if rc != EXIT_STOPPED else EXIT_STOPPED

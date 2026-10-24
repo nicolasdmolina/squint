@@ -36,6 +36,9 @@ from generate import family_of  # noqa: E402
 cal_build = cal_module("build_dataset")  # calibration/build_dataset.py: variants(), copies_prompt()
 
 
+MIN_AI_PER_HUMAN = 0.5
+
+
 def load_bases() -> tuple[list[dict], list[dict]]:
     """Base documents (one per original text) and rows dropped on the way."""
     bases, dropped = [], []
@@ -71,6 +74,17 @@ def load_bases() -> tuple[list[dict], list[dict]]:
                               "gen_variant": it.get("variant") or ("calibration-mixed-part" if a["role"] == "mixed_part"
                                                                    else "calibration"),
                               "origin_id": it.get("origin_id"), "model_id": a.get("model_id")})
+    # A new human source joins only once its matched AI rows exist; trained alone, its style
+    # (e.g. Reddit's) would read as a "human" cue. Generation runs after the night's build, so
+    # without this a source fetched today would train one-sided tonight.
+    extra_sources = {h["source"] for h in read_jsonl(extra_path)} if extra_path.exists() else set()
+    n_human = Counter(b["source"] for b in bases if b["label"] == "human")
+    n_ai = Counter(b["family"] for b in bases if b["label"] == "ai")
+    waiting = {s for s in extra_sources if n_ai[s] < MIN_AI_PER_HUMAN * n_human[s]}
+    if waiting:
+        dropped += [{"id": b["id"], "reason": f"source {b['source']} waits for matched AI rows"}
+                    for b in bases if b["label"] == "human" and b["source"] in waiting]
+        bases = [b for b in bases if not (b["label"] == "human" and b["source"] in waiting)]
     ids = [b["id"] for b in bases]
     dup = [i for i, n in Counter(ids).items() if n > 1]
     if dup:

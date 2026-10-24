@@ -16,6 +16,8 @@
      "url": "https://api.stackexchange.com/2.3 (top-voted answers on 14 prose sites)", "license": "CC BY-SA 3.0 / 4.0 per post (Stack Exchange)", "written": "2012-2021"},
     {"source": "wikipedia", "role": "train", "subset": "encyclopedic", "new": true, "docs": "up to 300 (fetch resumes nightly until done; rate-limited)",
      "url": "https://en.wikipedia.org/w/api.php (random articles, last revision before 2021-12-31)", "license": "CC BY-SA 3.0", "written": "before 2022"},
+    {"source": "reddit", "role": "train", "subset": "personal", "new": true, "docs": 300,
+     "url": "https://huggingface.co/datasets/webis/tldr-17", "license": "CC BY 4.0 (Webis-TLDR-17); posts by Reddit users", "written": "2006-2016"},
     {"source": "ellipse", "role": "holdout", "subset": "non_native (student essays)", "new": false, "docs": "calibration 215",
      "url": "https://github.com/scrosseye/ELLIPSE-Corpus", "license": "CC BY-NC-SA 4.0", "written": "before Aug 2022"},
     {"source": "toefl91", "role": "holdout", "subset": "non_native", "new": false, "docs": "90 (calibration)",

@@ -59,7 +59,7 @@ PARAPHRASE_STYLES = (
 # prompt_id prefix -> the human source whose prompts the item mirrors (used by the split)
 FAMILY_OF_PREFIX = {"persuade": "persuade", "ellipse": "ellipse", "toefl-style": "toefl91", "toefl91": "toefl91",
                     "news": "ghostbuster-news", "wp": "ghostbuster-wp", "arxiv": "arxiv", "wiki": "wikipedia",
-                    "review": "amazon-reviews", "forum": "stackexchange"}
+                    "review": "amazon-reviews", "forum": "stackexchange", "reddit": "reddit"}
 
 
 def family_of(prompt_id: str) -> str:
@@ -117,6 +117,13 @@ def matched_items(gen: str, extra: list[dict], cal_human: list[dict]) -> list[di
                 out.append(item(gen, "casual", "short", "forum", h["prompt_id"],
                                 f"Reply to this question the way someone would in a quick, casual forum comment "
                                 f"(2-5 sentences, conversational): \"{t}\"", "casual", h["id"], 70))
+        elif src == "reddit":
+            sub = h.get("topic") or "AskReddit"
+            tgt = min(about(n), 400)
+            out.append(item(gen, "matched", "forum" if tgt >= 150 else "short", "personal", h["prompt_id"],
+                            f"Write a Reddit post or comment for r/{sub} (about {tgt} words), in the first person, "
+                            f"that gets across this: \"{t}\". Write it the way a regular user types it, and give "
+                            f"only the post text.", "personal", h["id"], tgt))
     # news and stories from calibration leads the calibration plan did not use for this generator
     cal_plan_pids = {p["prompt_id"] for p in read_jsonl(CAL_GEN / "plan.jsonl")
                      if p["source"] == gen} if (CAL_GEN / "plan.jsonl").exists() else set()
