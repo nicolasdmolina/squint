@@ -49,7 +49,7 @@ export function MarginFacts({ result }: { result: Result }) {
   const s = result.stats;
   const pct = (x: number) => `${Math.round(x * 100)}%`;
   const rows: [string, string][] = [
-    ['AI-written share', v.ai_percent != null ? `${v.ai_percent}%` : '—'],
+    ...(v.ai_percent != null ? ([['AI-written share', `${v.ai_percent}%`]] as [string, string][]) : []),
     ['Words', fmtInt(result.word_count)],
     ["Model's first guess", pct(s.top1_rate)],
     ['In its top five', pct(s.top5_rate)],
@@ -61,7 +61,7 @@ export function MarginFacts({ result }: { result: Result }) {
         <caption className="sr-only">Figures for this text</caption>
         <tbody>
           {rows.map(([k, val]) => (
-            <tr key={k}>
+            <tr key={k} className={k === 'AI-written share' ? 'is-lead' : undefined}>
               <th scope="row">{k}</th>
               <td>{val}</td>
             </tr>

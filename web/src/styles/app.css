@@ -190,6 +190,7 @@ em,
 }
 .wordmark {
   align-self: center;
+  padding: 8px 0;
   color: var(--ink);
   text-decoration: none;
   font-size: 1.375rem;
@@ -675,12 +676,12 @@ em,
   text-align: right;
   font-weight: 650;
 }
-.figures tr:first-child td {
+.figures tr.is-lead td {
   font-size: var(--t-lg);
   font-weight: 750;
   font-stretch: 112%;
 }
-.figures tr:first-child th {
+.figures tr.is-lead th {
   color: var(--ink);
   font-weight: 600;
 }
@@ -751,7 +752,7 @@ em,
 
 /* The Binoculars-only ruler. */
 .ruler {
-  margin-top: var(--s5);
+  margin-top: var(--s7);
   max-width: 560px;
 }
 .ruler-track {
@@ -809,7 +810,7 @@ em,
 .lens {
   position: absolute;
   z-index: 10;
-  width: 340px;
+  width: 360px;
   padding: var(--s4) var(--s5) var(--s4);
   background: var(--sheet);
   border: 1px solid var(--ink);
@@ -973,6 +974,7 @@ tr[data-mine] .wd-p {
 
 .page {
   max-width: 880px;
+  margin: 0 auto;
 }
 .page-sheet {
   padding: var(--s7) var(--s8) var(--s8);
@@ -1136,6 +1138,7 @@ tr[data-mine] .wd-p {
   font-size: var(--t-xs);
 }
 .rate-note {
+  display: block;
   color: var(--ink-2);
 }
 .acc-notes {
@@ -1247,7 +1250,7 @@ tr[data-mine] .wd-p {
   padding-top: 12vh;
 }
 .gate-panel {
-  width: min(400px, 100%);
+  width: min(440px, 100%);
   padding: var(--s6) var(--s6) var(--s5);
 }
 .gate-title {
