@@ -12,7 +12,7 @@ idle_unload_s = 600     # unload the models after 10 idle minutes
 result_ttl_s = 600      # finished results stay in memory for 10 minutes
 max_queue = 50
 keychain_service = "squint-password"
-require_password = false  # true: refuse to start when the Keychain item is missing (SQUINT_REQUIRE_PASSWORD=1)
+require_password = true   # true: refuse to start when the Keychain item is missing (SQUINT_REQUIRE_PASSWORD=1)
 
 [limits]
 min_words = 20
