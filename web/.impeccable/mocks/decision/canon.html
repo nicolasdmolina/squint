@@ -1,0 +1,26 @@
+<!doctype html>
+<html><head><meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0}
+body{width:1440px;height:900px;overflow:hidden;background:#f6f7fb;color:#111827;font:15px/1.5 Inter,sans-serif}
+header{height:64px;display:flex;align-items:center;justify-content:space-between;padding:0 64px;background:#fff;border-bottom:1px solid #e5e7eb}
+header b{font-size:20px}
+.btn{background:#4f46e5;color:#fff;border-radius:10px;padding:10px 18px;font-weight:600}
+.grid{display:grid;grid-template-columns:1fr 380px;gap:28px;padding:40px 64px}
+.card{background:#fff;border:1px solid #e5e7eb;border-radius:16px;padding:28px}
+h1{font-size:32px;font-weight:700;margin-bottom:8px}
+.t{height:520px;border:1px solid #e5e7eb;border-radius:12px;padding:18px;color:#374151;line-height:1.7}
+.hl{background:#fde68a}
+.gauge{width:220px;height:220px;border-radius:50%;margin:10px auto 18px;background:conic-gradient(#4f46e5 0 46%,#e5e7eb 46% 100%);display:grid;place-items:center}
+.gauge div{width:170px;height:170px;border-radius:50%;background:#fff;display:grid;place-items:center;font-size:44px;font-weight:700}
+.row{display:flex;justify-content:space-between;padding:10px 0;border-top:1px solid #f0f1f5}
+</style></head><body>
+<header><b>Squint</b><span class="btn">Check text</span></header>
+<div class="grid">
+<div class="card"><h1>AI content detector</h1><p style="color:#6b7280;margin-bottom:18px">Paste text to see if it was written by AI.</p>
+<div class="t">I started baking bread during the first winter I lived alone. <span class="hl">Sourdough baking is a rewarding practice that combines science, patience, and creativity. At its core, sourdough relies on a natural starter.</span> Anyway. My starter is named Gary.</div></div>
+<div class="card"><div class="gauge"><div>46%</div></div><p style="text-align:center;font-weight:600;margin-bottom:18px">Likely AI-generated</p>
+<div class="row"><span>Words</span><b>327</b></div><div class="row"><span>Sentences flagged</span><b>6</b></div><div class="row"><span>Score</span><b>0.901</b></div></div>
+</div>
+</body></html>

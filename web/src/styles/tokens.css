@@ -1,59 +1,56 @@
 /*
- * Squint tokens: the optician's reading card.
- * Card stock on a faintly tinted ground, graphite for every control, and one duochrome pair
- * that appears only on evidence: teal = more predictable than expected (AI-like),
- * rose = more surprising than expected (human-like). Neither side is the bad side.
+ * Squint tokens: the galley proof.
+ * A white proof sheet on a cool desk, graphite ink for everything Squint says and every control,
+ * a blue-pencil rail on top, and two pencils that only ever mark evidence:
+ * blue = more predictable than expected (AI-like), orange = more surprising (human-like).
  * Astryx reset.css maps html[data-theme] to color-scheme, so light-dark() follows the switch.
  */
 :root {
-  /* ground, card and ink */
-  --ground: light-dark(#eef1f0, #11161a);
-  --card: light-dark(#fcfdfc, #182025);
-  --card-sunk: light-dark(#f4f6f5, #141b1f);
-  --ink: light-dark(#16191d, #e6eaec);
-  --ink-2: light-dark(#454b53, #b8c0c6);
-  --muted: light-dark(#5f666e, #949da4);
-  --line: light-dark(#dbe0de, #273137);
-  --line-strong: light-dark(#b4bcb9, #3b464d);
-  --hover: light-dark(rgba(22, 25, 29, 0.05), rgba(230, 234, 236, 0.07));
-  --press: light-dark(rgba(22, 25, 29, 0.1), rgba(230, 234, 236, 0.12));
-  --select: light-dark(#cfe6e6, #23474b);
-  --focus: light-dark(#16191d, #e6eaec);
+  /* desk, sheet and ink */
+  --desk: light-dark(#eef0ed, #0e1114);
+  --sheet: light-dark(#ffffff, #161a1e);
+  --sheet-sunk: light-dark(#f5f6f4, #12161a);
+  --ink: light-dark(#17191c, #e7eaec);
+  --ink-2: light-dark(#40464d, #bac1c7);
+  --muted: light-dark(#5b6269, #8f989f);
+  --rule: light-dark(#dcdfdb, #262c32);
+  --rule-strong: light-dark(#b9beb9, #3a424a);
+  --hover: light-dark(rgba(23, 25, 28, 0.05), rgba(231, 234, 236, 0.07));
+  --press: light-dark(rgba(23, 25, 28, 0.1), rgba(231, 234, 236, 0.12));
+  --select: light-dark(#cfe2f6, #234569);
+  --focus: light-dark(#17191c, #e7eaec);
 
-  /* the duochrome pair: poles carry text-level contrast, tints sit under ink text */
-  --ai: light-dark(#0a6870, #63c7c6);
-  --hu: light-dark(#ad2f4f, #f291a8);
-  --ai-1: light-dark(#e9f4f4, #15282b);
-  --ai-2: light-dark(#d3ebeb, #183539);
-  --ai-3: light-dark(#b5dddd, #1c4448);
-  --ai-4: light-dark(#94cdcd, #215559);
-  --hu-1: light-dark(#fcf0f3, #2c1c22);
-  --hu-2: light-dark(#f8dfe5, #3c2129);
-  --hu-3: light-dark(#f2c6d1, #4f2633);
-  --hu-4: light-dark(#eaabbb, #642c3e);
-  --mid: light-dark(#e6e9e8, #232c31);
+  /* the blue-pencil rail */
+  --rail: light-dark(#d7e6f4, #132538);
+  --rail-rule: light-dark(#b4cde6, #21405f);
+  --rail-hover: light-dark(rgba(16, 45, 80, 0.08), rgba(150, 200, 255, 0.1));
 
-  /* shape */
-  --r-card: 16px;
-  --r-ctl: 10px;
-  --r-mark: 4px;
-  --r-pill: 999px;
-  --border: 1px solid var(--line);
-  --shadow-1: light-dark(0 1px 2px rgba(20, 30, 34, 0.06), 0 1px 2px rgba(0, 0, 0, 0.4));
-  --shadow-2: light-dark(
-    0 18px 40px -12px rgba(20, 30, 34, 0.22),
-    0 18px 40px -12px rgba(0, 0, 0, 0.7)
-  );
+  /* the two pencils: poles carry text-level contrast, washes sit under ink text */
+  --blue: light-dark(#1d68b5, #79b6f2);
+  --blue-2: light-dark(#dce9f8, #1a3048);
+  --blue-3: light-dark(#c3d9f2, #22405f);
+  --orange: light-dark(#a8530d, #f2a865);
+  --orange-mark: light-dark(#c4620f, #f2a865);
+  --orange-2: light-dark(#fcebdc, #33241a);
+  --orange-3: light-dark(#f7d8bb, #47311f);
 
-  /* type: one grotesque for the interface, one reading serif for the writer's own words */
+  /* shape: proof stock is cut square, pencils leave thin marks */
+  --r-sheet: 2px;
+  --r-ctl: 4px;
+  --r-mark: 2px;
+  --line: 1px solid var(--rule);
+  --lift: light-dark(0 14px 36px -10px rgba(15, 22, 30, 0.28), 0 14px 36px -10px rgba(0, 0, 0, 0.75));
+
+  /* type: Archivo is Squint talking, Source Serif is the writer's own words */
   --sans: 'Archivo Variable', 'Archivo', ui-sans-serif, system-ui, sans-serif;
   --serif: 'Source Serif 4 Variable', 'Source Serif 4', 'Iowan Old Style', Georgia, serif;
   --t-xs: 0.8125rem; /* 13 */
-  --t-sm: 0.875rem; /* 14 */
+  --t-sm: 0.9375rem; /* 15 */
   --t-md: 1rem; /* 16 */
   --t-read: 1.1875rem; /* 19 */
-  --t-lg: 1.4375rem; /* 23 */
-  --t-xl: 1.75rem; /* 28 */
+  --t-lg: 1.375rem; /* 22 */
+  --t-title: 2.5rem; /* 40 */
+  --t-verdict: 3.5rem; /* 56 */
 
   /* space */
   --s1: 4px;
@@ -65,45 +62,52 @@
   --s7: 48px;
   --s8: 64px;
 
-  --gutter: 32px;
-  --bar-h: 60px;
-  --measure: 66ch;
-  --ease: cubic-bezier(0.22, 1, 0.36, 1);
-  --fast: 160ms;
-  --slow: 220ms;
+  --gutter: 40px;
+  --rail-h: 56px;
+  --margin-w: 300px;
+  --measure: 68ch;
+  --ease: cubic-bezier(0.16, 1, 0.3, 1);
+  --fast: 140ms;
+  --slow: 240ms;
 }
 
-@media (max-width: 720px) {
+@media (max-width: 760px) {
   :root {
     --gutter: 16px;
     --t-read: 1.0625rem; /* 17 */
-    --t-xl: 1.5rem; /* 24 */
-    --bar-h: 56px;
+    --t-title: 2rem; /* 32 */
+    --t-verdict: 2.5rem; /* 40 */
+    --rail-h: 52px;
   }
 }
 
-/* Evidence marks. Tint carries strength; the underline carries direction without colour:
-   solid = AI-like, dotted = human-like, heavier = stronger. The faintest step is underline only,
-   so fill is kept for words that actually lean. */
+/* Evidence marks. The underline carries direction without colour (solid = AI-like,
+   dotted = human-like) and its weight carries strength; a wash appears only under words that
+   lean hard. The default smoothed view marks only those strong leans, so the page shows where
+   to look instead of marking every word. */
 [data-heat] {
-  --tint: transparent;
+  --wash: transparent;
   --mark: transparent;
   --weight: 0px;
   --style: solid;
-  background-color: var(--tint);
+  background-color: var(--wash);
   text-decoration-line: underline;
   text-decoration-color: var(--mark);
   text-decoration-style: var(--style);
   text-decoration-thickness: var(--weight);
-  text-underline-offset: 0.26em;
+  text-underline-offset: 0.28em;
   text-decoration-skip-ink: none;
 }
-[data-heat='ai1'] { --tint: transparent; --mark: var(--ai); --weight: 1px; }
-[data-heat='ai2'] { --tint: var(--ai-2); --mark: var(--ai); --weight: 1.5px; }
-[data-heat='ai3'] { --tint: var(--ai-3); --mark: var(--ai); --weight: 2px; }
-[data-heat='ai4'] { --tint: var(--ai-4); --mark: var(--ai); --weight: 2.5px; }
-[data-heat='hu1'] { --tint: transparent; --mark: var(--hu); --weight: 1.5px; --style: dotted; }
-[data-heat='hu2'] { --tint: var(--hu-2); --mark: var(--hu); --weight: 2px; --style: dotted; }
-[data-heat='hu3'] { --tint: var(--hu-3); --mark: var(--hu); --weight: 2.5px; --style: dotted; }
-[data-heat='hu4'] { --tint: var(--hu-4); --mark: var(--hu); --weight: 3px; --style: dotted; }
+[data-heat='ai1'] { --mark: var(--blue); --weight: 1px; }
+[data-heat='ai2'] { --mark: var(--blue); --weight: 1.5px; }
+[data-heat='ai3'] { --wash: var(--blue-2); --mark: var(--blue); --weight: 2px; }
+[data-heat='ai4'] { --wash: var(--blue-3); --mark: var(--blue); --weight: 2.5px; }
+[data-heat='hu1'] { --mark: var(--orange-mark); --weight: 1.5px; --style: dotted; }
+[data-heat='hu2'] { --mark: var(--orange-mark); --weight: 2px; --style: dotted; }
+[data-heat='hu3'] { --wash: var(--orange-2); --mark: var(--orange-mark); --weight: 2.5px; --style: dotted; }
+[data-heat='hu4'] { --wash: var(--orange-3); --mark: var(--orange-mark); --weight: 3px; --style: dotted; }
 [data-heat='nu0'] { text-decoration-line: none; }
+.is-smooth [data-heat='ai1'],
+.is-smooth [data-heat='hu1'],
+.is-smooth [data-heat='ai2'],
+.is-smooth [data-heat='hu2'] { text-decoration-line: none; }

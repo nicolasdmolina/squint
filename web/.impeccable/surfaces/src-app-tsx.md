@@ -7,30 +7,33 @@ related_targets: []
 
 ## Scope and mode
 
-Squint web app: checker (Operate, primary), How accurate is this? and How it works (Read), password gate. Phone and desktop, light and dark. Full redesign; the previous bench-instrument look (chart-paper grid, condensed caps, square corners, cobalt/amber) is the anti-reference.
+Squint web app: checker (Operate, primary), Accuracy and How it works (Read), password gate. Phone and desktop, light and dark. Full redesign (2026-10-25). Anti-references: the optician's reading card (tinted ground, pill nav, explanatory sentence under every element) and the older bench-instrument look.
 
-Audience and job: a student, teacher or writer at a desk or on a phone, often anxious, pastes or uploads one piece of writing to learn whether it reads as AI-written, how sure the tool is, and which words drove it, without mistaking it for proof.
+Audience and job: a student, teacher or writer at a desk or on a phone pastes one piece of writing to learn whether it reads as AI-written, how sure Squint is, and which words drove it, without mistaking it for proof.
+
+Governing rule (Nicky): cut taglines, helper text and secondary labels; if a screen needs them, fix the layout.
 
 ## Direction contract
 
-THESIS: Squint reads text the way an optician reads eyes: one card held at reading distance, a two-sided duochrome comparison where neither side is the bad side, and a lens for looking closer. It refuses the detector default of a red percentage gauge and alarm highlighter over a white SaaS card.
+THESIS: Squint marks writing the way a copy editor marks a galley proof: the text is the page, evidence goes in pencil and in the margin, and the reading is the editor's note. It refuses the detector default of a white card with a percentage gauge and highlighter over every sentence.
 
-OWN-WORLD: Matte card stock on a cool, faintly tinted near-white ground (never cream); graphite ink for every control. Duochrome pair used only on evidence: rose (#c23b61 family) for human-like, lens teal (#0b6f78 family) for AI-like, each with a non-colour cue (dotted underline vs solid underlay). Archivo at normal width, sentence case, for all UI; the user's own text set in Source Serif 4 like a reading-card paragraph. Soft rounded radii (card 16, control 10, pill), two soft shadow tiers, 1px borders. Dark theme is the dimmed exam room: deep blue-grey, same grammar.
+OWN-WORLD: Cool proof-white ground, bright white galley sheet with a 1px rule, graphite ink. Shell is a non-repro blue band. Two pencils carry evidence only: blue (AI-like, solid underline plus a pale wash) and orange (human-like, dotted underline). Archivo for Squint's voice at a few steps, Source Serif 4 for the writer's text at one reading size. Square-ish corners (4px controls, 2px marks), no shadows except the floating lens. Numbers tabular. Dark theme: the proof desk at night, graphite sheet on near-black, same pencils lifted.
 
-STORY: The visitor sees what they will get at this length, runs the check with honest stage-by-stage progress, reads the band and the plain caveat (ChatGPT is often missed), then looks closer through the lens, word by word.
+STORY: The visitor pastes text into the galley, presses Check, watches progress written in the margin, reads the verdict as a large editor's note with one plain sentence, sees flagged passages bracketed in the margin, and opens any word to see what the model expected.
 
-FIRST VIEWPORT: Slim top bar: Squint wordmark, three routes (Check, Accuracy, How it works), theme, lock. Below, one wide reading card: textarea with an attached-file chip inside the composer, a length line (20 / 150 / 2,500), Check text primary bottom-right. After a run: verdict line (band in words, h1 at most 32px), the duochrome scale with needle and cutoffs, % AI-written only at 150+, then the marked text with a side column of reasons and passages on wide screens. Phone: bottom pill nav, stacked, word lens as a bottom sheet.
+FIRST VIEWPORT: Blue rail: Squint wordmark left, Check / Accuracy / How it works as underline tabs, theme toggle and lock right. Below, a two-column proof: the galley sheet (about 2/3) holding the textarea at reading size with word count and Check text in its foot; the margin column (1/3) holding only the length stops (Verdict 50 · Share 150 · Limit 2,500) and later the queries. After a check: verdict at 56px in the galley head, one sentence, the marked text with margin brackets on flagged passages; margin holds numbers in one tabular column and the known gap as a single query.
 
-FORM: Optician's reading card with duochrome test, grounded list position 7 of 7 (1 highlighter on a photocopy, 2 field-guide plate, 3 weather forecast, 4 proofreader galley marks, 5 music dynamics marks, 6 tide almanac, 7 optician's reading card). Seed key a0c58abc. Decision page probed once unattended (no answer); assigned direction built.
-Raise from variable-font specimen: the word lens shows the selected word at specimen scale with its ranked guesses beneath.
-Raise from boarding pass and gate board (competitive): queue, warm-up and scoring rows restyle in place and stay lit until the next stage lands.
-Raise from design annual plate section: one grotesque carries display and caption alike; the ground is tinted, never pure white.
-Signature interaction: the lens. Hover, tap or arrow-key onto any word and a round-cornered lens opens with that word large, its rank, surprise against expected, and the top five guesses; arrows step word to word, Up/Down by sentence.
-Motion grammar: one moving element per view; the needle eases to its reading in 220ms ease-out; stage rows restyle in place; nothing moves under reduced motion.
+FORM: Copy editor's galley proof with blue-pencil queries, grounded list position 7 of 7 (1 graded paper, 2 highlighter study notes, 3 composition notebook, 4 dictionary entry, 5 scantron answer sheet, 6 library due-date card, 7 galley proof). seed:df86068ee0cbb1a7. Chosen by Nicky on 2026-10-25.
+Raise from zoo guide map: one region owns each state; the galley is the screen before and after a check.
+Raise from orienteering map: one reserved colour above the marks; only the word in focus gets the ink box.
+Raise from ticket wallet: progress writes itself into the margin instead of a separate status panel.
+Raise from acetate manual: one reading size for the text; Squint's own type uses few sizes.
+Raise from datamatics: figures sit in one tight tabular column, not inside sentences.
+Signature interaction: margin brackets. Each flagged passage gets a blue bracket in the margin aligned to its lines; clicking a bracket scrolls and outlines that passage. The word lens opens on hover, tap or arrow keys.
+Motion grammar: one moment, the brackets draw in once (scaleY, 240ms ease-out) when a result lands; nothing moves under reduced motion.
 
 FINISH: unreviewed and undocumented is unfinished; this build ends with the finish review, the verdict, DESIGN.md, and every shipping raster carrying its provenance
 
 ## Unresolved
 
-- Direction chosen unattended (decision page probed once, unanswered); Nicky may re-roll.
-- Real accuracy numbers do not exist yet; the accuracy page renders only what the API returns.
+- Claude Design prototypes of the checker are a follow-up for Nicky to compare.

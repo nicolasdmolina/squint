@@ -1,143 +1,360 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-10-08T23:53:45.867969+00:00",
+  "generatedAt": "2026-10-26T00:00:00Z",
   "title": "Design System: Squint",
   "extensions": {
     "colorMeta": {
+      "desk": {
+        "role": "neutral",
+        "displayName": "Cool Desk",
+        "canonical": "light-dark(#eef0ed, #0e1114)",
+        "tonalRamp": [
+          "oklch(15% 0.005 140)",
+          "oklch(26% 0.005 140)",
+          "oklch(37% 0.005 140)",
+          "oklch(48% 0.005 140)",
+          "oklch(60% 0.005 140)",
+          "oklch(72% 0.005 140)",
+          "oklch(84% 0.005 140)",
+          "oklch(95% 0.005 140)"
+        ]
+      },
+      "proof-sheet": {
+        "role": "neutral",
+        "displayName": "Proof Sheet",
+        "canonical": "light-dark(#ffffff, #161a1e)",
+        "tonalRamp": [
+          "oklch(15% 0.006 240)",
+          "oklch(26% 0.006 240)",
+          "oklch(37% 0.006 240)",
+          "oklch(48% 0.006 240)",
+          "oklch(60% 0.006 240)",
+          "oklch(72% 0.006 240)",
+          "oklch(84% 0.006 240)",
+          "oklch(95% 0.006 240)"
+        ]
+      },
+      "sheet-sunk": {
+        "role": "neutral",
+        "displayName": "Sunk Sheet",
+        "canonical": "light-dark(#f5f6f4, #12161a)",
+        "tonalRamp": [
+          "oklch(15% 0.004 140)",
+          "oklch(26% 0.004 140)",
+          "oklch(37% 0.004 140)",
+          "oklch(48% 0.004 140)",
+          "oklch(60% 0.004 140)",
+          "oklch(72% 0.004 140)",
+          "oklch(84% 0.004 140)",
+          "oklch(95% 0.004 140)"
+        ]
+      },
       "graphite-ink": {
         "role": "primary",
         "displayName": "Graphite Ink",
-        "canonical": "#16191d",
+        "canonical": "light-dark(#17191c, #e7eaec)",
         "tonalRamp": [
-          "#0b0d0f",
-          "#16191d",
-          "#2a2f35",
-          "#454b53",
-          "#5f666e",
-          "#949da4",
-          "#c9ced2",
-          "#eef1f0"
+          "oklch(15% 0.006 240)",
+          "oklch(26% 0.006 240)",
+          "oklch(37% 0.006 240)",
+          "oklch(48% 0.006 240)",
+          "oklch(60% 0.006 240)",
+          "oklch(72% 0.006 240)",
+          "oklch(84% 0.006 240)",
+          "oklch(95% 0.006 240)"
         ]
       },
-      "lens-teal": {
+      "graphite-2": {
+        "role": "neutral",
+        "displayName": "Graphite 2",
+        "canonical": "light-dark(#40464d, #bac1c7)",
+        "tonalRamp": [
+          "oklch(15% 0.012 245)",
+          "oklch(26% 0.012 245)",
+          "oklch(37% 0.012 245)",
+          "oklch(48% 0.012 245)",
+          "oklch(60% 0.012 245)",
+          "oklch(72% 0.012 245)",
+          "oklch(84% 0.012 245)",
+          "oklch(95% 0.012 245)"
+        ]
+      },
+      "muted": {
+        "role": "neutral",
+        "displayName": "Muted Graphite",
+        "canonical": "light-dark(#5b6269, #8f989f)",
+        "tonalRamp": [
+          "oklch(15% 0.012 245)",
+          "oklch(26% 0.012 245)",
+          "oklch(37% 0.012 245)",
+          "oklch(48% 0.012 245)",
+          "oklch(60% 0.012 245)",
+          "oklch(72% 0.012 245)",
+          "oklch(84% 0.012 245)",
+          "oklch(95% 0.012 245)"
+        ]
+      },
+      "rule": {
+        "role": "neutral",
+        "displayName": "Rule",
+        "canonical": "light-dark(#dcdfdb, #262c32)",
+        "tonalRamp": [
+          "oklch(15% 0.005 140)",
+          "oklch(26% 0.005 140)",
+          "oklch(37% 0.005 140)",
+          "oklch(48% 0.005 140)",
+          "oklch(60% 0.005 140)",
+          "oklch(72% 0.005 140)",
+          "oklch(84% 0.005 140)",
+          "oklch(95% 0.005 140)"
+        ]
+      },
+      "rule-strong": {
+        "role": "neutral",
+        "displayName": "Strong Rule",
+        "canonical": "light-dark(#b9beb9, #3a424a)",
+        "tonalRamp": [
+          "oklch(15% 0.006 140)",
+          "oklch(26% 0.006 140)",
+          "oklch(37% 0.006 140)",
+          "oklch(48% 0.006 140)",
+          "oklch(60% 0.006 140)",
+          "oklch(72% 0.006 140)",
+          "oklch(84% 0.006 140)",
+          "oklch(95% 0.006 140)"
+        ]
+      },
+      "selection": {
+        "role": "neutral",
+        "displayName": "Selection Blue",
+        "canonical": "light-dark(#cfe2f6, #234569)",
+        "tonalRamp": [
+          "oklch(15% 0.08 250)",
+          "oklch(26% 0.08 250)",
+          "oklch(37% 0.08 250)",
+          "oklch(48% 0.08 250)",
+          "oklch(60% 0.08 250)",
+          "oklch(72% 0.08 250)",
+          "oklch(84% 0.08 250)",
+          "oklch(95% 0.08 250)"
+        ]
+      },
+      "nonrepro-rail": {
         "role": "secondary",
-        "displayName": "Lens Teal (AI-like evidence)",
-        "canonical": "#0a6870",
+        "displayName": "Non-repro Blue",
+        "canonical": "light-dark(#d7e6f4, #132538)",
         "tonalRamp": [
-          "#06393d",
-          "#0a6870",
-          "#2f8f95",
-          "#63c7c6",
-          "#94cdcd",
-          "#b5dddd",
-          "#d3ebeb",
-          "#e9f4f4"
+          "oklch(15% 0.05 248)",
+          "oklch(26% 0.05 248)",
+          "oklch(37% 0.05 248)",
+          "oklch(48% 0.05 248)",
+          "oklch(60% 0.05 248)",
+          "oklch(72% 0.05 248)",
+          "oklch(84% 0.05 248)",
+          "oklch(95% 0.05 248)"
         ]
       },
-      "duochrome-rose": {
+      "rail-rule": {
+        "role": "secondary",
+        "displayName": "Rail Rule",
+        "canonical": "light-dark(#b4cde6, #21405f)",
+        "tonalRamp": [
+          "oklch(15% 0.06 248)",
+          "oklch(26% 0.06 248)",
+          "oklch(37% 0.06 248)",
+          "oklch(48% 0.06 248)",
+          "oklch(60% 0.06 248)",
+          "oklch(72% 0.06 248)",
+          "oklch(84% 0.06 248)",
+          "oklch(95% 0.06 248)"
+        ]
+      },
+      "blue-pencil": {
+        "role": "secondary",
+        "displayName": "Blue Pencil",
+        "canonical": "light-dark(#1d68b5, #79b6f2)",
+        "tonalRamp": [
+          "oklch(15% 0.14 255)",
+          "oklch(26% 0.14 255)",
+          "oklch(37% 0.14 255)",
+          "oklch(48% 0.14 255)",
+          "oklch(60% 0.14 255)",
+          "oklch(72% 0.14 255)",
+          "oklch(84% 0.14 255)",
+          "oklch(95% 0.14 255)"
+        ]
+      },
+      "blue-wash": {
+        "role": "secondary",
+        "displayName": "Blue Wash",
+        "canonical": "light-dark(#dce9f8, #1a3048)",
+        "tonalRamp": [
+          "oklch(15% 0.06 255)",
+          "oklch(26% 0.06 255)",
+          "oklch(37% 0.06 255)",
+          "oklch(48% 0.06 255)",
+          "oklch(60% 0.06 255)",
+          "oklch(72% 0.06 255)",
+          "oklch(84% 0.06 255)",
+          "oklch(95% 0.06 255)"
+        ]
+      },
+      "blue-wash-strong": {
+        "role": "secondary",
+        "displayName": "Blue Wash Strong",
+        "canonical": "light-dark(#c3d9f2, #22405f)",
+        "tonalRamp": [
+          "oklch(15% 0.08 255)",
+          "oklch(26% 0.08 255)",
+          "oklch(37% 0.08 255)",
+          "oklch(48% 0.08 255)",
+          "oklch(60% 0.08 255)",
+          "oklch(72% 0.08 255)",
+          "oklch(84% 0.08 255)",
+          "oklch(95% 0.08 255)"
+        ]
+      },
+      "orange-pencil": {
         "role": "tertiary",
-        "displayName": "Duochrome Rose (human-like evidence)",
-        "canonical": "#ad2f4f",
+        "displayName": "Orange Pencil",
+        "canonical": "light-dark(#a8530d, #f2a865)",
         "tonalRamp": [
-          "#5e1a2b",
-          "#ad2f4f",
-          "#c9566f",
-          "#f291a8",
-          "#eaabbb",
-          "#f2c6d1",
-          "#f8dfe5",
-          "#fcf0f3"
+          "oklch(15% 0.13 55)",
+          "oklch(26% 0.13 55)",
+          "oklch(37% 0.13 55)",
+          "oklch(48% 0.13 55)",
+          "oklch(60% 0.13 55)",
+          "oklch(72% 0.13 55)",
+          "oklch(84% 0.13 55)",
+          "oklch(95% 0.13 55)"
         ]
       },
-      "ground": {
-        "role": "neutral",
-        "displayName": "Exam-room Ground",
-        "canonical": "#eef1f0",
+      "orange-mark": {
+        "role": "tertiary",
+        "displayName": "Orange Mark",
+        "canonical": "light-dark(#c4620f, #f2a865)",
         "tonalRamp": [
-          "#11161a",
-          "#182025",
-          "#273137",
-          "#3b464d",
-          "#b4bcb9",
-          "#dbe0de",
-          "#eef1f0",
-          "#fcfdfc"
+          "oklch(15% 0.15 55)",
+          "oklch(26% 0.15 55)",
+          "oklch(37% 0.15 55)",
+          "oklch(48% 0.15 55)",
+          "oklch(60% 0.15 55)",
+          "oklch(72% 0.15 55)",
+          "oklch(84% 0.15 55)",
+          "oklch(95% 0.15 55)"
         ]
       },
-      "card": {
-        "role": "neutral",
-        "displayName": "Card Stock",
-        "canonical": "#fcfdfc"
+      "orange-wash": {
+        "role": "tertiary",
+        "displayName": "Orange Wash",
+        "canonical": "light-dark(#fcebdc, #33241a)",
+        "tonalRamp": [
+          "oklch(15% 0.04 60)",
+          "oklch(26% 0.04 60)",
+          "oklch(37% 0.04 60)",
+          "oklch(48% 0.04 60)",
+          "oklch(60% 0.04 60)",
+          "oklch(72% 0.04 60)",
+          "oklch(84% 0.04 60)",
+          "oklch(95% 0.04 60)"
+        ]
+      },
+      "orange-wash-strong": {
+        "role": "tertiary",
+        "displayName": "Orange Wash Strong",
+        "canonical": "light-dark(#f7d8bb, #47311f)",
+        "tonalRamp": [
+          "oklch(15% 0.06 60)",
+          "oklch(26% 0.06 60)",
+          "oklch(37% 0.06 60)",
+          "oklch(48% 0.06 60)",
+          "oklch(60% 0.06 60)",
+          "oklch(72% 0.06 60)",
+          "oklch(84% 0.06 60)",
+          "oklch(95% 0.06 60)"
+        ]
       }
     },
     "typographyMeta": {
-      "headline": {
-        "displayName": "Headline",
-        "purpose": "One h1 per screen; on a result, the band in words."
+      "verdict": {
+        "displayName": "Verdict",
+        "purpose": "The reading at the head of the galley; 40px under 760px."
       },
       "title": {
         "displayName": "Title",
-        "purpose": "Section titles, the known-gap title, headline numbers."
+        "purpose": "Page titles on Accuracy, How it works and the password gate; 32px under 760px."
+      },
+      "section": {
+        "displayName": "Section",
+        "purpose": "Section titles, the known-gap title, the lead margin figure."
+      },
+      "wordmark": {
+        "displayName": "Wordmark",
+        "purpose": "The 'Squint' wordmark on the rail only."
       },
       "body": {
         "displayName": "Body",
-        "purpose": "Ledes, explanations, prose capped at 64ch."
+        "purpose": "Interface text; prose on reading pages at 1.6 line height, 68ch."
       },
       "label": {
         "displayName": "Label",
-        "purpose": "Field labels, meter stops, stage names, legend."
+        "purpose": "Tabs, buttons, row labels, the margin column."
+      },
+      "small": {
+        "displayName": "Small",
+        "purpose": "Counts, metadata, query tags, stage notes, legend."
       },
       "reading": {
         "displayName": "Reading",
-        "purpose": "The writer's own words in the composer and the marked printout; the lens word at 32px."
+        "purpose": "The writer's text only, in the composer and the marked printout; 17px under 760px."
       }
     },
     "shadows": [
       {
-        "name": "shadow-1",
-        "value": "0 1px 2px rgba(20,30,34,0.06)",
-        "purpose": "Resting reading card, gate panel, current nav pill."
+        "name": "lift",
+        "value": "light-dark(0 14px 36px -10px rgba(15, 22, 30, 0.28), 0 14px 36px -10px rgba(0, 0, 0, 0.75))",
+        "purpose": "Only the floating word lens and the phone bottom sheet."
       },
       {
-        "name": "shadow-2",
-        "value": "0 18px 40px -12px rgba(20,30,34,0.22)",
-        "purpose": "Floating only: the lens, the phone sheet, the bottom nav."
+        "name": "inset-edge",
+        "value": "inset 0 0 0 1px var(--ink)",
+        "purpose": "A border drawn as a shadow on secondary buttons (rate-bar tracks use the same trick with var(--rule)); not elevation."
       }
     ],
     "motion": [
       {
         "name": "ease",
-        "value": "cubic-bezier(0.22, 1, 0.36, 1)",
-        "purpose": "All state transitions (ease-out)."
+        "value": "cubic-bezier(0.16, 1, 0.3, 1)",
+        "purpose": "The one easing curve for every transition."
       },
       {
         "name": "fast",
-        "value": "160ms",
-        "purpose": "Hover, lens open/close, nav."
+        "value": "140ms",
+        "purpose": "Hover, tab, lens open and disclosure state changes."
       },
       {
         "name": "slow",
-        "value": "220ms",
-        "purpose": "Stage row restyle, meter fill, sheet in."
+        "value": "240ms",
+        "purpose": "The margin brackets drawing in (scaleY from the top) once when a result lands, and the ruler needle."
       },
       {
-        "name": "needle",
-        "value": "420ms",
-        "purpose": "The duochrome needle easing to its reading once."
+        "name": "reduced-motion",
+        "value": "0.01ms",
+        "purpose": "Under prefers-reduced-motion every animation and transition collapses; nothing moves."
       }
     ],
     "breakpoints": [
       {
-        "name": "phone",
-        "value": "720px"
-      },
-      {
-        "name": "stack",
+        "name": "narrow-margin",
         "value": "1040px"
       },
       {
-        "name": "narrow",
-        "value": "520px"
+        "name": "stacked",
+        "value": "860px"
+      },
+      {
+        "name": "phone",
+        "value": "760px"
       }
     ]
   },
@@ -146,87 +363,138 @@
       "name": "Primary Button",
       "kind": "button",
       "refersTo": "button-primary",
-      "description": "The one main action per view (Check text, Unlock, Check another text).",
+      "description": "Graphite ink fill; the one primary action per region (Check text, Check another).",
       "html": "<button class=\"ds-btn-primary\">Check text</button>",
-      "css": ".ds-btn-primary{background:#16191d;color:#fcfdfc;border:0;border-radius:10px;padding:0 14px;height:36px;font:500 14px/1 'Archivo Variable',system-ui,sans-serif;cursor:pointer;transition:background-color 160ms cubic-bezier(.22,1,.36,1)}.ds-btn-primary:hover{background:#2a2f35}.ds-btn-primary:focus-visible{outline:2px solid #16191d;outline-offset:2px}"
+      "css": ".ds-btn-primary { font-family: var(--sans); font-size: var(--t-sm); font-weight: 600; line-height: 1; padding: 9px 12px; border: 0; border-radius: var(--r-ctl); background: var(--ink); color: var(--sheet); cursor: pointer; transition: background-image var(--fast) var(--ease); } .ds-btn-primary:hover { background-image: linear-gradient(var(--hover), var(--hover)); } .ds-btn-primary:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }"
     },
     {
       "name": "Secondary Button",
       "kind": "button",
       "refersTo": "button-secondary",
-      "description": "Outlined graphite on card (Edit this text).",
-      "html": "<button class=\"ds-btn-secondary\">Edit this text</button>",
-      "css": ".ds-btn-secondary{background:#fcfdfc;color:#16191d;border:0;box-shadow:inset 0 0 0 1px #b4bcb9;border-radius:10px;padding:0 14px;height:36px;font:500 14px/1 'Archivo Variable',system-ui,sans-serif;cursor:pointer}.ds-btn-secondary:hover{background:#f1f3f2;box-shadow:inset 0 0 0 1px #454b53}.ds-btn-secondary:focus-visible{outline:2px solid #16191d;outline-offset:2px}"
+      "description": "Sheet fill with a 1px inset graphite edge; never a grey fill.",
+      "html": "<button class=\"ds-btn-secondary\">Edit text</button>",
+      "css": ".ds-btn-secondary { font-family: var(--sans); font-size: var(--t-sm); font-weight: 600; line-height: 1; padding: 9px 12px; border: 0; border-radius: var(--r-ctl); background-color: var(--sheet); color: var(--ink); box-shadow: inset 0 0 0 1px var(--ink); cursor: pointer; } .ds-btn-secondary:hover { background-image: linear-gradient(var(--hover), var(--hover)); } .ds-btn-secondary:active { background-image: linear-gradient(var(--press), var(--press)); } .ds-btn-secondary:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }"
     },
     {
-      "name": "Top navigation",
+      "name": "Rail with Underline Tabs",
       "kind": "nav",
-      "refersTo": "nav",
-      "description": "Pill track of three routes; current route lifted on card.",
-      "html": "<nav class=\"ds-nav\"><a aria-current=\"page\" href=\"#\">Check text</a><a href=\"#\">Accuracy</a><a href=\"#\">How it works</a></nav>",
-      "css": ".ds-nav{display:inline-flex;gap:2px;padding:3px;border-radius:999px;background:#f4f6f5;border:1px solid #dbe0de;font:500 14px 'Archivo Variable',system-ui,sans-serif}.ds-nav a{display:inline-flex;align-items:center;min-height:34px;padding:0 14px;border-radius:999px;color:#454b53;text-decoration:none}.ds-nav a:hover{color:#16191d;background:rgba(22,25,29,.05)}.ds-nav a[aria-current=page]{background:#fcfdfc;color:#16191d;box-shadow:0 1px 2px rgba(20,30,34,.06),inset 0 0 0 1px #dbe0de}.ds-nav a:focus-visible{outline:2px solid #16191d;outline-offset:2px}"
+      "refersTo": "rail",
+      "description": "Sticky non-repro blue band: wordmark, underline tabs, theme toggle.",
+      "html": "<header class=\"ds-rail\"><a class=\"ds-wordmark\" href=\"#\">Squint</a><nav class=\"ds-tabs\"><a class=\"ds-tab\" href=\"#\" aria-current=\"page\">Check</a><a class=\"ds-tab\" href=\"#\">Accuracy</a><a class=\"ds-tab\" href=\"#\">How it works</a></nav><button class=\"ds-rail-btn\" aria-label=\"Switch to dark theme\"><svg width=\"18\" height=\"18\" viewBox=\"0 0 20 20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M16.25 12.1A6.5 6.5 0 0 1 7.9 3.75a6.5 6.5 0 1 0 8.35 8.35Z\"/></svg></button></header>",
+      "css": ".ds-rail { display: flex; align-items: stretch; gap: var(--s6); height: var(--rail-h); padding: 0 var(--gutter); background: var(--rail); border-bottom: 1px solid var(--rail-rule); font-family: var(--sans); } .ds-wordmark { align-self: center; color: var(--ink); text-decoration: none; font-size: 1.375rem; font-weight: 800; font-stretch: 125%; letter-spacing: -0.03em; line-height: 1; } .ds-tabs { display: flex; gap: var(--s5); } .ds-tab { display: flex; align-items: center; padding-top: 2px; border-bottom: 2px solid transparent; color: var(--ink-2); text-decoration: none; font-size: var(--t-sm); font-weight: 550; transition: color var(--fast) var(--ease), border-color var(--fast) var(--ease); } .ds-tab:hover { color: var(--ink); } .ds-tab[aria-current='page'] { color: var(--ink); border-bottom-color: var(--ink); } .ds-tab:focus-visible { outline: 2px solid var(--focus); outline-offset: -2px; } .ds-rail-btn { align-self: center; margin-left: auto; display: inline-grid; place-items: center; width: 36px; height: 36px; border: 0; border-radius: var(--r-ctl); background: none; color: var(--ink); cursor: pointer; } .ds-rail-btn:hover { background: var(--rail-hover); } .ds-rail-btn:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }"
     },
     {
-      "name": "Reading card",
+      "name": "Evidence Marks",
+      "kind": "custom",
+      "refersTo": "",
+      "description": "Words marked in pencil: solid blue underline for AI-like, dotted orange for human-like; weight carries strength, washes only at the strongest levels.",
+      "html": "<p class=\"ds-printout\">Sourdough is <span class=\"ds-w\" data-heat=\"ai2\">a rewarding</span> practice <span class=\"ds-w\" data-heat=\"ai4\">that combines science</span>, and the crust <span class=\"ds-w\" data-heat=\"hu3\">crackles when</span> it cools, <span class=\"ds-w\" data-heat=\"hu1\">mostly</span>.</p>",
+      "css": ".ds-printout { font: 400 var(--t-read) / 1.85 var(--serif); color: var(--ink); max-width: var(--measure); } .ds-w { border-radius: var(--r-mark); text-decoration-line: underline; text-underline-offset: 0.28em; text-decoration-skip-ink: none; cursor: pointer; } .ds-w:hover, .ds-w:focus-visible { outline: 2px solid var(--ink); outline-offset: 1px; } .ds-w[data-heat='ai2'] { text-decoration-color: var(--blue); text-decoration-thickness: 1.5px; } .ds-w[data-heat='ai4'] { background: var(--blue-3); text-decoration-color: var(--blue); text-decoration-thickness: 2.5px; } .ds-w[data-heat='hu1'] { text-decoration-color: var(--orange-mark); text-decoration-thickness: 1.5px; text-decoration-style: dotted; } .ds-w[data-heat='hu3'] { background: var(--orange-2); text-decoration-color: var(--orange-mark); text-decoration-thickness: 2.5px; text-decoration-style: dotted; }"
+    },
+    {
+      "name": "Margin Bracket",
+      "kind": "custom",
+      "refersTo": "",
+      "description": "Blue bracket beside a flagged passage; draws in once when the result lands.",
+      "html": "<div class=\"ds-bracket-wrap\"><p class=\"ds-bracket-text\">Sourdough baking is a rewarding practice that combines science, patience, and creativity. At its core, sourdough relies on a natural starter.</p><button class=\"ds-bracket\" aria-label=\"Passage 1, words 76 to 225\"><span class=\"ds-bracket-num\">1</span></button></div>",
+      "css": ".ds-bracket-wrap { position: relative; padding-right: var(--s7); max-width: 32rem; } .ds-bracket-text { margin: 0; font: 400 var(--t-read) / 1.85 var(--serif); color: var(--ink); } .ds-bracket { position: absolute; top: 4px; bottom: 4px; right: 18px; width: 12px; padding: 0; border: 2.5px solid var(--blue); border-left: 0; border-radius: 0 2px 2px 0; background: none; cursor: pointer; transform-origin: top; animation: ds-draw var(--slow) var(--ease) both; } .ds-bracket:hover { border-color: var(--ink); } .ds-bracket:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; } .ds-bracket-num { position: absolute; top: -2px; left: calc(100% + 6px); color: var(--blue); font: 650 var(--t-xs) / 1 var(--sans); font-variant-numeric: tabular-nums; } @keyframes ds-draw { from { transform: scaleY(0); } } @media (prefers-reduced-motion: reduce) { .ds-bracket { animation: none; } }"
+    },
+    {
+      "name": "Margin Figures",
+      "kind": "custom",
+      "refersTo": "",
+      "description": "Every figure for a check in one tight tabular column under a strong rule.",
+      "html": "<table class=\"ds-figures\"><tbody><tr class=\"is-lead\"><th scope=\"row\">AI-written share</th><td>46%</td></tr><tr><th scope=\"row\">Model's first guess</th><td>65%</td></tr><tr><th scope=\"row\">In its top five</th><td>81%</td></tr><tr><th scope=\"row\">Predictability</th><td>0.901</td></tr></tbody></table>",
+      "css": ".ds-figures { width: 300px; border-collapse: collapse; border-top: 1px solid var(--rule-strong); font-family: var(--sans); font-size: var(--t-sm); font-variant-numeric: tabular-nums; color: var(--ink); } .ds-figures th, .ds-figures td { padding: 8px 0; border-bottom: 1px solid var(--rule); font-weight: 450; text-align: left; } .ds-figures th { color: var(--ink-2); } .ds-figures td { text-align: right; font-weight: 650; } .ds-figures .is-lead th { color: var(--ink); font-weight: 600; } .ds-figures .is-lead td { font-size: var(--t-lg); font-weight: 750; font-stretch: 112%; }"
+    },
+    {
+      "name": "Margin Query",
+      "kind": "custom",
+      "refersTo": "",
+      "description": "A blue-pencil note under a strong rule; the passage range is the clickable content.",
+      "html": "<div class=\"ds-query\"><button class=\"ds-query-go\">Words 76&ndash;225</button></div>",
+      "css": ".ds-query { width: 300px; border-top: 1px solid var(--rule-strong); padding-top: var(--s3); } .ds-query-go { display: block; width: 100%; min-height: 44px; padding: 0; border: 0; background: none; text-align: left; color: var(--blue); font: 650 var(--t-xs) / 1.45 var(--sans); font-variant-numeric: tabular-nums; cursor: pointer; } .ds-query-go:hover { text-decoration: underline; text-underline-offset: 0.2em; } .ds-query-go:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }"
+    },
+    {
+      "name": "Length Stops",
+      "kind": "custom",
+      "refersTo": "",
+      "description": "Ruled margin rows that tick off in blue pencil as the text grows; the limit mark is dashed.",
+      "html": "<ul class=\"ds-stops\"><li class=\"ds-stop\" data-reached><span class=\"ds-stop-mark\"><svg width=\"12\" height=\"12\" viewBox=\"0 0 20 20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"m4 10.5 4 4 8-9\"/></svg></span><span>Word marks</span><span class=\"ds-stop-num\">20</span></li><li class=\"ds-stop\"><span class=\"ds-stop-mark\"></span><span>Verdict</span><span class=\"ds-stop-num\">50</span></li><li class=\"ds-stop is-limit\"><span class=\"ds-stop-mark\"></span><span>Limit</span><span class=\"ds-stop-num\">2,500</span></li></ul>",
+      "css": ".ds-stops { width: 300px; list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--rule-strong); font-family: var(--sans); font-size: var(--t-sm); } .ds-stop { display: grid; grid-template-columns: 18px 1fr auto; align-items: center; gap: var(--s2); padding: 9px 0; border-bottom: 1px solid var(--rule); color: var(--muted); } .ds-stop-mark { display: inline-grid; place-items: center; width: 14px; height: 14px; border: 1px solid var(--rule-strong); border-radius: 1px; color: var(--blue); } .ds-stop[data-reached] { color: var(--ink); } .ds-stop[data-reached] .ds-stop-mark { border-color: transparent; } .ds-stop.is-limit .ds-stop-mark { border-style: dashed; } .ds-stop-num { font-variant-numeric: tabular-nums; font-weight: 600; }"
+    },
+    {
+      "name": "Word Lens",
       "kind": "card",
-      "refersTo": "reading-card",
-      "description": "The composer and the marked printout: the writer's words in serif on card stock.",
-      "html": "<div class=\"ds-card\"><div class=\"ds-card-head\"><b>Your text</b><span>214 words</span></div><p>Paste an essay, an email, a cover letter.</p></div>",
-      "css": ".ds-card{background:#fcfdfc;border:1px solid #dbe0de;border-radius:16px;box-shadow:0 1px 2px rgba(20,30,34,.06);padding:16px 24px;max-width:560px}.ds-card-head{display:flex;justify-content:space-between;font:14px 'Archivo Variable',system-ui,sans-serif;color:#5f666e}.ds-card-head b{color:#16191d;font-weight:600}.ds-card p{font:19px/1.65 'Source Serif 4 Variable',Georgia,serif;color:#16191d;margin:12px 0 0}"
-    },
-    {
-      "name": "Heat marks",
-      "kind": "custom",
-      "refersTo": "heat",
-      "description": "Word evidence: teal tint + solid underline for AI-like, rose tint + dotted underline for human-like.",
-      "html": "<p class=\"ds-heat\"><span class=\"ai\">It is important</span> to note that my <span class=\"hu\">aunt kept bees</span> on a fire escape.</p>",
-      "css": ".ds-heat{font:19px/1.8 'Source Serif 4 Variable',Georgia,serif;color:#16191d}.ds-heat span{border-radius:4px;padding:3px 2px;text-decoration-line:underline;text-underline-offset:.26em;text-decoration-skip-ink:none}.ds-heat .ai{background:#b5dddd;text-decoration-color:#0a6870;text-decoration-thickness:2px}.ds-heat .hu{background:#f2c6d1;text-decoration-color:#ad2f4f;text-decoration-style:dotted;text-decoration-thickness:2.5px}"
-    },
-    {
-      "name": "Duochrome scale",
-      "kind": "custom",
-      "refersTo": "duochrome",
-      "description": "Three labelled zones with a graphite needle at the score.",
-      "html": "<div class=\"ds-duo\"><span style=\"width:42%\" class=\"z ai\">Likely AI</span><span style=\"width:16%\" class=\"z mid here\">Uncertain</span><span style=\"width:42%\" class=\"z hu\">Likely human</span><i style=\"left:50%\"></i></div>",
-      "css": ".ds-duo{position:relative;display:flex;height:44px;max-width:560px;border-radius:10px;font:500 14px 'Archivo Variable',system-ui,sans-serif;color:#16191d}.ds-duo .z{display:flex;align-items:center;justify-content:center}.ds-duo .ai{background:#d3ebeb;border-radius:10px 0 0 10px}.ds-duo .mid{background:#e6e9e8}.ds-duo .hu{background:#f8dfe5;border-radius:0 10px 10px 0}.ds-duo .here{box-shadow:inset 0 0 0 2px #16191d}.ds-duo i{position:absolute;top:-6px;bottom:-6px;width:3px;margin-left:-1.5px;background:#16191d;box-shadow:0 0 0 2px #fcfdfc;border-radius:2px}"
+      "refersTo": "word-lens",
+      "description": "The floating sheet for one word: headword, lean, and the model's top five guesses. The only lifted surface besides the phone bottom sheet.",
+      "html": "<div class=\"ds-lens\"><div class=\"ds-lens-head\"><span class=\"ds-lens-word\">ate</span><span class=\"ds-lens-lean\"><span class=\"ds-swatch\"></span>AI-like</span></div><p class=\"ds-lens-rank\">The model's #1 guess</p><table class=\"ds-lens-top\"><tbody><tr data-mine><td class=\"ds-rk\">#1</td><td class=\"ds-g\">ate <span class=\"ds-mine\">written</span></td><td class=\"ds-p\">18%</td></tr><tr><td class=\"ds-rk\">#2</td><td class=\"ds-g\">can</td><td class=\"ds-p\">17%</td></tr><tr><td class=\"ds-rk\">#3</td><td class=\"ds-g\">lived</td><td class=\"ds-p\">12%</td></tr></tbody></table></div>",
+      "css": ".ds-lens { width: 360px; padding: var(--s4) var(--s5); background: var(--sheet); color: var(--ink); border: 1px solid var(--ink); border-radius: var(--r-ctl); box-shadow: var(--lift); font: 400 var(--t-sm) / 1.45 var(--sans); } .ds-lens-head { display: flex; align-items: baseline; justify-content: space-between; padding-bottom: var(--s3); margin-bottom: var(--s3); border-bottom: 1px solid var(--rule); } .ds-lens-word { font: 400 2.5rem / 1.05 var(--serif); letter-spacing: -0.01em; } .ds-lens-lean { display: inline-flex; align-items: center; gap: 6px; color: var(--blue); font-size: var(--t-xs); font-weight: 650; } .ds-swatch { width: 14px; height: 10px; border-radius: 1px; background: var(--blue-2); } .ds-lens-rank { margin: 0; font-weight: 650; } .ds-lens-top { width: 100%; margin-top: var(--s3); border-collapse: collapse; font-variant-numeric: tabular-nums; } .ds-lens-top td { padding: 5px 0; border-top: 1px solid var(--rule); } .ds-rk { width: 28px; color: var(--muted); } .ds-g { font-family: var(--serif); font-size: var(--t-md); } .ds-p { text-align: right; } tr[data-mine] .ds-g, tr[data-mine] .ds-p { font-weight: 650; } .ds-mine { margin-left: 6px; padding: 1px 5px; border: 1px solid var(--ink); border-radius: 2px; font: 600 0.6875rem / 1 var(--sans); vertical-align: 2px; }"
     }
   ],
   "narrative": {
-    "northStar": "The optician's reading card",
-    "overview": "Squint reads text the way an optician reads eyes: one card held at reading distance, a two-sided duochrome comparison where neither side is the bad side, and a lens for looking closer. Graphite carries every control; colour appears only where there is evidence. It refuses the detector default of a red percentage gauge and an alarm highlighter over a white SaaS card.",
+    "northStar": "The Galley Proof",
+    "overview": "Squint marks writing the way a copy editor marks a galley proof. The writer's text is the page: a bright white proof sheet with a 1px rule, lying on a cool desk. Squint's evidence goes on it in pencil and in the margin, and the reading is the editor's note at the head of the sheet. Every control and everything Squint says is in graphite ink. The shell is a pale non-repro blue band, the colour an editor's pencil uses because it doesn't print.\n\nDensity is calm and editorial. The sheet carries the writing at one reading size in a serif. A narrow margin column beside it holds numbers in one tabular column, the length stops and the editor's queries. There are no explanatory sentences under elements: if a screen needs one, the layout is wrong. Dark theme is the proof desk at night: a graphite sheet on near-black, the same two pencils lifted for contrast.\n\nIt turns down the usual detector look of a white card with a percentage gauge and highlighter over every sentence. It also turns down Squint's previous look, the optician's reading card: tinted ground, pill nav and a helper sentence under everything.",
     "keyCharacteristics": [
-      "One reading card per view",
-      "Teal/rose duochrome only on evidence, always with a non-colour cue",
-      "Graphite controls; errors in ink, never red",
-      "Archivo for Squint, Source Serif 4 for the writer",
-      "One moving element per view"
+      "Proof-white sheet on a cool desk, 1px rules, square-cut corners (2px sheet, 4px controls).",
+      "Graphite ink for all text and every control, including the primary button.",
+      "Two pencils: blue (AI-like) and orange (human-like). Neither ever fills a control.",
+      "Archivo for Squint's voice, Source Serif 4 for the writer's words.",
+      "Figures in tabular numerals, gathered in the margin.",
+      "No resting shadows. Only floating surfaces lift."
     ],
     "rules": [
       {
-        "name": "The Evidence-Only Rule",
-        "body": "Teal and rose never touch a control, heading or error.",
+        "name": "The Pencil Never Fills a Control Rule",
+        "body": "Blue and orange mark evidence and editor's notes. Buttons, tabs, toggles and focus rings are graphite. Orange is stricter still: it appears only where something reads as human-like.",
         "section": "colors"
       },
       {
-        "name": "The Two-Cues Rule",
-        "body": "Every colour meaning repeats without colour: solid vs dotted underline, stripes, labels.",
+        "name": "The No Alarm Colour Rule",
+        "body": "Errors speak in graphite with an icon and a plain sentence. There is no red anywhere, because the page is often about a real person.",
+        "section": "colors"
+      },
+      {
+        "name": "The Two Channels Rule",
+        "body": "Direction never relies on colour alone. AI-like is a solid underline and human-like is a dotted one. The underline's weight shows strength (1px to 3px), and a wash appears only at the two strongest levels.",
         "section": "colors"
       },
       {
         "name": "The Two Voices Rule",
-        "body": "Archivo for the interface, Source Serif for the person. No caps, mono or eyebrows.",
+        "body": "Serif means the writer's words; sans means Squint's. Never set Squint's interface copy in the serif, and never set the writer's text in the sans.",
         "section": "typography"
+      },
+      {
+        "name": "The One Reading Size Rule",
+        "body": "On the galley, the writer's text has exactly one size. Larger serif appears only off the galley, in the lens headword (40px) and the How it works specimen (22px).",
+        "section": "typography"
+      },
+      {
+        "name": "The Tabular Figures Rule",
+        "body": "Every number that can sit next to another number uses tabular numerals: counts, stops, figures, rates, timings, ranks.",
+        "section": "typography"
+      },
+      {
+        "name": "The No Resting Elevation Rule",
+        "body": "Nothing that sits in the page casts a shadow: sheets, buttons, cards and the rail stay flat. Only a surface that floats over the text lifts.",
+        "section": "elevation"
       }
     ],
     "dos": [
-      "Do put the ChatGPT gap beside every verdict and atop Accuracy",
-      "Do cap h1 at 28px (24px phone)",
-      "Do render only what /api/accuracy returns"
+      "Do set the writer's text in Source Serif 4 at the single reading size, and everything Squint says in Archivo.",
+      "Do put figures in the margin's one tabular column, not inside sentences.",
+      "Do carry direction with both colour and underline style: solid blue for AI-like, dotted orange for human-like.",
+      "Do keep every control graphite: ink fill for primary, a 1px inset ink edge on sheet for secondary.",
+      "Do separate rows with 1px rules and open each margin block with the strong rule.",
+      "Do keep motion to the single bracket draw-in and short state fades (140ms), and none under reduced motion."
     ],
     "donts": [
-      "Don't use red or amber for errors or for AI",
-      "Don't add uppercase eyebrows, mono numerals or card grids",
-      "Don't animate more than one element per view"
+      "Don't fill a button, tab or toggle with blue or orange, or use orange for anything that isn't human-like evidence.",
+      "Don't use red or any alarm colour for errors or for a Likely AI verdict.",
+      "Don't add pill navigation, a tinted page ground, rounded cards over 4px, or a helper sentence under elements. Those belong to the replaced reading-card look.",
+      "Don't put a small category tag above a heading or above a sentence that already says the same thing.",
+      "Don't give resting surfaces a shadow. Lift is only for the lens and the bottom sheet.",
+      "Don't highlight every word. The default view marks only strong leans."
     ]
   }
 }

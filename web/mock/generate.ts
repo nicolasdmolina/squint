@@ -301,7 +301,15 @@ function entropyEstimate(probs: number[]): number {
 // ------------------------------------------------------------------------------------------
 // the analysis
 
-export type MockOptions = { calibrated: boolean; timing?: Result['timing_ms'] };
+/** The promoted classifier's cutoffs and held-out results (calibration/classifier.json), or null. */
+export type MockClassifier = {
+  version: string | null;
+  min_words: number;
+  ai_above: number;
+  human_below: number;
+  by_length: Record<string, { humans: number; false_flag: number; chatgpt?: { called_human: number }; claude?: { called_human: number } }>;
+};
+export type MockOptions = { calibrated: boolean; classifier?: MockClassifier | null; timing?: Result['timing_ms'] };
 
 export function analyze(text: string, opts: MockOptions): Result {
   const rng = makeRng(hashString(text));
@@ -439,19 +447,26 @@ export function analyze(text: string, opts: MockOptions): Result {
       const start = words[ws][0];
       const end = words[we - 1][1];
       const score = scoreOf(tokens.filter(t => coreOf(t) >= start && coreOf(t) < end));
-      return { start, end, word_start: ws, word_end: we, score: round(score, 4), flagged: opts.calibrated && score < SEGMENT.flag_below };
+      return { start, end, word_start: ws, word_end: we, score: round(score, 4), flagged: (opts.calibrated || !!opts.classifier) && score < SEGMENT.flag_below };
     });
   }
 
   let aiPercent: number | null = null;
-  if (opts.calibrated && wordCount >= LIMITS.percent_min_words) {
+  if ((opts.calibrated || opts.classifier) && wordCount >= LIMITS.percent_min_words) {
     const flagged = new Set<number>();
     for (const s of segments) if (s.flagged) for (let w = s.word_start; w < s.word_end; w++) flagged.add(w);
     aiPercent = Math.round((100 * flagged.size) / wordCount);
   }
 
   const score = scoreOf(tokens);
-  const band: Band = !thresholds ? 'uncalibrated'
+  const clf = opts.classifier ?? null;
+  // v1.2: the classifier sets the band from 50 words. The mock stands in a P(AI) from the
+  // Binoculars score and the flagged share, so AI-style fixtures land above the cutoff.
+  const clfP = !clf || wordCount < clf.min_words ? null
+    : (score < 0.9 || (aiPercent ?? 0) >= 40) ? 0.99987 : round(clamp01((score - 0.9) * -4 + 0.4), 4);
+  const band: Band = clf
+    ? clfP == null ? 'too_short' : clfP > clf.ai_above ? 'likely_ai' : clfP < clf.human_below ? 'likely_human' : 'uncertain'
+    : !thresholds ? 'uncalibrated'
     : score < thresholds.ai_below ? 'likely_ai'
     : score > thresholds.human_above ? 'likely_human'
     : 'uncertain';
@@ -483,12 +498,16 @@ export function analyze(text: string, opts: MockOptions): Result {
       label: LABELS[band],
       confidence: lowConfidence ? 'low' : 'normal',
       length_bucket: bucket,
+      detector: clf ? 'classifier' : 'binoculars',
       score: round(score, 4),
       thresholds,
+      classifier: clf
+        ? { ai_probability: clfP, ai_above: clf.ai_above, human_below: clf.human_below, min_words: clf.min_words, version: clf.version }
+        : null,
       ai_percent: aiPercent,
-      explanation: explanation(band, score, thresholds, lowConfidence),
+      explanation: clf ? classifierExplanation(band, clf, bucket, lowConfidence) : explanation(band, score, thresholds, lowConfidence),
     },
-    reasons: reasons(stats, opts.calibrated),
+    reasons: clf ? [classifierReason(band, clfP), ...reasons(stats, opts.calibrated)] : reasons(stats, opts.calibrated),
     stats,
     tokens,
     sentences,
@@ -522,6 +541,42 @@ function explanation(band: Band, score: number, t: { ai_below: number; human_abo
   }
   if (low) text += ' With fewer than 150 words, treat this as a rough read.';
   return text;
+}
+
+const share = (x: number | undefined) =>
+  typeof x !== 'number' ? null : x === 0 ? 'none' : x < 0.01 ? `${(x * 100).toFixed(1)}%` : `${Math.round(x * 100)}%`;
+
+function classifierExplanation(band: Band, c: MockClassifier, bucket: string, low: boolean): string {
+  const st = c.by_length[bucket] ?? ({} as MockClassifier['by_length'][string]);
+  let text: string;
+  if (band === 'too_short') {
+    const short = share(c.by_length['20-49']?.false_flag);
+    text = `Squint needs at least ${c.min_words} words to give a verdict.`;
+    if (short && short !== 'none') text += ` On shorter snippets its detector wrongly flagged about ${short} of human texts in testing, which is too many.`;
+    return text;
+  }
+  if (band === 'likely_ai') {
+    text = "Squint's detector, trained on human writing and on text from ChatGPT and Claude, says this reads like AI writing.";
+    const ff = share(st.false_flag);
+    if (ff === 'none') text += ` In testing it flagged none of ${st.humans} human texts of this length.`;
+    else if (ff) text += ` In testing it wrongly flagged ${ff} of human texts of this length.`;
+  } else if (band === 'likely_human') {
+    text = "Squint's detector found no sign of AI writing.";
+    const misses = (
+      [['chatgpt', 'ChatGPT'], ['claude', 'Claude']] as const
+    ).flatMap(([g, name]) => (st[g]?.called_human ? [`${share(st[g]!.called_human)} of ${name} texts`] : []));
+    if (misses.length) text += ` It still misses some: in testing on texts this long it called ${misses.join(' and ')} human.`;
+  } else {
+    text = "The detector's reading sits between its cutoffs for AI and human writing, so Squint won't call it either way.";
+  }
+  if (low) text += ' With fewer than 150 words, treat this as a rough read.';
+  return text;
+}
+
+function classifierReason(band: Band, p: number | null): Reason {
+  if (p == null) return { kind: 'detector', text: 'The trained detector does not rate texts this short.', weight: 'weak' };
+  const side = band === 'likely_ai' ? 'AI-like' : band === 'likely_human' ? 'human-like' : 'in between';
+  return { kind: 'detector', text: `A detector trained on ChatGPT and Claude writing rated this text ${side}.`, weight: band === 'uncertain' ? 'weak' : 'strong' };
 }
 
 const pct = (x: number) => `${Math.round(x * 100)}%`;

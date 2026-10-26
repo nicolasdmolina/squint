@@ -29,27 +29,35 @@ export function lengthGuide(n: number, limits: Status['limits'], calibrated: boo
   return { tone: 'full', text: "You'll get the full reading: a verdict, the AI-written share and the evidence word by word." };
 }
 
-export const bandLine: Record<Band, string> = {
-  likely_ai: 'Reads like AI writing. Worth a closer look, not an accusation.',
-  likely_human: 'No sign of AI writing. That still doesn’t prove a person wrote it.',
-  uncertain: 'Human and AI writing both land here. Look at the marks below rather than the label.',
-  uncalibrated: 'Squint isn’t tuned yet, so it won’t give a verdict. The evidence below still holds.',
-  too_short: 'There isn’t enough text for a verdict. The marks below still show which words read as AI-like.',
-};
+/** One plain sentence under the verdict. minWords is the trained detector's minimum. */
+export function bandLine(band: Band, minWords = 50): string {
+  switch (band) {
+    case 'likely_ai':
+      return 'Reads like ChatGPT or Claude wrote it. Look at the marked passages before you say anything to the writer.';
+    case 'likely_human':
+      return 'Reads like a person wrote it. Squint still misses some AI writing, so this doesn’t prove it.';
+    case 'uncertain':
+      return 'Squint won’t call this one either way.';
+    case 'uncalibrated':
+      return 'Squint isn’t tuned yet, so there’s no verdict. The word marks still work.';
+    case 'too_short':
+      return `Squint needs ${minWords} words for a verdict. The word marks still work.`;
+  }
+}
 
 export const stage = {
-  queue: { name: 'Queue', pending: 'Waiting for a turn', done: 'Your turn came up' },
+  queue: { name: 'Queue', pending: 'Waiting for a turn', done: 'Done' },
   warmup: {
     name: 'Warm-up',
-    pending: 'Only needed if the models are asleep',
-    active: 'Warming up the models. The first check after a break takes about half a minute.',
-    done: 'Models ready',
-    skipped: 'Models were already warm',
+    pending: 'Only if the models are asleep',
+    active: 'Waking the models, about half a minute',
+    done: 'Done',
+    skipped: 'Already awake',
   },
   scoring: {
-    name: 'Scoring',
-    pending: 'Both models read every word',
-    slow: 'This is taking longer than usual. The machine may be busy with other work; your check is still going.',
+    name: 'Reading',
+    pending: 'Every word, both models',
+    slow: 'Slower than usual. Still going.',
   },
 };
 
@@ -97,8 +105,7 @@ export function describeError(e: unknown, limits: Status['limits'] = LIMITS_FALL
 }
 
 export const notes = {
-  evidence: 'Evidence, not proof. Treat this as one clue among several, especially before saying anything to the writer.',
-  stored: 'Nothing is saved. This result disappears after 10 minutes, or as soon as you check something else.',
+  stored: 'Nothing is saved. This result is gone after 10 minutes.',
   privacy: 'Nothing you paste is stored. Squint runs on a private machine and forgets each result after 10 minutes.',
 };
 
@@ -109,6 +116,7 @@ export const gap = {
   body: 'On texts of 50 words or more it caught 744 of 747 ChatGPT samples but 674 of 731 Claude samples, so “Likely human” doesn’t clear a text. Gemini and edited AI text haven’t been tested.',
   short: 'In testing it caught 744 of 747 ChatGPT samples but 674 of 731 Claude samples, so “Likely human” doesn’t clear a text.',
   shortUntuned: 'In testing it caught 744 of 747 ChatGPT samples but 674 of 731 Claude samples, so marks that look human-like don’t clear a text either.',
+  margin: 'Short Claude writing slips through about 1 in 10.',
 };
 
 /** The same, for a server without the trained detector (Binoculars alone). Source: calibration/report.json (8 Oct 2026). */
@@ -117,4 +125,5 @@ export const gapBinoculars = {
   body: 'In testing it caught none of 288 ChatGPT samples and about 1 in 9 Claude samples, so “Likely human” doesn’t clear a text. Gemini hasn’t been tested.',
   short: 'In testing it caught none of 288 ChatGPT samples and about 1 in 9 Claude samples, so “Likely human” doesn’t clear a text.',
   shortUntuned: 'In testing it caught none of 288 ChatGPT samples and about 1 in 9 Claude samples, so marks that look human-like don’t clear a text either.',
+  margin: 'Most ChatGPT writing slips through.',
 };

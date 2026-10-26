@@ -95,7 +95,7 @@ export function WordDetails({ word, result, smooth }: { word: Word; result: Resu
       </p>
       {sentence && (
         <p className="wd-sentence">
-          This sentence: {leanText(sentence.lean).toLowerCase()} ({sentence.score.toFixed(3)}). A hint, not a verdict.
+          This sentence: {leanText(sentence.lean).toLowerCase()} ({sentence.score.toFixed(3)}).
         </p>
       )}
     </>
