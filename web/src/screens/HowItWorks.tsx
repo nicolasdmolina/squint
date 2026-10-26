@@ -205,8 +205,8 @@ export function HowItWorks({ status }: { status: Status | null }) {
             word&rsquo;s own score, which is much noisier: plenty of human words are predictable, and that&rsquo;s fine.
           </p>
           <p>
-            Hover or tab to a word to see the model&rsquo;s top five guesses for that spot and where your word ranked. Sentence
-            and paragraph leans are hints for where to look, never verdicts on their own.
+            Hover or tab to a word to see the model&rsquo;s top five guesses for that spot and where your word ranked. The
+            sentence lean shown there is a hint for where to look, never a verdict on its own.
           </p>
           <p>
             For texts of 150 words or more, Squint also {clf ? 'runs the detector on' : 'scores'} overlapping 150-word
@@ -220,7 +220,6 @@ export function HowItWorks({ status }: { status: Status | null }) {
         <h2 id="blind-title" className="section-title">
           Blind spots
         </h2>
-        <p className="acc-lede">Where Squint is weakest.</p>
         <dl className="rows blind">
           <div className="row">
             <dt className="row-label">Current AI models</dt>

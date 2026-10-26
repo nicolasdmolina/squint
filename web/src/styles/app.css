@@ -560,6 +560,19 @@ em,
   font-size: 1.0625rem;
   line-height: 1.5;
 }
+.verdict-share {
+  display: none;
+  margin-top: var(--s3);
+  font-size: var(--t-md);
+  color: var(--ink-2);
+  font-variant-numeric: tabular-nums;
+}
+.verdict-share b {
+  color: var(--ink);
+  font-size: var(--t-lg);
+  font-weight: 750;
+  font-stretch: 112%;
+}
 .verdict-actions {
   display: flex;
   flex-wrap: wrap;
@@ -646,6 +659,14 @@ em,
   position: absolute;
   inset: -6px -10px -6px -6px;
 }
+.bracket-num {
+  position: absolute;
+  top: -2px;
+  left: calc(100% + 6px);
+  color: var(--blue);
+  font: 650 var(--t-xs) / 1 var(--sans);
+  font-variant-numeric: tabular-nums;
+}
 .bracket:hover {
   border-color: var(--ink);
 }
@@ -696,6 +717,7 @@ em,
 .query-go {
   display: block;
   width: 100%;
+  min-height: 44px;
   padding: 0;
   border: 0;
   background: none;
@@ -1307,6 +1329,12 @@ tr[data-mine] .wd-p {
 @media (max-width: 860px) {
   .proof {
     grid-template-columns: minmax(0, 1fr);
+  }
+  .verdict-share {
+    display: block;
+  }
+  .figures tr.is-lead {
+    display: none;
   }
   .margin {
     position: static;

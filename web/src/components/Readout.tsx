@@ -1,6 +1,6 @@
 import { Button } from '@astryxdesign/core/Button';
 import { useEffect, useState, type RefObject } from 'react';
-import { bandLine, gap, gapBinoculars, notes } from '../copy';
+import { bandLine, gap, gapBinoculars } from '../copy';
 import { fmtInt, words } from '../lib/format';
 import type { Result } from '../types';
 
@@ -33,14 +33,31 @@ export function VerdictHead({
         {v.label}
         {low && <span className="sr-only">, low confidence</span>}
       </h1>
-      <p className="verdict-line">{bandLine(v.band, v.classifier?.min_words ?? 50)}</p>
-      {v.detector !== 'classifier' && <Duochrome score={v.score} thresholds={v.thresholds} />}
+      <p className="verdict-line">{verdictLine(result)}</p>
+      {v.ai_percent != null && (
+        <p className="verdict-share">
+          <b>{v.ai_percent}%</b> of the text reads as AI-written
+        </p>
+      )}
+      {v.detector !== 'classifier' && v.thresholds && <Duochrome score={v.score} thresholds={v.thresholds} />}
       <div className="verdict-actions">
         <Button label="Check another" variant="primary" onClick={onAnother} />
         <Button label="Edit text" variant="secondary" onClick={onEdit} />
       </div>
     </header>
   );
+}
+
+/** Say where the AI-like stretch sits when the flagged windows show it; otherwise the band's own line. */
+function verdictLine(result: Result): string {
+  const v = result.verdict;
+  const flagged = result.segments.filter(s => s.flagged);
+  if (v.band === 'likely_ai' && flagged.length && flagged.length < result.segments.length) {
+    const from = Math.min(...flagged.map(s => s.word_start)) + 1;
+    const to = Math.max(...flagged.map(s => s.word_end));
+    return `Words ${fmtInt(from)} to ${fmtInt(to)} read most like ChatGPT or Claude. Treat it as a reason to look closer, not proof.`;
+  }
+  return bandLine(v.band, v.classifier?.min_words ?? 50);
 }
 
 /** The margin's opening: every figure in one tabular column. */
@@ -50,7 +67,6 @@ export function MarginFacts({ result }: { result: Result }) {
   const pct = (x: number) => `${Math.round(x * 100)}%`;
   const rows: [string, string][] = [
     ...(v.ai_percent != null ? ([['AI-written share', `${v.ai_percent}%`]] as [string, string][]) : []),
-    ['Words', fmtInt(result.word_count)],
     ["Model's first guess", pct(s.top1_rate)],
     ['In its top five', pct(s.top5_rate)],
     ['Predictability', v.score.toFixed(3)],
@@ -86,7 +102,6 @@ export function MarginGap({ result }: { result: Result }) {
           {known.margin} A &ldquo;Likely human&rdquo; reading doesn&rsquo;t clear a text.
         </p>
       </div>
-      <p className="margin-quiet">{notes.stored}</p>
     </>
   );
 }

@@ -116,7 +116,7 @@ export const gap = {
   body: 'On texts of 50 words or more it caught 744 of 747 ChatGPT samples but 674 of 731 Claude samples, so “Likely human” doesn’t clear a text. Gemini and edited AI text haven’t been tested.',
   short: 'In testing it caught 744 of 747 ChatGPT samples but 674 of 731 Claude samples, so “Likely human” doesn’t clear a text.',
   shortUntuned: 'In testing it caught 744 of 747 ChatGPT samples but 674 of 731 Claude samples, so marks that look human-like don’t clear a text either.',
-  margin: 'It caught 744 of 747 ChatGPT samples and 674 of 731 Claude samples. Short Claude writing gets through most.',
+  margin: 'Short Claude writing slips through about 1 in 10.',
 };
 
 /** The same, for a server without the trained detector (Binoculars alone). Source: calibration/report.json (8 Oct 2026). */
@@ -125,5 +125,5 @@ export const gapBinoculars = {
   body: 'In testing it caught none of 288 ChatGPT samples and about 1 in 9 Claude samples, so “Likely human” doesn’t clear a text. Gemini hasn’t been tested.',
   short: 'In testing it caught none of 288 ChatGPT samples and about 1 in 9 Claude samples, so “Likely human” doesn’t clear a text.',
   shortUntuned: 'In testing it caught none of 288 ChatGPT samples and about 1 in 9 Claude samples, so marks that look human-like don’t clear a text either.',
-  margin: 'It caught none of 288 ChatGPT samples and about 1 in 9 Claude samples.',
+  margin: 'Most ChatGPT writing slips through.',
 };

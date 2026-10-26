@@ -49,7 +49,6 @@ export function Login({ note, onUnlocked }: { note: string | null; onUnlocked: (
         <h1 id="gate-title" className="gate-title">
           Squint is private
         </h1>
-        <p className="gate-lede">Enter the shared password.</p>
         {note && <p className="gate-note">{note}</p>}
         <form className="gate-form" onSubmit={submit} noValidate>
           <TextInput

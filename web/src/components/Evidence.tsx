@@ -302,8 +302,10 @@ export function Evidence({ result, text, head }: { result: Result; text: string;
                 className="bracket"
                 style={{ top: br.top, height: br.height, animationDelay: reduceMotion ? undefined : `${i * 80}ms` }}
                 onClick={() => showPassage(i)}
-                aria-label={`Show words ${fmtInt(passages[i].ws + 1)} to ${fmtInt(passages[i].we)}, flagged as AI-like`}
-              />
+                aria-label={`Passage ${i + 1}: show words ${fmtInt(passages[i].ws + 1)} to ${fmtInt(passages[i].we)}, flagged as AI-like`}
+              >
+                {passages.length > 1 && <span className="bracket-num" aria-hidden="true">{i + 1}</span>}
+              </button>
             ) : null,
           )}
           {!sheetMode && current && (
@@ -330,9 +332,8 @@ export function Evidence({ result, text, head }: { result: Result; text: string;
               <li key={i} className="query">
                 <button type="button" className="query-go" onClick={() => showPassage(i)}>
                   <span className="query-tag">
-                    Words {fmtInt(p.ws + 1)}&ndash;{fmtInt(p.we)}
+                    {passages.length > 1 && <>{i + 1} &middot; </>}Words {fmtInt(p.ws + 1)}&ndash;{fmtInt(p.we)}
                   </span>
-                  <span className="query-text">Reads like AI writing</span>
                 </button>
               </li>
             ))}

@@ -1,365 +1,277 @@
 ---
 name: Squint
-description: A private, honest reader of whether writing looks AI-written, built as an optician's reading card.
+description: A private, honest reader of whether writing looks AI-written, set as a copy editor's galley proof.
 colors:
-  ground: "light-dark(#eef1f0, #11161a)"
-  card: "light-dark(#fcfdfc, #182025)"
-  card-sunk: "light-dark(#f4f6f5, #141b1f)"
-  graphite-ink: "light-dark(#16191d, #e6eaec)"
-  graphite-2: "light-dark(#454b53, #b8c0c6)"
-  muted: "light-dark(#5f666e, #949da4)"
-  line: "light-dark(#dbe0de, #273137)"
-  line-strong: "light-dark(#b4bcb9, #3b464d)"
-  lens-teal: "light-dark(#0a6870, #63c7c6)"
-  duochrome-rose: "light-dark(#ad2f4f, #f291a8)"
-  neutral-mid: "light-dark(#e6e9e8, #232c31)"
+  desk: "light-dark(#eef0ed, #0e1114)"
+  proof-sheet: "light-dark(#ffffff, #161a1e)"
+  sheet-sunk: "light-dark(#f5f6f4, #12161a)"
+  graphite-ink: "light-dark(#17191c, #e7eaec)"
+  graphite-2: "light-dark(#40464d, #bac1c7)"
+  muted: "light-dark(#5b6269, #8f989f)"
+  rule: "light-dark(#dcdfdb, #262c32)"
+  rule-strong: "light-dark(#b9beb9, #3a424a)"
+  selection: "light-dark(#cfe2f6, #234569)"
+  nonrepro-rail: "light-dark(#d7e6f4, #132538)"
+  rail-rule: "light-dark(#b4cde6, #21405f)"
+  blue-pencil: "light-dark(#1d68b5, #79b6f2)"
+  blue-wash: "light-dark(#dce9f8, #1a3048)"
+  blue-wash-strong: "light-dark(#c3d9f2, #22405f)"
+  orange-pencil: "light-dark(#a8530d, #f2a865)"
+  orange-mark: "light-dark(#c4620f, #f2a865)"
+  orange-wash: "light-dark(#fcebdc, #33241a)"
+  orange-wash-strong: "light-dark(#f7d8bb, #47311f)"
 typography:
-  headline:
-    fontFamily: "Archivo Variable"
-    fontSize: "28px (24px under 720px)"
-    fontWeight: 650
-    lineHeight: 1.15
-    letterSpacing: "-0.025em"
+  verdict:
+    fontFamily: "Archivo Variable, Archivo, ui-sans-serif, system-ui, sans-serif"
+    fontSize: "3.5rem"
+    fontWeight: 800
+    lineHeight: 1
+    letterSpacing: "-0.035em"
+    fontVariation: "'wdth' 118"
   title:
-    fontFamily: "Archivo Variable"
-    fontSize: "23px"
-    fontWeight: 650
+    fontFamily: "Archivo Variable, Archivo, ui-sans-serif, system-ui, sans-serif"
+    fontSize: "2.5rem"
+    fontWeight: 800
+    lineHeight: 1.05
+    letterSpacing: "-0.035em"
+    fontVariation: "'wdth' 118"
+  section:
+    fontFamily: "Archivo Variable, Archivo, ui-sans-serif, system-ui, sans-serif"
+    fontSize: "1.375rem"
+    fontWeight: 750
     lineHeight: 1.2
-  body:
-    fontFamily: "Archivo Variable"
-    fontSize: "16px"
-    fontWeight: 400
-    lineHeight: 1.55
-  label:
-    fontFamily: "Archivo Variable"
-    fontSize: "13px / 14px"
-    fontWeight: 500
-  reading:
-    fontFamily: "Source Serif 4 Variable"
-    fontSize: "19px (17px under 720px)"
-    lineHeight: 1.8
-  lede:
-    fontFamily: "Archivo Variable"
-    fontSize: "1.0625rem"
-    lineHeight: 1.55
+    letterSpacing: "-0.02em"
+    fontVariation: "'wdth' 110"
   wordmark:
-    fontFamily: "Archivo Variable"
+    fontFamily: "Archivo Variable, Archivo, ui-sans-serif, system-ui, sans-serif"
+    fontSize: "1.375rem"
+    fontWeight: 800
+    lineHeight: 1
+    letterSpacing: "-0.03em"
+    fontVariation: "'wdth' 125"
+  body:
+    fontFamily: "Archivo Variable, Archivo, ui-sans-serif, system-ui, sans-serif"
+    fontSize: "1rem"
+    fontWeight: 400
+    lineHeight: 1.5
+  label:
+    fontFamily: "Archivo Variable, Archivo, ui-sans-serif, system-ui, sans-serif"
+    fontSize: "0.9375rem"
+    fontWeight: 550
+    lineHeight: 1.2
+  small:
+    fontFamily: "Archivo Variable, Archivo, ui-sans-serif, system-ui, sans-serif"
+    fontSize: "0.8125rem"
+    fontWeight: 550
+    lineHeight: 1.45
+  reading:
+    fontFamily: "Source Serif 4 Variable, Source Serif 4, Iowan Old Style, Georgia, serif"
     fontSize: "1.1875rem"
-    fontWeight: 650
-  micro:
-    fontFamily: "Archivo Variable"
-    fontSize: "0.75rem"
-    fontWeight: 500
-  tag:
-    fontFamily: "Archivo Variable"
-    fontSize: "0.6875rem"
-    fontWeight: 600
-  specimen:
-    fontFamily: "Source Serif 4 Variable"
-    fontSize: "clamp(2.25rem, 4vw, 2.75rem)"
+    fontWeight: 400
+    lineHeight: 1.85
 rounded:
-  hairline: 1px
-  needle: 2px
-  key: 6px
-  mark: 4px
-  control: 10px
-  card: 16px
-  sheet: 20px
-  pill: 999px
+  page: "0px"
+  sheet: "2px"
+  mark: "2px"
+  control: "4px"
 spacing:
-  s1: 4px
-  s2: 8px
-  s3: 12px
-  s4: 16px
-  s5: 24px
-  s6: 32px
-  s7: 48px
-  s8: 64px
+  s1: "4px"
+  s2: "8px"
+  s3: "12px"
+  s4: "16px"
+  s5: "24px"
+  s6: "32px"
+  s7: "48px"
+  s8: "64px"
+  gutter: "40px"
+  margin-column: "300px"
 components:
   button-primary:
     backgroundColor: "{colors.graphite-ink}"
-    textColor: "{colors.card}"
+    textColor: "{colors.proof-sheet}"
     rounded: "{rounded.control}"
+    typography: "{typography.label}"
   button-secondary:
-    backgroundColor: "{colors.card}"
+    backgroundColor: "{colors.proof-sheet}"
     textColor: "{colors.graphite-ink}"
     rounded: "{rounded.control}"
-  reading-card:
-    backgroundColor: "{colors.card}"
-    rounded: "{rounded.card}"
+    typography: "{typography.label}"
+  rail:
+    backgroundColor: "{colors.nonrepro-rail}"
+    textColor: "{colors.graphite-ink}"
+    height: "56px"
+  rail-tab:
+    textColor: "{colors.graphite-2}"
+    typography: "{typography.label}"
+  rail-tab-active:
+    textColor: "{colors.graphite-ink}"
+  galley:
+    backgroundColor: "{colors.proof-sheet}"
+    rounded: "{rounded.sheet}"
+    padding: "32px 48px"
+  word-lens:
+    backgroundColor: "{colors.proof-sheet}"
+    textColor: "{colors.graphite-ink}"
+    rounded: "{rounded.control}"
+    width: "360px"
+    padding: "16px 24px"
 ---
 
 # Design System: Squint
 
 ## Overview
 
-**Creative North Star: "The optician's reading card"**
+**Creative North Star: "The Galley Proof"**
 
-Squint reads text the way an optician reads eyes. The person holds one card at reading distance: their own words, set in a reading serif on matte card stock. A two-sided duochrome comparison follows, where neither side is the bad side. Then a lens lets them look closer at any word. Every control is graphite. Colour appears only where there is evidence.
+Squint marks writing the way a copy editor marks a galley proof. The writer's text is the page: a bright white proof sheet with a 1px rule, lying on a cool desk. Squint's evidence goes on it in pencil and in the margin, and the reading is the editor's note at the head of the sheet. Every control and everything Squint says is in graphite ink. The shell is a pale non-repro blue band, the colour an editor's pencil uses because it doesn't print.
 
-The surface is a calm work tool for anxious people: a student, a teacher, a writer. It is dense where it explains and quiet where it waits. It deliberately refuses the detector default of a red percentage gauge and an alarm highlighter over a white SaaS card. It also rejects the previous Squint look as an anti-reference: a bench instrument with chart-paper grid, condensed caps, square corners and cobalt/amber.
+Density is calm and editorial. The sheet carries the writing at one reading size in a serif. A narrow margin column beside it holds numbers in one tabular column, the length stops and the editor's queries. There are no explanatory sentences under elements: if a screen needs one, the layout is wrong. Dark theme is the proof desk at night: a graphite sheet on near-black, the same two pencils lifted for contrast.
+
+It turns down the usual detector look of a white card with a percentage gauge and highlighter over every sentence. It also turns down Squint's previous look, the optician's reading card: tinted ground, pill nav and a helper sentence under everything.
 
 **Key Characteristics:**
-- One reading card per view: the composer before a check, the marked text after it.
-- A duochrome pair, teal for AI-like and rose for human-like. It is used only on evidence and always paired with a non-colour cue.
-- Graphite for every control. Errors are written in ink with an icon and words, with no alarm red.
-- One grotesque (Archivo) for the interface and one serif (Source Serif 4) for the writer's own text. No caps, no mono, no eyebrows.
-- One moving element per view: the needle (220ms), the active stage ring or the lens. Nothing moves under reduced motion.
+- Proof-white sheet on a cool desk, 1px rules, square-cut corners (2px sheet, 4px controls).
+- Graphite ink for all text and every control, including the primary button.
+- Two pencils: blue (AI-like) and orange (human-like). Neither ever fills a control.
+- Archivo for Squint's voice, Source Serif 4 for the writer's words.
+- Figures in tabular numerals, gathered in the margin.
+- No resting shadows. Only floating surfaces lift.
 
 ## Colors
 
-The palette is a cool, faintly tinted near-white ground (never cream) carrying graphite ink. The two duochrome hues are reserved for marks.
+A near-monochrome proof in graphite on white, with a pale blue rail and two pencil colours kept for marking.
 
 ### Primary
-- **Graphite Ink** (#16191d / #e6eaec): every control, heading, primary button, focus ring, the needle and the active nav pill.
+- **Graphite Ink** (graphite-ink): all text, every control fill (primary button, active tab underline, focus ring, current-word outline), the rate bars on the accuracy page. Errors are graphite too, with an icon and words.
 
-### Evidence pair
-- **Lens Teal** (#0a6870 / #63c7c6): AI-like, meaning more predictable than expected. It marks a solid underline in four tint steps, `--ai-1..4`.
-- **Duochrome Rose** (#ad2f4f / #f291a8): human-like, meaning more surprising than expected. It marks a dotted underline in four tint steps, `--hu-1..4`.
+### Secondary
+- **Blue Pencil** (blue-pencil): the editor's pencil. Solid underlines under AI-like words, the margin brackets and their numbers, query text in the margin, the 2px rule over the known-gap block, length-stop ticks, active progress marks, step counters, the text caret and the drop-zone border. Its pale washes, **Blue Wash** and **Blue Wash Strong**, sit only under ink text on words that lean hard and in the AI zone of the score ruler.
+- **Non-repro Rail** (nonrepro-rail) with **Rail Rule** (rail-rule): the sticky top band and its bottom hairline. Nothing else is filled with it.
+
+### Tertiary
+- **Orange Pencil** (orange-pencil): text-level orange, used only for the human-like lean label in the word lens and the human-like specimen note. **Orange Mark** (orange-mark) is the dotted underline under human-like words. **Orange Wash** and **Orange Wash Strong** sit under strongly human-like words and in the human zone of the ruler.
 
 ### Neutral
-- **Ground** (#eef1f0 / #11161a): the page.
-- **Card** (#fcfdfc / #182025): the reading card, the lens and the sheets.
-- **Card Sunk** (#f4f6f5 / #141b1f): notices, the active stage row and the nav track.
-- **Graphite 2 / Muted** (#454b53 / #5f666e, with dark equivalents): secondary and tertiary text. Both pass 4.5:1 on the ground and on the card.
-- **Line / Line Strong** (#dbe0de / #b4bcb9): 1px dividers and control outlines.
+- **Desk** (desk): the page ground behind the sheet.
+- **Proof Sheet** (proof-sheet): the galley, reading-page sheets, the lens, the phone bottom sheet, secondary button fill.
+- **Sheet Sunk** (sheet-sunk): recessed wells such as the file note, the specimen frame and empty bar tracks.
+- **Graphite 2** (graphite-2): secondary text, inactive tabs, prose on reading pages.
+- **Muted** (muted): counts, placeholders, unreached stops, metadata.
+- **Rule** (rule) and **Rule Strong** (rule-strong): 1px dividers. The strong rule opens each margin block and list; the plain rule separates rows.
+- **Selection** (selection): text selection only.
 
 ### Named Rules
-**The Evidence-Only Rule.** Teal and rose never touch a control, a heading or an error. If something is coloured, it is a measurement.
+**The Pencil Never Fills a Control Rule.** Blue and orange mark evidence and editor's notes. Buttons, tabs, toggles and focus rings are graphite. Orange is stricter still: it appears only where something reads as human-like.
 
-**The Two-Cues Rule.** Every colour meaning repeats without colour. Solid underline means AI-like and dotted means human-like. Underline weight carries strength. The flagged-share bar is striped. Zone labels sit on the scale.
+**The No Alarm Colour Rule.** Errors speak in graphite with an icon and a plain sentence. There is no red anywhere, because the page is often about a real person.
+
+**The Two Channels Rule.** Direction never relies on colour alone. AI-like is a solid underline and human-like is a dotted one. The underline's weight shows strength (1px to 3px), and a wash appears only at the two strongest levels.
 
 ## Typography
 
-**Interface Font:** Archivo Variable, falling back to system-ui.
-**Reading Font:** Source Serif 4 Variable with optical sizing, falling back to Iowan Old Style and Georgia.
+**Display Font:** Archivo Variable, using its width axis (with Archivo, ui-sans-serif, system-ui)
+**Body Font:** Archivo Variable
+**Reading Font:** Source Serif 4 Variable with optical sizing (with Iowan Old Style, Georgia)
 
-**Character:** A plain, slightly wide grotesque speaks for Squint. A bookish serif carries the writer's words, so it is always clear whose text is whose.
+**Character:** Archivo is Squint talking: heavy and slightly widened at display sizes, plain at text sizes. Source Serif 4 is only ever the writer's own words, or a word the model guessed.
 
 ### Hierarchy
-- **Headline** (650, 28px, 1.15, -0.025em): one h1 per screen. On a result, the band in words is the h1.
-- **Title** (650, 23px, 1.2): section titles, the known-gap title and the headline numbers.
-- **Body** (400, 16px, 1.55): ledes, explanations, prose capped at 64ch.
-- **Label** (500–600, 13–14px): field labels, meter stops, stage names and legend text.
-- **Reading** (Source Serif 4, 19px, 1.8, 66ch): the composer and the marked text. The lens shows the selected word at specimen scale (36–44px).
+- **Verdict** (800, 56px, 1, wdth 118): the reading at the head of the galley. 40px under 760px.
+- **Title** (800, 40px, 1.05, wdth 118): page titles on Accuracy, How it works and the password gate. 32px under 760px. The 48px accuracy headline number uses the same cut.
+- **Section** (750, 22px, 1.2, wdth 110): section titles and the known-gap title. The lead margin figure shares this size, at 750 and wdth 112.
+- **Body** (400, 16px, 1.5): interface text. Prose on reading pages runs 1.6 line height at a 68ch measure.
+- **Label** (550 to 650, 15px): tabs, buttons, row labels, the margin column.
+- **Small** (550 to 650, 13px): counts, metadata, query tags, stage notes, legend.
+- **Reading** (400, 19px, 1.85 serif): the writer's text in the composer and the marked printout. 17px under 760px. 68ch measure.
 
 ### Named Rules
-**The Two Voices Rule.** There are only two text treatments: Archivo for Squint and Source Serif for the person. No caps labels, no monospace, no tracked eyebrows.
+**The Two Voices Rule.** Serif means the writer's words; sans means Squint's. Never set Squint's interface copy in the serif, and never set the writer's text in the sans.
+
+**The One Reading Size Rule.** On the galley, the writer's text has exactly one size. Larger serif appears only off the galley, in the lens headword (40px) and the How it works specimen (22px).
+
+**The Tabular Figures Rule.** Every number that can sit next to another number uses tabular numerals: counts, stops, figures, rates, timings, ranks.
 
 ## Layout
 
-- **Container:** max 1200px with a 32px gutter (16px under 720px). The top bar is sticky at 60px (56px on phones).
-- **Checker, composing:** the main column holds the composer, the length meter and the progress or model note. A 280px aside of three short facts sits beside it and stacks under it below 1040px.
-- **Checker, result:**
-  - The readout is capped at 880px.
-  - "Look closer" puts the marked text beside a 300px side column of reasons and passages. That column is sticky below the bar from 1040px up.
-- **Phone:**
-  - The routes move to a fixed bottom pill in the thumb zone, and the main area gets 96px of bottom padding.
-  - The lens becomes a bottom sheet with a handle.
-  - The theme switch and an icon-only Lock stay in the top bar.
-- **Rhythm:** an 8px spacing scale (4 to 64). Sections are separated by 1px rules, not boxes.
+The checker is a two-column proof inside a 1280px frame with 40px gutters. On the left is the galley sheet. On the right is a 300px margin column, 48px away, which sticks under the rail. The margin holds only the length stops (Word marks 20, Verdict 50, AI-written share 150, Limit 2,500) before a check. During a check, progress writes itself there in stage rows. After a check it holds the figures column, the flagged-passage queries, the "What stood out" disclosure and the known-gap query. The build ships four stops where the direction named three. One region owns each state: the galley is the screen both before and after a check.
+
+Reading pages (Accuracy, How it works) are a single sheet, at most 880px wide, padded 48/64px. Label-and-value rows use a 210px label column.
+
+The spacing scale is a 4px base (4, 8, 12, 16, 24, 32, 48, 64). Rows inside lists are separated by rules rather than gaps.
+
+Responsive changes:
+- 1040px and below: margin narrows to 260px, galley padding drops to 24/32px.
+- 860px and below: the margin stacks under the galley and stops sticking. The AI-written share moves out of the figures table to sit under the verdict. The tabs move to a second 44px rail row.
+- 760px and below: gutter 16px, rail 52px, type steps down (reading 17px, title 32px, verdict 40px). Rows collapse to one column, verdict buttons go full width, and the word lens becomes a bottom sheet.
 
 ## Elevation & Depth
 
-The page is a hybrid of tonal layering and two soft shadow tiers. Cards sit on the ground with a 1px line and `shadow-1`. Only floating things get `shadow-2`: the lens, the sheet and the bottom nav.
+Flat by default. Depth comes from the white sheet sitting on the darker desk, edged with a 1px rule. Secondary buttons and the accuracy rate-bar tracks draw their edge with a 1px inset shadow; that is a border, not elevation.
 
 ### Shadow Vocabulary
-- **shadow-1** (`0 1px 2px rgba(20,30,34,.06)`; dark `0 1px 2px rgba(0,0,0,.4)`): resting cards.
-- **shadow-2** (`0 18px 40px -12px rgba(20,30,34,.22)`; dark `... rgba(0,0,0,.7)`): the lens, the sheet and the bottom nav.
+- **Lift** (light `0 14px 36px -10px rgba(15, 22, 30, 0.28)`, dark `0 14px 36px -10px rgba(0, 0, 0, 0.75)`): only the floating word lens and the phone bottom sheet.
+
+### Named Rules
+**The No Resting Elevation Rule.** Nothing that sits in the page casts a shadow: sheets, buttons, cards and the rail stay flat. Only a surface that floats over the text lifts.
 
 ## Shapes
 
-Soft rounded corners throughout:
-- reading card and lens: 16px
-- controls: 10px
-- word marks: 4px
-- phone sheet top: 20px
-- nav and pills: 999px
-
-Borders are 1px and neutral. No coloured side borders.
+Proof stock is cut square and pencils leave thin marks. The page has no radius. Sheets and evidence marks use 2px, and controls use 4px. Small checkbox-like stop marks use 1px. Margin brackets are a 2.5px blue stroke open on the left with 2px outer corners (8px wide with a 2px stroke on phones). Dividers are 1px. The only thicker rules are the 2px active-tab underline and the 2px blue rule over the known-gap block. Disclosure chevrons are drawn with borders, and icons are one drawn set: a 20px grid, 1.5px stroke, round caps.
 
 ## Components
 
 ### Buttons
-- **Primary:** graphite fill with card-coloured text and a 10px radius. Astryx handles loading and focus.
-- **Secondary:** card fill with a 1px line-strong inset outline. Hover adds the hover tint.
-- **Ghost / text buttons:** underlined graphite text with a 1px underline that darkens on hover.
-
-### Reading card (composer and printout)
-A card-coloured, 16px, 1px-line, shadow-1 sheet. The composer holds a label row, a serif textarea, the attached-file chip and a foot row with Upload, file types, the ⌘/Ctrl Enter hint (desktop only) and Check text. While a check runs, the textarea folds to 9.5em so the stage rows come up into view.
-
-### Length meter
-A 4px track with three named stops: Verdict 20, AI-written share 150 and Limit 2,500. The fill is graphite, and a stop fills once it is reached. The guide sentence underneath says what the reader will get at the current length.
-
-### Stage rows
-Queue, Warm-up and Scoring each restyle in place: pending (dot), active (sunk row, spinning ring), done (check) or skipped (dash). The active row stays lit until the next stage lands. A polite live region announces the current stage.
-
-### Duochrome scale (signature)
-- A 44px field with three zones: Likely AI (teal), Uncertain (neutral) and Likely human (rose). The zone holding the score deepens one tint step; there is no outline box.
-- A graphite needle with a value pill eases from the centre to the score once, over 220ms ease-out.
-- Zone names sit in a row under the field, centred on each zone. The current zone's name is bold, and the outer names edge-align when their zone is narrow, so all three are always named, on phones too. The "More predictable / More surprising" ends sit beneath.
-- When Squint is untuned, the field is a soft gradient with no zones, plus a sentence saying so.
-- The whole figure has an `aria-label` that states the score and cutoffs.
-
-### Lens (signature)
-- **Desktop:** a 344px card with shadow-2 that opens on hover, tap or arrow key. It shows the word at serif specimen scale, a lean pill, its rank, the odds against what is typical, the top-five table with "written" marking the user's word, the surprise numbers and the sentence lean.
-- **Phone:** a bottom sheet with prev/next word buttons and a "Word n of N" count.
+Astryx buttons, repainted to graphite.
+- **Shape:** gently squared (4px).
+- **Primary:** a solid graphite ink fill with sheet-coloured text, weight 600. In dark theme it inverts to a light fill with dark text.
+- **Secondary:** sheet fill with a 1px inset graphite edge. Hover and press lay the hover and press tints over it; it never turns into a grey fill.
+- **Text and icon buttons:** an underlined graphite text button, and a 32px icon button that gains the hover tint.
 
 ### Navigation
-- **Desktop:** a pill track in the top bar. The current route gets a card-coloured pill with shadow-1 and `aria-current="page"`.
-- **Phone:** a fixed bottom pill whose current tab is filled graphite.
+- **Rail:** sticky, 56px high, filled non-repro blue with a rail-rule hairline. Left to right: the "Squint" wordmark (800, wdth 125), then the routes as underline tabs, then the theme toggle and Lock pushed right.
+- **Tabs:** 15px at weight 550 in graphite-2. The active tab turns graphite ink with a 2px ink underline; there are no pills. Below 860px the tabs move to a 44px second row, and the Lock label becomes visually hidden.
+
+### Galley (signature)
+The white sheet holding the writer's text. Before a check, its head carries a "Your text" label with the word count, the body is the serif composer with no visible field border, and the foot (above a 1px rule) holds Upload and the primary Check text button. After a check, the head is the verdict: a slug line of figures only ("327 words · 2.5 s"), the verdict, one plain sentence and the actions. Below that, a tools row holds the Clear leans / Every word segmented control and the mark legend, followed by the marked printout.
+
+### Evidence marks (signature)
+Each word is a span. AI-like words get a solid blue underline; human-like words get a dotted orange one. The underline weight steps from 1px to 3px with strength, and the two strongest levels add a wash. The default Clear leans view hides the two weakest levels, so the page shows where to look. The word in focus or open in the lens gets a 2px ink outline, the only box on the page.
+
+### Margin brackets (signature)
+Each flagged passage gets a blue bracket in the galley's right margin, aligned to its lines, with a small tabular number beside it. Clicking one scrolls to the passage and outlines it. Brackets draw in once when a result lands (scaleY from the top, 240ms, ease-out) and turn ink on hover.
+
+### Margin column
+- **Figures:** a single tabular table under a strong rule. Labels sit left in graphite-2 and values right at weight 650. The lead row (AI-written share) is set at 22px.
+- **Queries:** a blue-pencil note under a strong rule. A passage query is its own content: the passage range ("Words 76–225") is the clickable button.
+- **Length stops and progress stages:** ruled rows with an 18px mark column. Stops tick off in blue as the text grows, and the limit stop's mark is dashed. Stages show a blue spinner while active and a blue check when done.
+
+### Word lens
+A 360px floating sheet with a 1px ink border, 4px radius and the lift shadow. It holds the word as a 40px serif headword, its lean (with a blue or orange swatch), its rank and odds, then a table of the model's top five guesses with ink bars, and the actual word tagged with an ink-outlined chip. It opens on hover, tap or arrow keys. On phones it becomes a bottom sheet with an ink top border, at most 56dvh tall.
+
+### Inputs
+The composer is borderless serif text on the sheet. The password field is an Astryx text input with the graphite border token. Focus anywhere is a 2px ink outline offset 2px.
+
+### Accuracy rows
+Label, a tabular value at weight 700 and a 6px ink bar on a sunk track. Untested rows show a muted value and a dashed 2px line instead of a bar. The binoculars-only score ruler is a 10px sunk track with blue and orange zones, rule-strong cutoffs and a 2px ink needle.
 
 ## Do's and Don'ts
 
 ### Do:
-- **Do** keep teal and rose for evidence, with solid vs dotted underlines carrying direction.
-- **Do** put the ChatGPT gap next to every verdict and at the top of the Accuracy page.
-- **Do** cap h1 at 28px (24px on phones) and keep one h1 per screen.
-- **Do** render only what `/api/accuracy` returns. Untested models read "Untested", with a dashed bar.
+- **Do** set the writer's text in Source Serif 4 at the single reading size, and everything Squint says in Archivo.
+- **Do** put figures in the margin's one tabular column, not inside sentences.
+- **Do** carry direction with both colour and underline style: solid blue for AI-like, dotted orange for human-like.
+- **Do** keep every control graphite: ink fill for primary, a 1px inset ink edge on sheet for secondary.
+- **Do** separate rows with 1px rules and open each margin block with the strong rule.
+- **Do** keep motion to the single bracket draw-in and short state fades (140ms), and none under reduced motion.
 
 ### Don't:
-- **Don't** use red or amber for errors or for "AI". Errors are ink with an icon and words.
-- **Don't** add uppercase eyebrows, monospace numerals or card grids.
-- **Don't** animate more than one element per view, and nothing under `prefers-reduced-motion`.
+- **Don't** fill a button, tab or toggle with blue or orange, or use orange for anything that isn't human-like evidence.
+- **Don't** use red or any alarm colour for errors or for a Likely AI verdict.
+- **Don't** add pill navigation, a tinted page ground, rounded cards over 4px, or a helper sentence under elements. Those belong to the replaced reading-card look.
+- **Don't** put a small category tag above a heading or above a sentence that already says the same thing.
+- **Don't** give resting surfaces a shadow. Lift is only for the lens and the bottom sheet.
+- **Don't** highlight every word. The default view marks only strong leans.
 
----
+## Provenance
 
-## Design process receipts
-
-This redesign was run through the documented workflow. Each step below names what was run and the evidence it left.
-
-### impeccable
-
-| Step | What happened | Evidence |
-|---|---|---|
-| context | Read `PRODUCT.md` and the previous surface brief. Updated `PRODUCT.md`: known-gap capability, WCAG 2.2 AA. | `PRODUCT.md` diff |
-| new-work (REDESIGN) | Treated as a full redesign with the old bench-instrument look as anti-reference. A grounded list of 7 physical-world forms (highlighter on a photocopy, field-guide plate, weather forecast, proofreader galley marks, music dynamics, tide almanac, optician's reading card). | `.impeccable/surfaces/src-app-tsx.md` (FORM) |
-| concept-seed | `impeccable concept-seed` returned key `a0c58abc`, assigned index 7, the optician's reading card. Challengers: variable-font specimen, boarding pass/gate board, design annual, streaming wall, Saville sleeve, star atlas. Raises kept: specimen-scale word in the lens, stage rows that restyle in place, one grotesque on a tinted ground. | surface brief FORM section |
-| decision page | `serve-question` started once (port 54238). There was no answer within 60s and the session is unattended, so the assigned direction was built. Recorded as Unresolved: Nicky may re-roll. | `.impeccable/decision/direction-payload.json`, `.impeccable/questions/` |
-| direction contract | THESIS / OWN-WORLD / STORY / FIRST VIEWPORT / FORM / FINISH written with `surface-brief write` and read back. | `.impeccable/surfaces/src-app-tsx.md` |
-| craft-floor | Applied `reference/craft-floor.md`. No eyebrows, no coloured side borders over 1px, no card grids, no gradient text, tracking ≥ -0.025em, one h1, real focus states, no em-dash-as-decoration copy. | `src/styles/app.css` |
-| detect | `impeccable detect --json` over `app.css`, `tokens.css`, `App.tsx`, every component and screen, and `index.html` returned `[]` (zero findings). | command output |
-| finish review | A fresh general-purpose reviewer subagent was given the request, the code, the contract, the craft-floor and the screenshot set. Its verdict and the fixes applied are recorded under "Finish review" below. | this file |
-| document | This `DESIGN.md` and `.impeccable/design.json`. | these files |
-
-### frontend-skill: references (browsed with headless Chrome)
-
-| URL | Principle adapted | Where it shows up |
-|---|---|---|
-| https://collectui.com/designs/file-upload-ui-design-inspiration | A chat-composer upload: the attached file is a chip inside the composer, next to a single action. | `.file-chip` inside `.composer`. Upload sits in the composer foot beside Check text. |
-| https://collectui.com/designs/notepad-ui-design-inspiration | One writing sheet floated on a soft field, with the text as the primary object. | The reading card: `.composer` before a check, `.printout` after it, on the tinted `--ground`. |
-| https://recent.design/i/x6k4i8j-effort-slider-microinteraction | A track with named discrete stops whose value label morphs in place. | `LengthMeter` (Verdict 20 / AI-written share 150 / Limit 2,500) and the duochrome scale's labelled zones with the needle's value pill. |
-| https://www.designers-machines.com/ (via https://www.landing.love/sites/designers-machines/) | A human-vs-machine theme: muted greys, one saturated line, and a compact pill nav at the bottom in the thumb zone. | `.nav-bottom` on phones, and colour reserved for evidence only. |
-
-Also browsed and not adopted:
-- landing.love home
-- antimetal.com: a cream-and-serif hero, a trap for an app surface
-- the recent.design interface and typography indexes: these fetched empty
-- the Collect UI empty-states and tabs pages
-
-### frontend-skill: app-surface rules and anti-template checklist
-
-| Item | Result | Note |
-|---|---|---|
-| No hero / marketing banner | PASS | The first viewport is the working composer under a 28px h1. |
-| h1 ≤ 32px | PASS | 28px desktop, 24px phone (`--t-xl`). |
-| Real navigation | PASS | Hash routes with `aria-current`. Top pill on desktop, bottom pill on phones. |
-| ≤ 2 text treatments | PASS | Archivo for the interface, Source Serif 4 for the user's text. No caps, no mono. |
-| Tokens, not literals | PASS | All colour, radius, space and motion come from `tokens.css` and `theme.ts`. |
-| Mobile as its own layout | PASS | Bottom nav, lens as a bottom sheet, stacked aside, icon-only Lock, no keyboard-shortcut hint. |
-| Cardless (no dashboard cards) | PASS with a note | There are no card grids. The only cards are the reading card itself, the lens and the known-gap panel on Accuracy, which is deliberately emphasised. Facts, reasons, rates and rows are divided by rules. |
-| No purple/blue SaaS gradient | PASS | Graphite with a duochrome used only on evidence. |
-| No generic icon-tile feature grid | PASS | The aside is three rule-separated text blocks. |
-| No uppercase eyebrow labels | PASS | Sentence case everywhere. |
-| No coloured side-stripe callouts | PASS | Notices use a full 1px neutral border with a sunk fill. |
-| No fake numbers | PASS | Accuracy renders only API data. Untested models say "Untested". |
-
-### ui-ux-pro-max
-
-- **Declined:** the suggested indigo-and-Lora "wellness" system, because it conflicts with the evidence-only colour rule.
-- **Taken:**
-  - Colour is never the only carrier of meaning, and text contrast is at least 4.5:1.
-  - Visible progress for multi-step work (stage rows).
-  - Click or tap, never hover-only: the lens opens on tap and arrow keys.
-  - Tab order matches visual order. Targets are at least 44px on phones with at least 8px gaps.
-  - `aria-live` / `role="alert"` for status and errors. Submit feedback is a loading button plus stage rows.
-  - Reduced motion is honoured, at most 1–2 animated elements, ease-out curves.
-  - A diverging heat scale with a legend and a non-colour pattern.
-  - Memoised word rendering with stable keys (kept in `HeatText`).
-
-### ux-audit: perfection checklist
-
-| Area | Result | Proof |
-|---|---|---|
-| Buttons: one primary per view, clear labels, loading state, ≥44px on touch | PASS | `06-ready150-*`, `07-queued-*`. The loading primary keeps its accessible label. |
-| Inputs: visible label, word count, length guidance, error tied by `aria-describedby` / `aria-invalid` | PASS | `04-under20-*`, `05-20to149-*`, `Checker.tsx` textarea |
-| Navigation: current route marked, reachable on phone, skip link | PASS | `18-accuracy-*`, `19-how-it-works-mobile-*`. `.skip` appears on focus. |
-| Visual coherence: one radius family, two shadows, two type voices, graphite controls | PASS | The whole `.qa/web/redesign/` set |
-| Mobile: no horizontal overflow at 390, bottom nav, lens sheet, readable 17px serif | PASS | Overflow measured 0 on all 76 captures; `11-word-detail-mobile-*` |
-| Feedback: progress, errors, rate limit and warm-up each say what happened and what to do | PASS | `07`, `08`, `13`, `14` |
-| States: empty, short, partial, full, loading, error, rate-limited, uncalibrated, accuracy 404 | PASS | `03`–`17` |
-| Polish (spacing rhythm, alignment, copy tone) | PASS with notes | See "Finish review" for the remaining items. |
-
-### Accessibility (WCAG 2.2 AA)
-
-- **Heat contrast:**
-  - Ink on the strongest tints is about 10:1 in light (#16191d on #94cdcd) and about 7:1 in dark (#e6eaec on #215559 and #642c3e).
-  - Underline colours on their tints exceed 3:1.
-  - Direction also carries through underline style: solid vs dotted.
-- **Keyboard:**
-  - Every word is reachable: tab into the text, arrows step word to word, Up/Down move by sentence, Escape closes the lens.
-  - The lens on phones has prev/next buttons.
-- **Focus:** a 2px graphite or ink `:focus-visible` outline on every interactive element. On a result, focus moves to the verdict h1, which scrolls clear of the sticky bar.
-- **Screen readers:**
-  - The verdict h1 includes ", low confidence" when it applies.
-  - The duochrome figure has a full `aria-label`.
-  - The printout has a label and a hint.
-  - Stage changes are announced politely; errors use `role="alert"`.
-- **Motion:** `prefers-reduced-motion` cuts every animation and transition to near zero, and the needle simply appears in place.
-- **Forced colours:** heat tints keep their colours, and current-state elements get an outline.
-
-### ui-stack-router
-
-There were no dependency changes. The stack stays on React 19.3 + Astryx 0.1.9 + StyleX, with Fontsource Archivo and Source Serif 4 already installed. No router receipt was needed, because nothing was added or removed in `package.json`.
-
-### frontend-visual-qa
-
-- **Capture:** `npm run dev:mock` (port 5317). A Playwright script drove the `/__mock/state` switches and fixtures.
-- **Coverage:** 19 states × 1440/390 × light/dark = 76 captures, in `/Users/nicky/workspace/projects/squint/.qa/web/redesign/`.
-- **Checks on every capture:**
-  - Horizontal overflow: 0 everywhere.
-  - Console: only the expected 401 (wrong password), 429 (rate limit) and 404 (accuracy not tuned) responses.
-- **Round 1 fixes:**
-  - The needle crossed the "Uncertain" label; zone labels were lifted above the needle, then moved under the bar after the finish review.
-  - The result h1 hid under the sticky bar; added a scroll margin.
-  - Progress and errors landed below the fold; they now scroll into view, and the composer folds while running.
-  - The keyboard-shortcut hint was hidden on touch.
-  - Inline links in How it works no longer break the line.
-  - Accuracy rate notes now sit on their own line.
-- **Round 2:** the full set was recaptured and inspected.
-- **Review copies:** `.impeccable/review/desktop.png` and `.impeccable/review/mobile.png`.
-
-### Finish review
-
-A fresh general-purpose subagent reviewed 16 screenshots across both widths and themes, plus the code, against the contract and the craft-floor.
-
-**Verdict: SHIP WITH FIXES.** It found the build on contract: tinted ground, graphite controls, the two type voices, the duochrome with solid vs dotted underlines, and the dim exam-room dark theme. The phone lens sheet was called strong.
-
-**Fixed after review (recaptured as round 3):**
-1. **Heat density.** The faintest step (`ai1`, `hu1`) is now underline only, so fill marks only words that clearly lean.
-2. **Scale labels.** Zone names moved under the bar and are never hidden. Before, the "Likely AI" name disappeared on short results on phones.
-3. **Active zone.** The 2px ink box was replaced by a deeper tint. The needle now eases over 220ms, per the contract.
-4. **Duplicate copy.**
-   - The aside heading is now "One clue, not a verdict".
-   - The privacy aside was dropped, because the footer already says it.
-   - The Uncertain band line no longer repeats the explanation.
-5. **Accuracy page.** Paragraph spacing in "Not tuned yet" fixed, and the notes list aligned.
-6. **Lens word size.** Raised to specimen scale.
-7. **Honesty.**
-   - The mock's ChatGPT catch rate now reads "about 1 in 12", matching the gap card.
-   - Untuned results get a callout variant that doesn't mention a "Likely human" verdict that isn't there.
-
-**Declined, with reasons:**
-- **Striped flagged-share bar.** Kept as the non-colour cue for "flagged".
-- **Spinner-only primary while loading.** Astryx sets `aria-label` to the button label and `aria-busy` while loading. The stage rows directly below say what is happening.
-- **Disabling Check text while rate-limited.** Kept enabled so a retry is possible once the window passes; the error states the wait.
+The Galley Proof was chosen by Nicky on 2026-10-25 (seed:df86068ee0cbb1a7). After two fix rounds, the finish review's disposition was ship. Axe found zero violations at 1440px and 390px, in light and dark.

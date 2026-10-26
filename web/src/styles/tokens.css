@@ -27,7 +27,6 @@
 
   /* the two pencils: poles carry text-level contrast, washes sit under ink text */
   --blue: light-dark(#1d68b5, #79b6f2);
-  --blue-1: light-dark(#eef4fb, #152536);
   --blue-2: light-dark(#dce9f8, #1a3048);
   --blue-3: light-dark(#c3d9f2, #22405f);
   --orange: light-dark(#a8530d, #f2a865);

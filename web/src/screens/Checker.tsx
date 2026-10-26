@@ -6,7 +6,7 @@ import { AlertIcon, CloseIcon, FileIcon, UploadIcon } from '../components/Icons'
 import { Stops } from '../components/LengthMeter';
 import { VerdictHead } from '../components/Readout';
 import { StageRows, type Progress } from '../components/StageRows';
-import { describeError, lengthGuide, LIMITS_FALLBACK, notes, type UiError } from '../copy';
+import { describeError, lengthGuide, LIMITS_FALLBACK, type UiError } from '../copy';
 import { countWords, fmtInt, words } from '../lib/format';
 import { reflowPdfText } from '../lib/reflow';
 import type { Result, Status } from '../types';
@@ -348,7 +348,7 @@ export function Checker({ status, onChecked }: { status: Status | null; onChecke
               <p className="query-text">You&rsquo;ll get the word marks, but no verdict or AI-written share.</p>
             </div>
           )}
-          <p className="margin-quiet">{notes.privacy}</p>
+          <p className="margin-quiet">Nothing you paste is stored.</p>
         </aside>
       </div>
 

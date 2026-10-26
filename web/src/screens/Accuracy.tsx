@@ -45,7 +45,6 @@ export function Accuracy({ status }: { status: Status | null }) {
       <article className="galley page-sheet">
       <header className="screen-head">
         <h1>How accurate is Squint?</h1>
-        <p className="lede">How it did on writing it had never seen, where the true source was known.</p>
       </header>
       <KnownGap clf={status ? !!status.classifier?.ready : load.kind === 'ready' && !!load.data.classifier} />
       {load.kind === 'loading' && (
@@ -164,7 +163,6 @@ function Report({ data }: { data: AccuracyData }) {
             { label: 'Non-native English writers', v: ff.non_native, note: 'Often flagged by other detectors. Squint is tuned on them on purpose.' },
             ...lengthRows(ff.by_length),
           ]}
-          noun="human texts flagged"
         />
       </section>
 
@@ -185,11 +183,10 @@ function Report({ data }: { data: AccuracyData }) {
               v,
               note: k.toLowerCase() === 'chatgpt' ? 'The known gap: most ChatGPT writing gets through.' : undefined,
             })),
-            ...untested.map(k => ({ label: sourceName(k), v: null, note: 'Not tested yet.' })),
+            ...untested.map(k => ({ label: sourceName(k), v: null })),
           ]}
-          noun="caught"
         />
-        <RateRows caption="Catch rate by length" rows={lengthRows(cr.by_length)} noun="caught" />
+        <RateRows caption="Catch rate by length" rows={lengthRows(cr.by_length)} />
       </section>
 
       <section className="acc-section" aria-labelledby="unsure-title">
@@ -203,7 +200,6 @@ function Report({ data }: { data: AccuracyData }) {
             { label: 'Human writing', v: data.uncertain_rate.human },
             { label: 'AI writing', v: data.uncertain_rate.ai },
           ]}
-          noun="left uncertain"
         />
       </section>
 
@@ -277,7 +273,6 @@ function ClassifierReport({ c }: { c: ClassifierAccuracy }) {
             },
             ...lengthRows(b => c.by_length[b]?.false_flag),
           ]}
-          noun="human texts flagged"
         />
       </section>
 
@@ -294,12 +289,11 @@ function ClassifierReport({ c }: { c: ClassifierAccuracy }) {
               v: pooled(g, 'caught'),
               note: g === 'claude' ? 'The known gap: some Claude writing gets through, mostly in short texts.' : undefined,
             })),
-            { label: sourceName('gemini'), v: null, note: 'Not tested yet.' },
+            { label: sourceName('gemini'), v: null },
           ]}
-          noun="caught"
         />
         {GENS.map(g => (
-          <RateRows key={g} caption={`${sourceName(g)} by length`} rows={lengthRows(b => cell(b, g)?.caught)} noun="caught" />
+          <RateRows key={g} caption={`${sourceName(g)} by length`} rows={lengthRows(b => cell(b, g)?.caught)} />
         ))}
       </section>
 
@@ -314,7 +308,6 @@ function ClassifierReport({ c }: { c: ClassifierAccuracy }) {
         <RateRows
           caption="Called likely human"
           rows={GENS.map(g => ({ label: sourceName(g), v: pooled(g, 'called_human') }))}
-          noun="called human"
         />
       </section>
 
@@ -330,22 +323,14 @@ function ClassifierReport({ c }: { c: ClassifierAccuracy }) {
   );
 }
 
-function reading(v: number, noun: string) {
-  if (v <= 0) return 'None in the test set';
-  if (v >= 1) return `All of them ${noun}`;
-  const s = `${oneIn(v)} ${noun}`;
-  return s.replace(/^./, c => c.toUpperCase());
-}
 
 /** Rows: the rate, a bar on a fixed 0 to 100% track, then the plain-language reading. */
 function RateRows({
   caption,
   rows,
-  noun,
 }: {
   caption: string;
   rows: { label: string; v: number | null; note?: string }[];
-  noun: string;
 }) {
   if (!rows.length) return null;
   return (
@@ -361,8 +346,7 @@ function RateRows({
                 {r.v != null && <span style={{ width: `${Math.min(100, r.v * 100)}%` }} data-zero={r.v === 0 || undefined} />}
               </span>
               <span className="rate-read">
-                {r.v == null ? '' : reading(r.v, noun)}
-                {r.note && <span className="rate-note">{r.v == null ? r.note : ` ${r.note}`}</span>}
+                {r.note && <span className="rate-note">{r.note}</span>}
               </span>
             </dd>
           </div>

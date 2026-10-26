@@ -24,37 +24,7 @@ function Svg({ children, size = 18, ...rest }: SVGProps<SVGSVGElement> & { size?
 type P = { size?: number; className?: string };
 
 /** The Squint mark: an eye narrowed to read closely, the pupil a lens. */
-export const Mark = ({ size = 26, className }: P) => (
-  <svg width={size} height={size} viewBox="0 0 32 32" fill="none" aria-hidden="true" className={className}>
-    <path d="M3.5 17.5C8 10.5 24 10.5 28.5 17.5" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" />
-    <path d="M8 20.5C12.5 23.5 19.5 23.5 24 20.5" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" />
-    <circle cx="16" cy="17.25" r="3.6" fill="currentColor" />
-  </svg>
-);
-
 /** Nav: check (a reading lens), accuracy (a target), how it works (an open card). */
-export const LensIcon = (p: P) => (
-  <Svg {...p}>
-    <circle cx="8.75" cy="8.75" r="5.5" />
-    <path d="m12.75 12.75 4 4" />
-  </Svg>
-);
-
-export const TargetIcon = (p: P) => (
-  <Svg {...p}>
-    <circle cx="10" cy="10" r="7.25" />
-    <circle cx="10" cy="10" r="3.75" />
-    <circle cx="10" cy="10" r="0.6" fill="currentColor" />
-  </Svg>
-);
-
-export const CardIcon = (p: P) => (
-  <Svg {...p}>
-    <rect x="3" y="3.25" width="14" height="13.5" rx="2.5" />
-    <path d="M6.5 7.5h7M6.5 10.5h7M6.5 13.5h4" />
-  </Svg>
-);
-
 export const UploadIcon = (p: P) => (
   <Svg {...p}>
     <path d="M10 13V3.5M6.25 7.25 10 3.5l3.75 3.75" />
