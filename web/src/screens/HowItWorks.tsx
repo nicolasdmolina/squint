@@ -49,7 +49,8 @@ export function HowItWorks({ status }: { status: Status | null }) {
   const clf = !!status?.classifier?.ready;
   const minWords = status?.classifier?.min_words ?? 50;
   return (
-    <div className="screen how">
+    <div className="screen how page">
+      <article className="galley page-sheet">
       <header className="screen-head">
         <h1>How it works</h1>
         <p className="lede">
@@ -72,13 +73,13 @@ export function HowItWorks({ status }: { status: Status | null }) {
             </p>
             <p>
               It reads the whole text and rates how likely it is to be AI writing. Squint only says{' '}
-              <em className="term">Likely AI</em> when that rating is very high, high enough that in testing it flagged fewer
-              than 1 in 400 human texts. When the rating is low it says <em className="term">Likely human</em>, and in between
+              <em className="term">Likely AI</em> when that rating is very high, high enough that in testing it flagged 4 of
+              1,340 human texts, about 1 in 330. When the rating is low it says <em className="term">Likely human</em>, and in between
               it says <em className="term">Uncertain</em>.
             </p>
             <p>
               Under {minWords} words it won&rsquo;t give a verdict. Short snippets don&rsquo;t carry enough signal, and in
-              testing the detector wrongly flagged about 3% of short human texts.
+              testing the detector wrongly flagged about 2.5% of short human texts.
             </p>
           </div>
         </section>
@@ -141,8 +142,8 @@ export function HowItWorks({ status }: { status: Status | null }) {
         </h2>
         <div className="prose">
           <p>
-            In &ldquo;Look closer&rdquo;, every word is marked by its own little score: was it more or less predictable than
-            the models expected at that spot?
+            In a result, every word has its own little score: was it more or less predictable than the models expected at
+            that spot?
           </p>
         </div>
         <figure className="specimen-figure">
@@ -165,8 +166,8 @@ export function HowItWorks({ status }: { status: Status | null }) {
           </div>
           <figcaption className="sr-only">
             Example sentence: &ldquo;In today&rsquo;s fast-paced world, it is important to note that my aunt kept bees on a fire
-            escape.&rdquo; The stock phrase at the start is marked teal with solid underlines, meaning AI-like. The words about
-            the aunt and the bees are marked rose with dotted underlines, meaning human-like.
+            escape.&rdquo; The stock phrase at the start is marked in blue with solid underlines, meaning AI-like. The words about
+            the aunt and the bees are marked in orange with dotted underlines, meaning human-like.
           </figcaption>
         </figure>
         <dl className="rows key-rows">
@@ -177,7 +178,7 @@ export function HowItWorks({ status }: { status: Status | null }) {
               </span>
             </dt>
             <dd className="row-body">
-              Teal with a solid underline: more predictable than expected, which is AI-like.
+              Blue, solid underline: more predictable than expected, which is AI-like.
             </dd>
           </div>
           <div className="row">
@@ -186,7 +187,7 @@ export function HowItWorks({ status }: { status: Status | null }) {
                 word
               </span>
             </dt>
-            <dd className="row-body">Rose with a dotted underline: more surprising than expected, which is human-like.</dd>
+            <dd className="row-body">Orange, dotted underline: more surprising than expected, which is human-like.</dd>
           </div>
           <div className="row">
             <dt className="row-label">
@@ -199,9 +200,9 @@ export function HowItWorks({ status }: { status: Status | null }) {
         </dl>
         <div className="prose">
           <p>
-            A deeper tint and a heavier underline mean a stronger lean. <b>Smoothed</b> view averages each word with its
-            neighbours, so you see stretches rather than single words. <b>Word by word</b> shows each word&rsquo;s own score,
-            which is much noisier: plenty of human words are predictable, and that&rsquo;s fine.
+            A wash and a heavier underline mean a stronger lean. <b>Clear leans</b> averages each word with its neighbours and
+            marks only the words that lean hard, so you see stretches rather than single words. <b>Every word</b> shows each
+            word&rsquo;s own score, which is much noisier: plenty of human words are predictable, and that&rsquo;s fine.
           </p>
           <p>
             Hover or tab to a word to see the model&rsquo;s top five guesses for that spot and where your word ranked. Sentence
@@ -209,7 +210,8 @@ export function HowItWorks({ status }: { status: Status | null }) {
           </p>
           <p>
             For texts of 150 words or more, Squint also {clf ? 'runs the detector on' : 'scores'} overlapping 150-word
-            passages. The AI-written share is the share of words that sit inside a flagged passage.
+            passages. The AI-written share is the share of words that sit inside a flagged passage, and each flagged passage gets
+            a blue bracket in the margin.
           </p>
         </div>
       </section>
@@ -218,7 +220,7 @@ export function HowItWorks({ status }: { status: Status | null }) {
         <h2 id="blind-title" className="section-title">
           Blind spots
         </h2>
-        <p className="acc-lede">Squint is one clue, not a verdict. It is weakest in these places.</p>
+        <p className="acc-lede">Where Squint is weakest.</p>
         <dl className="rows blind">
           <div className="row">
             <dt className="row-label">Current AI models</dt>
@@ -280,6 +282,7 @@ export function HowItWorks({ status }: { status: Status | null }) {
           <ArrowRightIcon size={16} />
         </a>
       </section>
+      </article>
     </div>
   );
 }

@@ -1,0 +1,49 @@
+<!doctype html>
+<html><head><meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;650;750&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0}
+body{width:1440px;height:900px;overflow:hidden;background:#f3f5f2;color:#17191c;font:15px/1.5 Archivo,sans-serif}
+.rail{height:56px;background:#d8e7f4;display:flex;align-items:center;gap:40px;padding:0 48px;border-bottom:1px solid #b9d2ea}
+.mark{font-weight:750;font-size:20px;letter-spacing:-.02em}
+.rail nav{display:flex;gap:28px;font-weight:500}
+.rail nav a{color:#17191c;text-decoration:none;padding:17px 0;border-bottom:2px solid transparent}
+.rail nav a.on{border-color:#17191c}
+.wrap{display:grid;grid-template-columns:1fr 300px;gap:0;margin:40px 48px 0;height:780px}
+.galley{background:#fff;border:1px solid #d9ddd8;padding:44px 64px;position:relative}
+.note{font-size:13px;color:#5c636b;font-weight:500;margin-bottom:6px}
+h1{font-size:56px;font-weight:750;letter-spacing:-.035em;line-height:1;margin-bottom:10px}
+.sub{font-size:17px;color:#3a4047;margin-bottom:32px;max-width:52ch}
+.text{font:19px/1.85 "Source Serif 4",serif;max-width:64ch}
+.ai{box-shadow:inset 0 -2px #2f7fd0;background:#e3eefa}
+.hu{border-bottom:2px dotted #e2741c}
+.focus{outline:2px solid #17191c;outline-offset:1px;border-radius:2px}
+.bracket{position:absolute;right:28px;top:226px;height:196px;border-right:3px solid #2f7fd0;width:10px;border-top:3px solid #2f7fd0;border-bottom:3px solid #2f7fd0}
+.margin{padding:44px 0 0 28px;border-left:0}
+.q{border-top:1px solid #c9ced2;padding:14px 0 18px}
+.qn{font-weight:650;font-size:13px;color:#2f7fd0}
+.qt{font-size:15px;margin-top:4px}
+table{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums;margin-top:6px}
+td{padding:7px 0;border-top:1px solid #dfe3e0;font-size:14px}
+td:last-child{text-align:right;font-weight:650}
+.btns{display:flex;gap:10px;margin-top:28px}
+.b{height:40px;padding:0 18px;border-radius:8px;display:inline-flex;align-items:center;font-weight:600;font-size:15px}
+.p{background:#17191c;color:#fff}.s{border:1px solid #17191c}
+</style></head><body>
+<header class="rail"><span class="mark">Squint</span><nav><a class="on">Check</a><a>Accuracy</a><a>How it works</a></nav></header>
+<div class="wrap">
+<main class="galley">
+<p class="note">327 words · checked in 2.5 s</p>
+<h1>Likely AI</h1>
+<p class="sub">Most of the middle reads like ChatGPT or Claude. The opening and the ending read like a person.</p>
+<p class="text">I started baking bread during the first winter I lived alone, mostly because my apartment was freezing and the oven was the only thing that worked. My first loaf came out the size and density of a hockey puck.<br><span class="ai">Sourdough baking is a rewarding practice that combines science, patience, and creativity.</span> <span class="ai">At its core, sourdough relies on a natural starter,</span> a living culture of wild yeast and lactic acid bacteria that <span class="ai focus">ferments</span> the dough. <span class="ai">One of the key benefits of sourdough is its improved digestibility.</span><br>Anyway. My starter is named Gary, after a <span class="hu">coworker who also smelled</span> faintly of vinegar and <span class="hu">refused to die.</span></p>
+<span class="bracket"></span>
+<div class="btns"><span class="b p">Check another</span><span class="b s">Edit text</span></div>
+</main>
+<aside class="margin">
+<div class="q"><div class="qn">Q1 · words 76–225</div><div class="qt">This stretch reads like AI writing.</div></div>
+<table><tr><td>AI-written share</td><td>46%</td></tr><tr><td>Model's first guess</td><td>65%</td></tr><tr><td>Top-five guesses</td><td>81%</td></tr><tr><td>Predictability</td><td>0.901</td></tr></table>
+<div class="q" style="margin-top:20px"><div class="qn">Known gap</div><div class="qt">Short Claude text slips through about 1 time in 10.</div></div>
+</aside>
+</div>
+</body></html>

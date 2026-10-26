@@ -2,7 +2,7 @@ import { Button } from '@astryxdesign/core/Button';
 import { Theme } from '@astryxdesign/core/theme';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { api, onAuthRequired } from './api';
-import { BottomNav, Footer, TopBar } from './components/Chrome';
+import { Rail } from './components/Chrome';
 import { useHashRoute, useThemePref } from './lib/hooks';
 import { Accuracy } from './screens/Accuracy';
 import { Checker } from './screens/Checker';
@@ -76,7 +76,7 @@ export function App() {
         <button type="button" className="skip" onClick={() => mainRef.current?.focus()}>
           Skip to content
         </button>
-        <TopBar
+        <Rail
           route={route}
           unlocked={unlocked}
           pref={pref}
@@ -103,8 +103,6 @@ export function App() {
           {unlocked && route === 'accuracy' && <Accuracy status={status} />}
           {unlocked && route === 'how' && <HowItWorks status={status} />}
         </main>
-        {unlocked && <Footer status={status} />}
-        {unlocked && <BottomNav route={route} />}
       </div>
     </Theme>
   );

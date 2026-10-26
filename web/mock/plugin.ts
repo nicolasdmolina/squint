@@ -12,7 +12,7 @@ import type { IncomingMessage, ServerResponse } from 'node:http';
 import type { Plugin } from 'vite';
 import type { ClassifierAccuracy, Job, JobStatus, Result } from '../src/types.ts';
 import { fixtures, fixtureText } from './fixtures.ts';
-import { analyze, countWords, LIMITS, MOCK_ACCURACY, MODEL_PAIR } from './generate.ts';
+import { analyze, countWords, LIMITS, MOCK_ACCURACY, MODEL_PAIR, type MockClassifier } from './generate.ts';
 
 type MockState = {
   password_required: boolean;
@@ -55,6 +55,16 @@ const CLASSIFIER: ClassifierAccuracy | null = (() => {
   try {
     const c = JSON.parse(readFileSync(new URL('../../calibration/classifier.json', import.meta.url), 'utf8'));
     return { version: c.version, model: c.model, min_words: c.min_words, held_out: c.held_out, by_length: c.by_length };
+  } catch {
+    return null;
+  }
+})();
+
+// the same file's cutoffs, for mock verdicts
+const CLASSIFIER_CFG: MockClassifier | null = (() => {
+  try {
+    const c = JSON.parse(readFileSync(new URL('../../calibration/classifier.json', import.meta.url), 'utf8'));
+    return { version: c.version, min_words: c.min_words, ai_above: c.ai_above, human_below: c.human_below, by_length: c.by_length };
   } catch {
     return null;
   }
@@ -152,6 +162,7 @@ export function squintMockApi(): Plugin {
     }
     job.result ??= analyze(job.text, {
       calibrated: state.calibrated,
+      classifier: state.classifier ? CLASSIFIER_CFG : null,
       timing: { queue: Math.round(job.queueMs), load: Math.round(job.loadMs), score: Math.round(job.scoreMs) },
     });
     return { ...base, status: 'done', position: 0, result: job.result };

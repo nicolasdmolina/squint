@@ -1,0 +1,59 @@
+{
+  "title": "Choose Squint's new look",
+  "question": "The roll picked Galley Proof. Keep it, take the other card, or re-roll.",
+  "options": [
+    {
+      "id": "assigned",
+      "kind": "assigned",
+      "label": "Galley Proof",
+      "kicker": "THE ROLL",
+      "lineage": "a copy editor's marked-up galley, blue pencil and margin queries",
+      "thesis": "Squint marks writing the way an editor marks a proof: queries in the margin, never a stamp on the page.",
+      "palette": ["#f3f5f2", "#17191c", "#2f7fd0", "#e2741c", "#d8e7f4"],
+      "materials": ["proof stock", "non-repro blue pencil", "orange grease pencil", "margin brackets"],
+      "viewport": "A blue-pencil top rail, then the text itself as a wide galley with a margin column; after a check the verdict is the editor's note in large type and flagged passages get a bracket in the margin.",
+      "risk": "Turns into a paper costume if the margin marks get decorative instead of carrying the evidence.",
+      "raised": [
+        {"from": "aww2-zoo-gardens-guide-map", "raise": "One region owns each state: the galley is the screen, before and after a check."},
+        {"from": "notation-diagram-systems-orienteering-map", "raise": "One reserved colour rides above the marks: only the word in focus gets the ink box."},
+        {"from": "vernacular-ephemera-jet-age-ticket-wallet", "raise": "Progress writes itself onto the page as margin notes instead of a separate status panel."},
+        {"from": "rw-manual-acetate-tab-board", "raise": "One size does the work: a single reading size for the text, two sizes for everything else."},
+        {"from": "ikeda-datamatics", "raise": "Numbers sit in one tight tabular column instead of sentences around every figure."}
+      ],
+      "html": ".impeccable/mocks/decision/assigned.html"
+    },
+    {
+      "id": "model-pick",
+      "kind": "pick",
+      "label": "Graded Paper",
+      "kicker": "IMPECCABLE’S PICK",
+      "lineage": "a teacher's marked essay handed back",
+      "thesis": "The result comes back like a marked essay: the reading in the top corner, notes down the margin.",
+      "palette": ["#fbfbfa", "#1d2125", "#c43d3d", "#3b6fb6"],
+      "materials": ["ruled paper", "pen marks", "corner grade"],
+      "viewport": "Composer as a ruled sheet; after a check the band sits as a corner mark and notes run in the margin.",
+      "risk": "Familiar, and a red-pen grade reads as judging the writer, which Squint must never do.",
+      "html": ".impeccable/mocks/decision/model-pick.html"
+    },
+    {"id": "c-zoo", "kind": "challenger", "catalogId": "aww2-zoo-gardens-guide-map", "label": "Zoo Guide Map", "verdict": "declined", "lineage": "summer zoo guide maps", "thesis": "Every area a swelling lobe of flat colour.", "palette": ["#8ED462", "#F5F1E4", "#2C2E2A", "#FF705D"], "materials": ["flat colour", "SVG coastline"], "viewport": "One green lobe holding the composer.", "risk": "Playful map shapes fight a tool about honest evidence.", "case": "Loses both axes: nobody checking an essay thinks in maps.", "kept": "One region owns each state."},
+    {"id": "c-orient", "kind": "challenger", "catalogId": "notation-diagram-systems-orienteering-map", "label": "Orienteering Map", "verdict": "declined", "lineage": "ISOM orienteering maps", "thesis": "A fixed colour language with one course colour above.", "palette": ["#ffffff", "#8a5a2b", "#f5d54a", "#a2238f"], "materials": ["contours", "course overlay"], "viewport": "Text as terrain, purple course over flagged passages.", "risk": "Terrain metaphor needs explaining.", "case": "Loses both axes: clever, but writers don't read maps.", "kept": "One reserved colour for the item in focus."},
+    {"id": "c-ticket", "kind": "challenger", "catalogId": "vernacular-ephemera-jet-age-ticket-wallet", "label": "Ticket Wallet", "verdict": "declined", "lineage": "jet-age airline coupons", "thesis": "Each step stamps itself onto a coupon.", "palette": ["#1b2b5a", "#c8202f", "#ffffff", "#6b3fa0"], "materials": ["carbon coupons", "stamps"], "viewport": "The check as a coupon book.", "risk": "VOID stamps read as accusations.", "case": "Loses both axes: travel ephemera has nothing to do with writing.", "kept": "States write onto the object; nothing pops up elsewhere."},
+    {"id": "c-manual", "kind": "challenger", "catalogId": "rw-manual-acetate-tab-board", "label": "Acetate Manual", "verdict": "declined", "lineage": "boxed-software manuals", "thesis": "Tabbed section boards under acetate leaves.", "palette": ["#e8742a", "#f2c81e", "#2a9d8f", "#3b4cc0"], "materials": ["acetate", "tab rail"], "viewport": "Composer on an acetate leaf over a coloured board.", "risk": "Heavy material for a one-box tool.", "case": "Loses both axes: too much world for one text box.", "kept": "One reading size does the work."},
+    {"id": "c-emigre", "kind": "challenger", "catalogId": "emigre-bitmap-specimen", "label": "Bitmap Specimen", "verdict": "declined", "lineage": "Emigre bitmap specimens", "thesis": "Pixel type at poster scale.", "palette": ["#f7f7f2", "#111111", "#ff3b1f"], "materials": ["bitmap type", "halftone"], "viewport": "A pixel wordmark over dense columns.", "risk": "Pixel type hurts reading the user's own words.", "case": "Loses both axes: it would read as a retro stunt.", "kept": "The lens repeats the word at specimen scale."},
+    {"id": "c-ikeda", "kind": "challenger", "catalogId": "ikeda-datamatics", "label": "Datamatics", "verdict": "declined", "lineage": "Ryoji Ikeda data fields", "thesis": "Barcode columns in pure black and white.", "palette": ["#000000", "#ffffff"], "materials": ["barcode bars", "mono numerals"], "viewport": "Text as a barcode field.", "risk": "Cold, and strobing is wrong for anxious people.", "case": "Loses both axes: machine aesthetic on a tool about people.", "kept": "Numbers in one tight tabular column."}
+  ],
+  "reroll": {"registers": ["safer", "bolder"]},
+  "buildPath": {"value": "code", "toggle": false},
+  "canon": true,
+  "canonCard": {
+    "kind": "canon",
+    "label": "The category standard",
+    "thesis": "What AI detectors ship, done properly: a clean white card and a big percentage.",
+    "palette": ["#ffffff", "#111827", "#4f46e5"],
+    "materials": ["clean grid", "gauge"],
+    "viewport": "A big text box, a big percentage gauge, highlighted sentences.",
+    "risk": "Looks like every other detector, which is the AI-sloppy feel you want gone.",
+    "html": ".impeccable/mocks/decision/canon.html"
+  },
+  "steer": true
+}

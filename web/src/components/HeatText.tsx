@@ -1,6 +1,6 @@
 import { memo, type ReactNode } from 'react';
 import type { Paragraph, Result } from '../types';
-import { heat, leanText, type Word } from '../lib/words';
+import { heat, type Word } from '../lib/words';
 
 /**
  * The submitted text, reprinted exactly, with every word wrapped in its signal.
@@ -60,14 +60,9 @@ export const HeatText = memo(function HeatText({
         }
         if (pos < p.end) parts.push(text.slice(pos, p.end));
         return (
-          <div className="para" key={p.i} data-lean={p.lean}>
-            <p className="para-note">
-              <span className="para-mark" aria-hidden="true" />
-              <span className="para-lean">{leanText(p.lean)}</span>
-              <span className="para-score">{p.score.toFixed(3)}</span>
-            </p>
-            <p className="specimen">{parts}</p>
-          </div>
+          <p className="para" key={p.i} data-lean={p.lean}>
+            {parts}
+          </p>
         );
       })}
     </>

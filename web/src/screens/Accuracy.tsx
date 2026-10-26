@@ -41,13 +41,11 @@ export function Accuracy({ status }: { status: Status | null }) {
   useEffect(fetchIt, [fetchIt, version]);
 
   return (
-    <div className="screen accuracy">
+    <div className="screen accuracy page">
+      <article className="galley page-sheet">
       <header className="screen-head">
-        <h1>How accurate is this?</h1>
-        <p className="lede">
-          Squint is only worth listening to if it rarely flags people. Here is how it did on writing it had never seen, where the
-          true source was known, and where it falls short.
-        </p>
+        <h1>How accurate is Squint?</h1>
+        <p className="lede">How it did on writing it had never seen, where the true source was known.</p>
       </header>
       <KnownGap clf={status ? !!status.classifier?.ready : load.kind === 'ready' && !!load.data.classifier} />
       {load.kind === 'loading' && (
@@ -66,6 +64,7 @@ export function Accuracy({ status }: { status: Status | null }) {
       )}
       {load.kind === 'untuned' && <Untuned />}
       {load.kind === 'ready' && (load.data.classifier ? <ClassifierReport c={load.data.classifier} /> : <Report data={load.data} />)}
+      </article>
     </div>
   );
 }

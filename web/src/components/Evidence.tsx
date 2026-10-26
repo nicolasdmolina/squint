@@ -1,12 +1,13 @@
 import { Button } from '@astryxdesign/core/Button';
 import { SegmentedControl, SegmentedControlItem } from '@astryxdesign/core/SegmentedControl';
-import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, type KeyboardEvent, type MouseEvent } from 'react';
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, type KeyboardEvent, type MouseEvent, type ReactNode } from 'react';
 import { fmtInt } from '../lib/format';
 import { useMedia } from '../lib/hooks';
 import { buildWords, leanShares, stopAt, type Word } from '../lib/words';
 import type { Result } from '../types';
 import { HeatText } from './HeatText';
 import { ArrowLeftIcon, ArrowRightIcon, CloseIcon } from './Icons';
+import { MarginFacts, MarginGap } from './Readout';
 import { WordDetails } from './WordDetails';
 
 /** Whole percentages for the glance line; the extremes say so rather than rounding to 0% or 100%. */
@@ -16,10 +17,10 @@ const fmtShare = (x: number) =>
 const TIP_ID = 'word-tip';
 
 /** The bottom edge of the sticky top bar: nothing should hide under it. */
-const barBottom = () => document.querySelector('.bar')?.getBoundingClientRect().bottom ?? 0;
+const barBottom = () => document.querySelector('.rail')?.getBoundingClientRect().bottom ?? 0;
 
-/** "Look closer": the reprinted text with its marks, the word lens, and the reasons beside it. */
-export function Evidence({ result, text }: { result: Result; text: string }) {
+/** The result as a marked proof: the text with its pencil marks and margin brackets, the word lens, and the margin notes. */
+export function Evidence({ result, text, head }: { result: Result; text: string; head: ReactNode }) {
   const { words, stops } = useMemo(() => buildWords(result, text), [result, text]);
   const [view, setView] = useState<'smooth' | 'raw'>('smooth');
   const smooth = view === 'smooth';
@@ -210,31 +211,62 @@ export function Evidence({ result, text }: { result: Result; text: string }) {
   const shares = leanShares(stops, smooth);
   const current: Word | null = active != null ? stops[active] ?? null : null;
 
+  // Flagged passages, merged where the overlapping windows touch: each becomes one margin bracket.
+  const passages = useMemo(() => {
+    const out: { start: number; end: number; ws: number; we: number }[] = [];
+    for (const seg of result.segments.filter(x => x.flagged)) {
+      const last = out[out.length - 1];
+      if (last && seg.start <= last.end) {
+        last.end = Math.max(last.end, seg.end);
+        last.we = Math.max(last.we, seg.word_end);
+      } else out.push({ start: seg.start, end: seg.end, ws: seg.word_start, we: seg.word_end });
+    }
+    return out;
+  }, [result.segments]);
+
+  // Measure each passage's first and last line so its bracket spans exactly those lines.
+  const [brackets, setBrackets] = useState<{ top: number; height: number }[]>([]);
+  useLayoutEffect(() => {
+    const box = printRef.current;
+    if (!box || !passages.length) return setBrackets([]);
+    const measure = () => {
+      const b = box.getBoundingClientRect();
+      setBrackets(
+        passages.map(p => {
+          const first = els.current[stopAt(stops, p.start)];
+          let li = stopAt(stops, p.end);
+          if (li > 0 && (stops[li]?.start ?? Infinity) >= p.end) li--;
+          const last = els.current[li];
+          if (!first || !last) return { top: 0, height: 0 };
+          const r1 = first.getBoundingClientRect();
+          const r2 = last.getBoundingClientRect();
+          return { top: r1.top - b.top, height: r2.bottom - r1.top };
+        }),
+      );
+    };
+    measure();
+    const ro = new ResizeObserver(measure);
+    ro.observe(box);
+    void document.fonts?.ready.then(measure);
+    return () => ro.disconnect();
+  }, [passages, stops, view]);
+
+  const showPassage = (i: number) => goTo(stopAt(stops, passages[i].start), { focus: true });
+
   return (
-    <section className="evidence" aria-labelledby="why-title">
-      <header className="evidence-head">
-        <h2 id="why-title" className="section-title">
-          Look closer
-        </h2>
-        <p className="evidence-lede">
-          Every word is marked by how predictable it was to the models. Hover or tap a word, or tab into the text and use the arrow
-          keys, to see what the model expected there.
+    <div className="proof is-result">
+      <section className="galley" aria-labelledby="checker-title">
+        {head}
+        <div className="galley-tools">
+          <SegmentedControl label="Marking" value={view} onChange={v => setView(v as 'smooth' | 'raw')} size="sm">
+            <SegmentedControlItem value="smooth" label="Clear leans" />
+            <SegmentedControlItem value="raw" label="Every word" />
+          </SegmentedControl>
+          <Legend />
+        </div>
+        <p className="sr-only" id="glance">
+          {fmtShare(shares.ai)} of words lean AI-like and {fmtShare(shares.hu)} lean human-like.
         </p>
-      </header>
-
-      <div className="evidence-tools">
-        <SegmentedControl label="Marking" value={view} onChange={v => setView(v as 'smooth' | 'raw')} size="sm">
-          <SegmentedControlItem value="smooth" label="Smoothed" />
-          <SegmentedControlItem value="raw" label="Word by word" />
-        </SegmentedControl>
-        <Legend />
-      </div>
-      <p className="glance" id="glance">
-        <strong>{fmtShare(shares.ai)}</strong> of words lean AI-like and <strong>{fmtShare(shares.hu)}</strong> lean human-like.
-        The rest show no clear lean.
-      </p>
-
-      <div className="evidence-body">
         <div
           className={`printout${smooth ? ' is-smooth' : ' is-raw'}`}
           ref={printRef}
@@ -262,12 +294,24 @@ export function Evidence({ result, text }: { result: Result; text: string }) {
             jump between sentences, Home and End for the first and last word, and Escape to hide the details.
           </p>
           <HeatText text={text} result={result} words={words} smooth={smooth} />
+          {brackets.map((br, i) =>
+            br.height > 0 ? (
+              <button
+                key={i}
+                type="button"
+                className="bracket"
+                style={{ top: br.top, height: br.height, animationDelay: reduceMotion ? undefined : `${i * 80}ms` }}
+                onClick={() => showPassage(i)}
+                aria-label={`Show words ${fmtInt(passages[i].ws + 1)} to ${fmtInt(passages[i].we)}, flagged as AI-like`}
+              />
+            ) : null,
+          )}
           {!sheetMode && current && (
             <div
               ref={tipRef}
               id={TIP_ID}
               role="tooltip"
-              className={`tip${tipOpen ? ' is-open' : ''}${tipPos?.above ? ' is-above' : ''}`}
+              className={`lens${tipOpen ? ' is-open' : ''}${tipPos?.above ? ' is-above' : ''}`}
               style={tipPos ? { left: tipPos.left, top: tipPos.top } : { left: 0, top: 0 }}
               onMouseEnter={() => window.clearTimeout(hideTimer.current)}
               onMouseLeave={scheduleHide}
@@ -276,15 +320,30 @@ export function Evidence({ result, text }: { result: Result; text: string }) {
             </div>
           )}
         </div>
-        <div className="evidence-side">
-          <Reasons result={result} />
-          {result.segments.length > 0 && <Passages result={result} stops={stops} onShow={n => goTo(n, { focus: true })} />}
-        </div>
-      </div>
+      </section>
+
+      <aside className="margin" aria-label="Margin notes">
+        <MarginFacts result={result} />
+        {passages.length > 0 && (
+          <ol className="queries" aria-label="Flagged passages">
+            {passages.map((p, i) => (
+              <li key={i} className="query">
+                <button type="button" className="query-go" onClick={() => showPassage(i)}>
+                  <span className="query-tag">
+                    Words {fmtInt(p.ws + 1)}&ndash;{fmtInt(p.we)}
+                  </span>
+                  <span className="query-text">Reads like AI writing</span>
+                </button>
+              </li>
+            ))}
+          </ol>
+        )}
+        <Reasons result={result} />
+        <MarginGap result={result} />
+      </aside>
 
       {sheetMode && current && sheetOpen && (
         <div className="sheet" role="region" aria-label="Word details" ref={sheetRef}>
-          <span className="sheet-handle" aria-hidden="true" />
           <div className="sheet-bar">
             <Button label="Previous word" icon={<ArrowLeftIcon size={16} />} isIconOnly variant="secondary" size="sm" onClick={() => goTo((active ?? 0) - 1)} />
             <Button label="Next word" icon={<ArrowRightIcon size={16} />} isIconOnly variant="secondary" size="sm" onClick={() => goTo((active ?? 0) + 1)} />
@@ -308,80 +367,37 @@ export function Evidence({ result, text }: { result: Result; text: string }) {
           </div>
         </div>
       )}
-    </section>
+    </div>
   );
 }
 
 function Legend() {
   return (
-    <ul className="legend" aria-label="Shading key">
+    <ul className="legend" aria-label="Marks">
       <li>
         <span className="legend-sample" data-heat="ai3">word</span>
-        AI-like: more predictable, solid underline
+        AI-like
       </li>
       <li>
         <span className="legend-sample" data-heat="hu3">word</span>
-        Human-like: more surprising, dotted underline
-      </li>
-      <li>
-        <span className="legend-sample" data-heat="nu0">word</span>
-        No clear lean
+        Human-like
       </li>
     </ul>
   );
 }
 
-const WEIGHT_LABEL = { strong: 'Strong signal', moderate: 'Moderate signal', weak: 'Weak signal' } as const;
-
 function Reasons({ result }: { result: Result }) {
   if (!result.reasons.length) return null;
   return (
-    <section className="reasons" aria-labelledby="reasons-title">
-      <h3 id="reasons-title" className="side-title">
-        What stood out
-      </h3>
+    <details className="why">
+      <summary>What stood out</summary>
       <ul>
         {result.reasons.map((r, i) => (
-          <li key={i} className="reason">
-            <span className="weight" data-weight={r.weight} title={WEIGHT_LABEL[r.weight]}>
-              <span />
-              <span />
-              <span />
-              <span className="sr-only">{WEIGHT_LABEL[r.weight]}:</span>
-            </span>
-            <span className="reason-text">{r.text}</span>
+          <li key={i} data-weight={r.weight}>
+            {r.text}
           </li>
         ))}
       </ul>
-    </section>
-  );
-}
-
-function Passages({ result, stops, onShow }: { result: Result; stops: Word[]; onShow: (n: number) => void }) {
-  const untuned = result.verdict.band === 'uncalibrated';
-  return (
-    <section className="passages" aria-labelledby="passages-title">
-      <h3 id="passages-title" className="side-title">
-        Passages
-      </h3>
-      <p className="side-note">
-        Overlapping {result.segments[0].word_end - result.segments[0].word_start}-word stretches, each scored on its own.
-        {result.verdict.detector === 'classifier' && ' The trained detector decides the flag; the number is the predictability score.'}
-      </p>
-      <ol>
-        {result.segments.map((s, i) => (
-          <li key={i} className="passage" data-flagged={s.flagged || undefined}>
-            <span className="passage-range">
-              Words {fmtInt(s.word_start + 1)}&ndash;{fmtInt(s.word_end)}
-            </span>
-            <span className="passage-score">{s.score.toFixed(3)}</span>
-            <span className="passage-state">{s.flagged ? 'Flagged as AI-like' : untuned ? 'No flags until tuned' : 'Not flagged'}</span>
-            <button type="button" className="passage-go" onClick={() => onShow(stopAt(stops, s.start))}>
-              Show<span className="sr-only"> words {fmtInt(s.word_start + 1)} to {fmtInt(s.word_end)} in the text</span>
-            </button>
-          </li>
-        ))}
-      </ol>
-    </section>
+    </details>
   );
 }

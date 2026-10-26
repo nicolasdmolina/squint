@@ -2,7 +2,7 @@ import { Button } from '@astryxdesign/core/Button';
 import { TextInput } from '@astryxdesign/core/TextInput';
 import { useLayoutEffect, useRef, useState, type FormEvent } from 'react';
 import { api, ApiError } from '../api';
-import { AlertIcon, Mark } from '../components/Icons';
+import { AlertIcon } from '../components/Icons';
 import { fmtWait } from '../lib/format';
 
 export function Login({ note, onUnlocked }: { note: string | null; onUnlocked: () => void }) {
@@ -45,12 +45,11 @@ export function Login({ note, onUnlocked }: { note: string | null; onUnlocked: (
 
   return (
     <section className="gate" aria-labelledby="gate-title">
-      <div className="gate-panel">
-        <Mark size={44} className="gate-mark" />
+      <div className="gate-panel galley">
         <h1 id="gate-title" className="gate-title">
           Squint is private
         </h1>
-        <p className="gate-lede">Enter the shared password to start checking writing.</p>
+        <p className="gate-lede">Enter the shared password.</p>
         {note && <p className="gate-note">{note}</p>}
         <form className="gate-form" onSubmit={submit} noValidate>
           <TextInput

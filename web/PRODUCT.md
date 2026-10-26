@@ -27,11 +27,12 @@ Built with Vite into `web/dist/`, served by the Python server at `/` with the AP
 
 ## Product Purpose
 
-Squint ("squint at it") runs Binoculars locally: two related language models (Falcon-7B and
-Falcon-7B-Instruct, 4-bit) read the text, and it compares how predictable each word was against
-how predictable the models expected it to be. It returns a verdict band (Likely human /
-Uncertain / Likely AI), a share of the text that looks AI-written (from 150 words), the raw
-score against its cutoffs, and the evidence word by word.
+Squint ("squint at it") runs two methods locally. A trained classifier (ModernBERT-base,
+fine-tuned on human, ChatGPT and Claude writing) gives the verdict: Likely human or Likely AI
+from 50 words, "Too short to tell" under 50. Binoculars (Falcon-7B and Falcon-7B-Instruct,
+4-bit) gives the word-level view: how predictable each word was against how predictable the
+models expected it to be. From 150 words it also returns the share of the text that looks
+AI-written, from the classifier run on overlapping 150-word windows.
 
 Success: a user leaves knowing what the tool thinks, how sure it is, and exactly which words
 drove that, and does not mistake it for proof.
@@ -46,13 +47,13 @@ public inside the app.
 
 ## Operating Context
 
-- One text at a time; 20 words minimum for a verdict, 150 for the percentage, 2500 maximum.
+- One text at a time; 20 words minimum to check, 50 for a verdict, 150 for the percentage, 2500 maximum.
 - Text arrives by paste/typing or by uploading .docx, .pdf or .txt (text lands in the editor
   for review first).
 - Checks are queued on one Mac mini; the first check after idle waits ~10-30 s for the models.
 - Nothing is stored; results live in server memory for 10 minutes.
-- Private behind a shared password; a public launch at `squint.nickymolina.com` is undecided
-  and waits for the accuracy report and Nicky's approval.
+- Private behind a shared password at `squint.nickymolina.com` (Cloudflare Tunnel) for
+  friends; a wider public launch waits on `docs/roadmap.md`.
 
 ## Capabilities and Constraints
 
@@ -61,12 +62,18 @@ public inside the app.
 - Rate limited (30 checks per hour by default).
 - Both the band and the percentage are shown (Nicky's explicit choice).
 - Undecided: public launch, final accuracy numbers.
-- Known gap (docs/known-gaps.md, 2026-10-08): Binoculars on the Falcon pair mostly misses
-  ChatGPT writing (1 of 12 caught in a spot check at the ≤1% false-flag setting); Claude text
-  separates well; Gemini is untested. The UI states this near every verdict and on the
-  accuracy page, and a "Likely human" reading must never read as clearing a text.
+- Known gap (README, classifier 2026-10-18): on 50+ word texts it wrongly flagged 4 of 1,340
+  human texts (1 of 512 non-native) and caught 744 of 747 ChatGPT and 674 of 731 Claude samples.
+  Short Claude writing gets through most (about 90% caught under 150 words). Gemini, older
+  models and edited or paraphrased AI text are untested. The UI states the gap once near each
+  verdict and in full on the accuracy page; a "Likely human" reading must never read as
+  clearing a text.
 
 ## Brand Commitments
+
+- Nicky's standing rule: cut taglines, helper text and secondary labels. If a screen needs
+  them to make sense, fix the layout. (2026-10-25: the previous build read as AI-generated
+  largely because every element carried an explanatory sentence.)
 
 - Name: **Squint**. Tagline idea "squint at it" (from the brief).
 - Voice: playful in wording, credible and calm in presentation. Never an accusation machine.
@@ -74,8 +81,8 @@ public inside the app.
 
 ## Evidence on Hand
 
-- No real accuracy numbers yet (calibration is in progress). The UI must not invent any; the
-  accuracy page renders whatever `/api/accuracy` returns and a "not tuned yet" state otherwise.
+- Real held-out numbers exist in `calibration/classifier.json`. The UI must not invent any;
+  the accuracy page renders whatever `/api/accuracy` returns and a "not tuned yet" state otherwise.
 - Development fixtures are synthetic and live only in the dev-only mock API.
 - No logo, illustration or photography assets exist.
 
