@@ -103,12 +103,12 @@ export const notes = {
 };
 
 /** The known blind spot, said wherever a reading is shown. Source: calibration/classifier.json
- * (held-out texts of 50+ words, 14 Oct 2026 run). */
+ * (held-out texts of 50+ words, 18 Oct 2026 run). */
 export const gap = {
   title: 'Squint still misses some Claude writing.',
-  body: 'On texts of 50 words or more it caught 599 of 607 ChatGPT samples but 478 of 537 Claude samples, so “Likely human” doesn’t clear a text. Gemini and edited AI text haven’t been tested.',
-  short: 'In testing it caught 599 of 607 ChatGPT samples but 478 of 537 Claude samples, so “Likely human” doesn’t clear a text.',
-  shortUntuned: 'In testing it caught 599 of 607 ChatGPT samples but 478 of 537 Claude samples, so marks that look human-like don’t clear a text either.',
+  body: 'On texts of 50 words or more it caught 744 of 747 ChatGPT samples but 674 of 731 Claude samples, so “Likely human” doesn’t clear a text. Gemini and edited AI text haven’t been tested.',
+  short: 'In testing it caught 744 of 747 ChatGPT samples but 674 of 731 Claude samples, so “Likely human” doesn’t clear a text.',
+  shortUntuned: 'In testing it caught 744 of 747 ChatGPT samples but 674 of 731 Claude samples, so marks that look human-like don’t clear a text either.',
 };
 
 /** The same, for a server without the trained detector (Binoculars alone). Source: calibration/report.json (8 Oct 2026). */

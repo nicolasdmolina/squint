@@ -6,17 +6,19 @@ export const plural = (n: number, one: string, many = `${one}s`) => (n === 1 ? o
 
 export const words = (n: number) => `${fmtInt(n)} ${plural(n, 'word')}`;
 
-/** Rates: 0.008 -> "0.8%", 0.83 -> "83%". */
+/** Rates: 0.008 -> "0.8%", 0.83 -> "83%", 0.996 -> "99.6%". */
 export function fmtRate(x: number) {
   const p = x * 100;
   if (p === 0) return '0%';
   if (p < 10) return `${p.toFixed(1).replace(/\.0$/, '')}%`;
+  if (p > 99 && p < 100) return `${Math.min(99.9, Number(p.toFixed(1)))}%`; // never round a miss up to 100%
   return `${Math.round(p)}%`;
 }
 
 /** "about 1 in 125" style reading of a small rate. */
 export function oneIn(x: number) {
   if (x <= 0) return 'none in the test set';
+  if (x < 1 && Math.round(x * 10) === 10) return `all but about 1 in ${fmtInt(nice(1 / (1 - x)))}`;
   if (x >= 0.5) return `about ${Math.round(x * 10)} in 10`;
   return `about 1 in ${fmtInt(nice(1 / x))}`;
 }

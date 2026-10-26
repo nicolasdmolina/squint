@@ -2,16 +2,15 @@
 
 ## Status (2026-10-15): the trained classifier sets the verdict
 
-The ModernBERT-base classifier from the 2026-10-14 overnight run (`calibration/classifier.json`,
-report `classifier/reports/2026-10-14-min50.json`) now decides verdicts for texts of 50+ words.
-Binoculars still drives the word marks. Held-out results at 50+ words, re-checked on the
-server's CPU path with identical counts:
+The ModernBERT-base classifier from the 2026-10-18 overnight run (`calibration/classifier.json`,
+report `classifier/reports/2026-10-18.json`) now decides verdicts for texts of 50+ words.
+Binoculars still drives the word marks. Held-out results at 50+ words:
 
-- False flags: **3 of 1,340** human texts (0.22%), **0 of 512** non-native.
-- ChatGPT caught: **599 of 607** (98.7%). Claude caught: **478 of 537** (89%).
-- 50–149 words: ChatGPT 97.7% caught, Claude 85% caught and 12.7% called "Likely human".
-- 150+ words: 0 of 587 human texts flagged, ChatGPT 100%, Claude 94%.
-- Under 50 words the classifier wrongly flagged 2.9% of human texts, so Squint shows
+- False flags: **4 of 1,340** human texts (0.3%), **1 of 512** non-native.
+- ChatGPT caught: **744 of 747** (99.6%). Claude caught: **674 of 731** (92%).
+- 50–149 words: ChatGPT 99.3% caught, Claude 90% caught and 9.9% called "Likely human".
+- 150+ words: 0 of 587 human texts flagged, ChatGPT 100%, Claude 95%.
+- Under 50 words the classifier wrongly flagged 2.5% of human texts, so Squint shows
   "Too short to tell" there.
 
 Fresh re-check (2026-10-16, `classifier/reports/2026-10-16-fresh-check.md`), on sources and

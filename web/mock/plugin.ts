@@ -7,15 +7,18 @@
 //   GET  /__mock/fixtures         -> the sample texts
 // Mock password: "squint".
 
+import { readFileSync } from 'node:fs';
 import type { IncomingMessage, ServerResponse } from 'node:http';
 import type { Plugin } from 'vite';
-import type { Job, JobStatus, Result } from '../src/types.ts';
+import type { ClassifierAccuracy, Job, JobStatus, Result } from '../src/types.ts';
 import { fixtures, fixtureText } from './fixtures.ts';
 import { analyze, countWords, LIMITS, MOCK_ACCURACY, MODEL_PAIR } from './generate.ts';
 
 type MockState = {
   password_required: boolean;
   calibrated: boolean;
+  /** the trained classifier is promoted (calibration/classifier.json); false = Binoculars only */
+  classifier: boolean;
   /** false makes /api/accuracy answer 404 not_calibrated even when calibrated */
   accuracy: boolean;
   rate_limited: boolean;
@@ -36,6 +39,7 @@ type MockState = {
 const DEFAULTS: MockState = {
   password_required: true,
   calibrated: true,
+  classifier: true,
   accuracy: true,
   rate_limited: false,
   queue_ahead: 1,
@@ -45,6 +49,16 @@ const DEFAULTS: MockState = {
   hold: null,
   speed: 1,
 };
+
+// the real promoted classifier's held-out numbers, so the accuracy copy can be checked against them
+const CLASSIFIER: ClassifierAccuracy | null = (() => {
+  try {
+    const c = JSON.parse(readFileSync(new URL('../../calibration/classifier.json', import.meta.url), 'utf8'));
+    return { version: c.version, model: c.model, min_words: c.min_words, held_out: c.held_out, by_length: c.by_length };
+  } catch {
+    return null;
+  }
+})();
 
 const PASSWORD = 'squint';
 const COOKIE = 'squint_mock_session';
@@ -202,6 +216,9 @@ export function squintMockApi(): Plugin {
         queue_length: active + state.queue_ahead,
         model_pair: MODEL_PAIR,
         calibration: { version: state.calibrated ? '2026-10-07' : null, ready: state.calibrated },
+        classifier: state.classifier && CLASSIFIER
+          ? { version: CLASSIFIER.version, ready: true, min_words: CLASSIFIER.min_words }
+          : { version: null, ready: false, min_words: null },
         limits: LIMITS,
       });
     }
@@ -267,7 +284,7 @@ export function squintMockApi(): Plugin {
 
     if (path === '/api/accuracy' && method === 'GET') {
       if (!state.calibrated || !state.accuracy) return fail(res, 404, 'not_calibrated', 'No calibration report yet.');
-      return send(res, 200, MOCK_ACCURACY);
+      return send(res, 200, state.classifier && CLASSIFIER ? { ...MOCK_ACCURACY, classifier: CLASSIFIER } : MOCK_ACCURACY);
     }
 
     return fail(res, 404, 'not_found', 'No such endpoint.');

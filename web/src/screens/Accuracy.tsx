@@ -79,8 +79,8 @@ function KnownGap({ clf }: { clf: boolean }) {
           {gap.title}
         </h2>
         <p>
-          In testing on texts of 50 words or more that it had never seen, Squint caught 599 of 607 ChatGPT samples and 478 of
-          537 Claude samples. The Claude texts it missed were mostly short: under 150 words it caught about 85% of them.
+          In testing on texts of 50 words or more that it had never seen, Squint caught 744 of 747 ChatGPT samples and 674 of
+          731 Claude samples. The Claude texts it missed were mostly short: under 150 words it caught about 90% of them.
           Gemini hasn&rsquo;t been tested, and neither has AI text that a person edited or ran through a paraphrasing tool.
         </p>
         <p className="gap-sub">
@@ -245,6 +245,7 @@ function ClassifierReport({ c }: { c: ClassifierAccuracy }) {
     const n = cells.reduce((a, x) => a + x.n, 0);
     return n ? cells.reduce((a, x) => a + x[k] * x.n, 0) / n : null;
   };
+  const someUncertain = GENS.some(g => (pooled(g, 'caught') ?? 1) + (pooled(g, 'called_human') ?? 0) < 0.995);
   const lengthRows = (f: (b: LengthBucket) => number | null | undefined) =>
     long.map(l => ({ label: l.label, v: f(l.key) ?? null }));
   return (
@@ -308,8 +309,8 @@ function ClassifierReport({ c }: { c: ClassifierAccuracy }) {
           How often AI writing passes as human
         </h2>
         <p className="acc-lede">
-          The share of AI-written texts that Squint called <em className="term">Likely human</em>. The rest of the misses landed
-          in Uncertain.
+          The share of AI-written texts that Squint called <em className="term">Likely human</em>.
+          {someUncertain && ' The rest of the misses landed in Uncertain.'}
         </p>
         <RateRows
           caption="Called likely human"
@@ -332,7 +333,7 @@ function ClassifierReport({ c }: { c: ClassifierAccuracy }) {
 
 function reading(v: number, noun: string) {
   if (v <= 0) return 'None in the test set';
-  if (v >= 0.995) return `All of them ${noun}`;
+  if (v >= 1) return `All of them ${noun}`;
   const s = `${oneIn(v)} ${noun}`;
   return s.replace(/^./, c => c.toUpperCase());
 }

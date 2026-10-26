@@ -19,16 +19,16 @@ What you get:
 - **Show me why**: word-level heat map, hover any word for the model's top 5 guesses and where
   the actual word ranked, per-sentence and per-paragraph leanings, plain-English reasons.
 - **Tested on** held-out human writing (including 512 non-native English essays) and ChatGPT
-  and Claude output. At 50+ words it wrongly flagged 3 of 1,340 human texts (0 non-native),
-  and caught 599 of 607 ChatGPT and 478 of 537 Claude samples.
+  and Claude output. At 50+ words it wrongly flagged 4 of 1,340 human texts (1 of 512 non-native),
+  and caught 744 of 747 ChatGPT and 674 of 731 Claude samples.
 
 Status: in development. Private only; going public at `squint.nickymolina.com` waits for the
 accuracy report and Nicky's OK.
 
 ## Known gaps
 
-- **Some Claude writing gets through**, mostly under 150 words (about 85% caught there,
-  94% at 150+). Binoculars alone missed nearly all current AI text, which is why the trained
+- **Some Claude writing gets through**, mostly under 150 words (about 90% caught there,
+  95% at 150+). Binoculars alone missed nearly all current AI text, which is why the trained
   classifier now gives the verdict. See [`docs/known-gaps.md`](docs/known-gaps.md).
 - **Edited or paraphrased AI text** has not been tested.
 - **Older or other AI models** are mostly missed: 2022-era ChatGPT answers got through almost
