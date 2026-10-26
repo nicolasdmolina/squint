@@ -1,5 +1,5 @@
 #!/bin/sh
-# Squint's overnight classifier run (launched by launchd at 00:30; see ops/install-nightly.sh).
+# Squint's overnight classifier run (launched by launchd at 23:00; see ops/install-nightly.sh).
 # Keeps the Mac awake (caffeinate -i) only while classifier/nightly.py runs, forwards
 # SIGTERM/SIGINT/SIGHUP to it so every stage checkpoints, and logs to ~/Library/Logs/squint/.
 # The window, guards and stages are classifier/nightly.py's; its docstring lists the
@@ -10,8 +10,8 @@ set -eu
 PROJECT=$(cd "$(dirname "$0")/.." && pwd)
 LOG_DIR="${SQUINT_NIGHTLY_LOG_DIR:-$HOME/Library/Logs/squint}"
 PY="$PROJECT/classifier/.venv/bin/python"
-: "${SQUINT_NIGHTLY_START:=00:30}"
-: "${SQUINT_NIGHTLY_END:=07:30}"
+: "${SQUINT_NIGHTLY_START:=23:00}"
+: "${SQUINT_NIGHTLY_END:=09:30}"
 export SQUINT_NIGHTLY_START SQUINT_NIGHTLY_END PYTHONUNBUFFERED=1
 
 mkdir -p "$LOG_DIR"

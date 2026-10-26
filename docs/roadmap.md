@@ -28,9 +28,12 @@ Every run since 10-14 wrongly flags 3.8–5.7% of the out-of-distribution colleg
 held-out human sources. A student checking their own personal statement is the case most
 likely to go wrong. No training source is first-person narrative of that kind.
 
-- Hippocorpus (Microsoft, 2019–2020, about 6,800 first-person stories, CDLA-Permissive 2.0)
-  is the closest open source. It needs a manual download from Microsoft Research Open Data;
-  the Hugging Face copy is a loader script without the data.
+- Hippocorpus (Microsoft, about 6,800 first-person stories) is gone: on 2026-10-25 its
+  Microsoft download page said "this download is no longer available", Microsoft Research
+  Open Data is retired, and the Hugging Face copy is a loader script without the data.
+- The Blog Authorship Corpus (2004 blogs, about 681,000 posts; parquet copy at
+  `tasksource/blog_authorship_corpus` on Hugging Face) is the nearest open replacement:
+  first-person, informal, pre-ChatGPT. It needs a fetcher and matched AI plan items.
 - R2 adds informal first-person writing, which may help partly.
 
 Done when: college-essay false flags are at or under 1.5% across two runs, with the other

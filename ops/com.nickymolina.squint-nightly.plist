@@ -28,18 +28,15 @@
 	<key>StartCalendarInterval</key>
 	<dict>
 		<key>Hour</key>
-		<integer>0</integer>
+		<integer>23</integer>
 		<key>Minute</key>
-		<integer>30</integer>
+		<integer>0</integer>
 	</dict>
 	<key>RunAtLoad</key>
 	<false/>
+	<!-- Standard, not Background: Background QoS made training 4x slower whenever other work ran (2026-10-25: 24-28 s/step vs 6 s/step). nightly.py's guards still yield to Squint users. -->
 	<key>ProcessType</key>
-	<string>Background</string>
-	<key>LowPriorityIO</key>
-	<true/>
-	<key>Nice</key>
-	<integer>5</integer>
+	<string>Standard</string>
 	<key>ExitTimeOut</key>
 	<integer>180</integer>
 	<key>Umask</key>

@@ -1,6 +1,6 @@
 """One night of classifier work, inside a fixed window, yielding the machine to Squint itself.
 
-Started by ops/nightly.sh (launchd, 00:30). It is safe to start at any time: outside the window
+Started by ops/nightly.sh (launchd, 23:00). It is safe to start at any time: outside the window
 it logs and exits; a second copy exits at once (lock); everything resumes where the last night
 stopped.
 
@@ -19,7 +19,10 @@ How a night goes (all stages are separate processes in their own process groups)
   5. train     heavy: resumes an unfinished run or starts one on the new dataset; must end
                EVAL_RESERVE minutes before the window closes (it checkpoints and exits 3)
   6. evaluate  heavy: the newest finished run without a report -> classifier/reports/<date>.*
-  7. wait      for the generators until they finish or the window closes
+  7. repeat    4-6 (without waiting for the generators) up to SQUINT_NIGHTLY_ROUNDS times while
+               training finished and SQUINT_NIGHTLY_MIN_ROUND_MIN minutes are left; reports of
+               later rounds are <date>-2.*, ...
+  8. wait      for the generators until they finish or the window closes
 Heavy stages only start when Squint has no queued checks and no models loaded, no other
 heavy job (squint-score) is running, memory and disk are free enough. While one runs the same
 checks repeat every POLL seconds; if Squint gets busy the stage is sent SIGTERM (it
@@ -27,7 +30,7 @@ checkpoints), and restarted when the machine is free again. At the window end ev
 SIGTERM, then SIGKILL after a grace period. Exit: 0 all done, 3 stopped (resumable), 1 error.
 
 Environment (defaults in brackets):
-  SQUINT_NIGHTLY_START [00:30]  SQUINT_NIGHTLY_END [07:30]
+  SQUINT_NIGHTLY_START [23:00]  SQUINT_NIGHTLY_END [09:30]
   SQUINT_NIGHTLY_EVAL_RESERVE_MIN [45]   minutes kept free at the end for evaluation
   SQUINT_NIGHTLY_MIN_FREE_PCT [20]       memory_pressure free % needed to start a heavy stage
   SQUINT_NIGHTLY_MIN_FREE_PCT_RUNNING [5]  ... below which a running heavy stage is paused
@@ -38,6 +41,8 @@ Environment (defaults in brackets):
   SQUINT_NIGHTLY_GRACE_S [90]            SIGTERM -> SIGKILL grace
   SQUINT_NIGHTLY_YIELD_TO [squint-score] comma list of process patterns that pause heavy stages
   SQUINT_NIGHTLY_GENERATORS              comma list; default config.toml [generate].order
+  SQUINT_NIGHTLY_ROUNDS [2]              build/train/evaluate rounds per night
+  SQUINT_NIGHTLY_MIN_ROUND_MIN [180]     minutes that must be left to start another round
   SQUINT_NIGHTLY_BUILD_WAIT_MIN          minutes the build waits for generators (default 120)
   SQUINT_NIGHTLY_SKIP                    comma list of stages to skip (fetch,plan,generate,...)
   SQUINT_STATUS_URL [http://127.0.0.1:8017/api/status]
@@ -93,8 +98,8 @@ class Night:
         self.cfg = load_config()
         self.stop_requested = False
         self.children: dict[str, subprocess.Popen] = {}
-        self.start = env("SQUINT_NIGHTLY_START", "00:30")
-        self.end = env("SQUINT_NIGHTLY_END", "07:30")
+        self.start = env("SQUINT_NIGHTLY_START", "23:00")
+        self.end = env("SQUINT_NIGHTLY_END", "09:30")
         self.eval_reserve = float(env("SQUINT_NIGHTLY_EVAL_RESERVE_MIN", "45")) * 60
         self.min_free = int(env("SQUINT_NIGHTLY_MIN_FREE_PCT", "20"))
         self.min_free_running = int(env("SQUINT_NIGHTLY_MIN_FREE_PCT_RUNNING", "5"))
@@ -106,6 +111,8 @@ class Night:
         self.grace = float(env("SQUINT_NIGHTLY_GRACE_S", "90"))
         self.yield_to = [p for p in env("SQUINT_NIGHTLY_YIELD_TO", "squint-score").split(",") if p.strip()]
         self.status_url = env("SQUINT_STATUS_URL", "http://127.0.0.1:8017/api/status")
+        self.rounds = int(env("SQUINT_NIGHTLY_ROUNDS", "2"))
+        self.min_round = float(env("SQUINT_NIGHTLY_MIN_ROUND_MIN", "180")) * 60
         self.build_wait = 0 if self.args.stub else float(env("SQUINT_NIGHTLY_BUILD_WAIT_MIN", "120")) * 60
         gens = env("SQUINT_NIGHTLY_GENERATORS", ",".join(self.cfg["generate"]["order"]))
         self.generators = [g for g in gens.split(",") if g.strip()]
@@ -321,6 +328,43 @@ class Night:
         have = {json.loads(line)["source"] for line in path.open() if line.strip()}
         return not want <= have
 
+    def train_round(self, rnd: int, report_date: str, train_deadline: float, final_rc: int) -> tuple[int, int]:
+        """Build, train and evaluate once. Returns (train rc, updated night rc). Later rounds use
+        suffixed stage names and report dates, and do not wait for the generators."""
+        sfx = "" if rnd == 1 else f"-{rnd}"
+        rc = EXIT_DONE
+        resume = None if self.args.stub else self.unfinished_run()
+        if resume is not None:
+            self.mark("build" + sfx, "skipped", reason=f"resuming unfinished run {resume.name}")
+            train_argv = lambda dl: [PY, "-u", "classifier/train.py", "--run-dir", str(resume), "--deadline", str(dl)]  # noqa: E731
+        else:
+            if rnd == 1:
+                self.wait_for_generators(self.build_wait)
+            rc = self.run_light("build" + sfx, [PY, "-u", "classifier/build_dataset.py"], 2, 30 * 60)
+            if rc != 0:
+                final_rc = EXIT_ERROR if rc != EXIT_STOPPED else EXIT_STOPPED
+            train_argv = lambda dl: [PY, "-u", "classifier/train.py", "--deadline", str(dl)]  # noqa: E731
+        if self.done("build" + sfx) or resume is not None:
+            rc = self.run_heavy("train" + sfx, train_argv, self.args.stub_train_secs, train_deadline)
+            if rc == EXIT_ERROR:
+                final_rc = EXIT_ERROR
+            elif rc == EXIT_STOPPED:
+                final_rc = max(final_rc, EXIT_STOPPED)
+
+        # evaluate the newest finished run that has no report yet
+        target = Path("stub") if self.args.stub else self.run_to_evaluate()
+        if target is None:
+            self.mark("evaluate" + sfx, "skipped", reason="no finished run without a report")
+        else:
+            ev = [PY, "-u", "classifier/evaluate.py", "--run-dir", str(target), "--date", report_date + sfx]
+            erc = self.run_heavy("evaluate" + sfx, lambda dl: ev + ["--deadline", str(dl)], self.args.stub_eval_secs,
+                                 self.window_end - 60)
+            if erc == EXIT_ERROR:
+                final_rc = EXIT_ERROR
+            elif erc == EXIT_STOPPED:
+                final_rc = max(final_rc, EXIT_STOPPED)
+        return rc, final_rc
+
     # ---- the night -------------------------------------------------------------------------
     def run(self) -> int:
         now = datetime.now().astimezone()
@@ -362,38 +406,16 @@ class Night:
                     self.args.stub_gen_secs, gen_deadline))
             self.mark("generate", "running", generators=self.generators)
 
-        # 4-5. build + train
-        resume = None if self.args.stub else self.unfinished_run()
-        if resume is not None:
-            self.mark("build", "skipped", reason=f"resuming unfinished run {resume.name}")
-            train_argv = lambda dl: [PY, "-u", "classifier/train.py", "--run-dir", str(resume), "--deadline", str(dl)]  # noqa: E731
-        else:
-            self.wait_for_generators(self.build_wait)
-            rc = self.run_light("build", [PY, "-u", "classifier/build_dataset.py"], 2, 30 * 60)
-            if rc != 0:
-                final_rc = EXIT_ERROR if rc != EXIT_STOPPED else EXIT_STOPPED
-            train_argv = lambda dl: [PY, "-u", "classifier/train.py", "--deadline", str(dl)]  # noqa: E731
-        if self.done("build") or resume is not None:
-            rc = self.run_heavy("train", train_argv, self.args.stub_train_secs, train_deadline)
-            if rc == EXIT_ERROR:
-                final_rc = EXIT_ERROR
-            elif rc == EXIT_STOPPED:
-                final_rc = max(final_rc, EXIT_STOPPED)
+        # 4-6. build, train, evaluate; again while a whole round still fits in the window
+        rnd = 1
+        while True:
+            rc, final_rc = self.train_round(rnd, report_date, train_deadline, final_rc)
+            rnd += 1
+            if rc != EXIT_DONE or rnd > self.rounds or self.time_left() < self.min_round:
+                break
+            log(f"round {rnd}: {self.time_left() / 60:.0f} min left, building from what the generators added since")
 
-        # 6. evaluate the newest finished run that has no report yet
-        target = Path("stub") if self.args.stub else self.run_to_evaluate()
-        if target is None:
-            self.mark("evaluate", "skipped", reason="no finished run without a report")
-        else:
-            ev = [PY, "-u", "classifier/evaluate.py", "--run-dir", str(target), "--date", report_date]
-            rc = self.run_heavy("evaluate", lambda dl: ev + ["--deadline", str(dl)], self.args.stub_eval_secs,
-                                self.window_end - 60)
-            if rc == EXIT_ERROR:
-                final_rc = EXIT_ERROR
-            elif rc == EXIT_STOPPED:
-                final_rc = max(final_rc, EXIT_STOPPED)
-
-        # 7. let the generators use the rest of the window
+        # 8. let the generators use the rest of the window
         gens = {n: p for n, p in self.children.items() if n.startswith("generate-")}
         if gens:
             log(f"waiting for generators ({', '.join(gens)}) until they finish or the window closes")

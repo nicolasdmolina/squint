@@ -118,9 +118,10 @@ cd server && uv run --no-sync squint-score --profile falcon-7b \
 
 ## The night (`ops/nightly.sh` → `nightly.py`)
 
-Per-user launchd agent `com.nickymolina.squint-nightly` starts at 00:30. The window ends at
-07:30 (`SQUINT_NIGHTLY_START` / `SQUINT_NIGHTLY_END`). `caffeinate -i` keeps the Mac awake only
-while the run is alive. One copy at a time (lock in `state/`). Log:
+Per-user launchd agent `com.nickymolina.squint-nightly` starts at 23:00. The window ends at
+09:30 (`SQUINT_NIGHTLY_START` / `SQUINT_NIGHTLY_END`). `caffeinate -i` keeps the Mac awake only
+while the run is alive. It runs at normal priority: launchd's Background type made training
+4x slower whenever other work was running (24-28 s/step against 6-9). One copy at a time (lock in `state/`). Log:
 `~/Library/Logs/squint/nightly.log`. Stage outcomes are in `state/nightly.json`, and each
 night's summary in `reports/<date>-night.json`.
 
@@ -132,6 +133,7 @@ night's summary in `reports/<date>-night.json`.
 | build | 1-3 min | skipped when an unfinished training run is waiting |
 | train | rest of the night, minus a 45 min eval reserve | ModernBERT-base, bf16 on MPS, MPS memory capped (`mps_memory_fraction`). Checkpoints every 200 steps and on SIGTERM; the next night resumes. |
 | evaluate | 10-45 min | newest finished run without a report |
+| round 2 | build, train, evaluate again | when training finished and 3 h are left (`SQUINT_NIGHTLY_ROUNDS`, `SQUINT_NIGHTLY_MIN_ROUND_MIN`); uses what the generators wrote since, without waiting for them. Report: `reports/<date>-2.*` |
 
 Heavy stages (train, evaluate) start only when Squint's `/api/status` shows no queued checks
 and no loaded or loading models, no `squint-score` job is running, `memory_pressure` reports
@@ -143,7 +145,7 @@ every child gets SIGTERM, then SIGKILL after 90 s. Settings: see the `nightly.py
 Install or remove (Nicky runs this himself):
 
 ```sh
-ops/install-nightly.sh          # install; first run tonight at 00:30
+ops/install-nightly.sh          # install; first run tonight at 23:00
 ops/install-nightly.sh remove   # uninstall
 ```
 
