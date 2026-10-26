@@ -22,8 +22,9 @@ What you get:
   and Claude output. At 50+ words it wrongly flagged 4 of 1,340 human texts (1 of 512 non-native),
   and caught 744 of 747 ChatGPT and 674 of 731 Claude samples.
 
-Status: in development. Private only; going public at `squint.nickymolina.com` waits for the
-accuracy report and Nicky's OK.
+Status: in development. `squint.nickymolina.com` is set up as a Cloudflare Tunnel
+(`ops/install-tunnel.sh`) for password-protected sharing with friends; the installer refuses to
+run unless the server requires a password. A wider public launch waits on `docs/roadmap.md`.
 
 ## Known gaps
 

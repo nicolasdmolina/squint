@@ -1,0 +1,9 @@
+# Cloudflare Tunnel for squint.nickymolina.com. Installed by ops/install-tunnel.sh, which fills in
+# __HOME__ and writes it to ~/.cloudflared/squint.yml. The credentials file stays machine-local.
+tunnel: b5cfdf7b-43fc-43a3-b5c5-c65dfb51a827
+credentials-file: __HOME__/.cloudflared/b5cfdf7b-43fc-43a3-b5c5-c65dfb51a827.json
+no-autoupdate: true
+ingress:
+  - hostname: squint.nickymolina.com
+    service: http://127.0.0.1:8017
+  - service: http_status:404
