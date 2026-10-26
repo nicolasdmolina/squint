@@ -429,7 +429,9 @@ def acceptable(item: dict, text: str) -> str | None:
         return f"too short ({w} words)"
     if item["kind"] == "short" and w > 170:
         return f"short item too long ({w} words)"
-    if item["kind"] != "short" and w < 120:
+    # long pieces must reach 120 words, or 70% of a smaller target (abstracts ask for 80-110)
+    floor = min(120, int(0.7 * item["target_words"])) if item.get("target_words") else 120
+    if item["kind"] != "short" and w < floor:
         return f"long item too short ({w} words)"
     if re.search(r"^\s*(#{1,6} |\*\*|- |\* )", text, re.M):
         return "markdown formatting"

@@ -41,5 +41,15 @@ class RetryHint(unittest.TestCase):
             self.assertEqual(g.prior_rejects(d, plan), {"x-1"})
 
 
+class LengthRule(unittest.TestCase):
+    def test_long_floor_follows_a_small_target(self):
+        abstract = {"id": "a", "kind": "abstract", "target_words": 100}
+        self.assertIsNone(g.acceptable(abstract, " ".join(["word"] * 90)))
+        self.assertIsNotNone(g.acceptable(abstract, " ".join(["word"] * 60)))
+        essay = {"id": "e", "kind": "essay", "target_words": None}
+        self.assertIsNotNone(g.acceptable(essay, " ".join(["word"] * 110)))
+        self.assertIsNone(g.acceptable(essay, " ".join(["word"] * 130)))
+
+
 if __name__ == "__main__":
     unittest.main()

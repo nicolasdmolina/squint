@@ -5,6 +5,20 @@ gaps are in [`known-gaps.md`](known-gaps.md); this file is the work list. One ti
 section, highest priority first. Status is one of `ready`, `in progress`, `waiting on Nicky`,
 `parked`, or `done`.
 
+## Target
+
+Nicky's bar (2026-10-25): success rates similar to GPTZero. GPTZero's own benchmark claims
+about 99% of AI text caught with under 1% of human text flagged; independent tests report
+lower catch rates and 2–18% false flags depending on the writing. Squint's version of that
+bar, on texts of 50+ words from ChatGPT and Claude:
+
+- at least 97% of AI text caught for each generator
+- at most 1% of human text flagged, for every kind of human writing including college essays
+- both measured once on the sealed test (R5)
+
+GPTZero covers many more AI models than Squint can generate locally; R6 and R7 close part
+of that gap.
+
 ## R1. College-essay false flags
 
 Status: ready
@@ -24,7 +38,8 @@ human sources no worse.
 
 ## R2. Reddit as a human source
 
-Status: in progress (2026-10-24)
+Status: in progress (2026-10-24). The first run with Reddit (2ba047ff) trained 776 of 1,006
+steps on 10-25 before the window closed and finishes the next night.
 
 300 posts and comments from Webis-TLDR-17 (2006–2016, CC BY 4.0), with matched ChatGPT and
 Claude posts written from each post's tl;dr. `build_dataset.py` keeps the human rows out of
