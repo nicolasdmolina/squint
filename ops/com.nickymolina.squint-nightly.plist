@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <!-- Installed by ops/install-nightly.sh, which fills in __PROJECT__ and __HOME__.
-     Runs ops/nightly.sh every night at 00:30; the run stops itself at 07:30 (SQUINT_NIGHTLY_END).
-     If the Mac was asleep at 00:30, launchd starts it on wake; outside the window it just exits. -->
+     Runs ops/nightly.sh every night at 23:00; the window (23:00-09:30) is set in ops/nightly.sh only.
+     If the Mac was asleep at 23:00, launchd starts it on wake; outside the window it just exits. -->
 <plist version="1.0">
 <dict>
 	<key>Label</key>
@@ -20,10 +20,6 @@
 		<string>__HOME__</string>
 		<key>PATH</key>
 		<string>__HOME__/.local/bin:__HOME__/.local/node/bin:/opt/homebrew/bin:/usr/bin:/bin:/usr/sbin:/sbin</string>
-		<key>SQUINT_NIGHTLY_START</key>
-		<string>00:30</string>
-		<key>SQUINT_NIGHTLY_END</key>
-		<string>07:30</string>
 	</dict>
 	<key>StartCalendarInterval</key>
 	<dict>
