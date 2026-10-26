@@ -522,6 +522,12 @@ def main() -> None:
             print(f"{name}: FAILED ({e}); keeping its previous rows ({len(existing.get(name, []))})", flush=True)
             failed.append(name)
             continue
+        # growing a source keeps the rows already in use (their matched AI rows and splits stay
+        # valid) and only tops up with new picks
+        kept = existing.get(name, [])
+        if name != "persuade" and kept:
+            ids = {r["id"] for r in kept}
+            got = kept + [r for r in got if r["id"] not in ids][:max(0, len(got) - len(kept))]
         existing[name] = got
         print(f"{name}: {len(got)} rows", flush=True)
         save(out_path, existing)

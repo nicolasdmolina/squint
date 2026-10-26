@@ -15,8 +15,8 @@ seed = "squint-clf-2026-10-08"
 
 [human]
 # extra base documents per new source (fetch_human.py)
-arxiv = 300
-wikipedia = 300
+arxiv = 600               # 300 until 2026-10-25; doubled for Claude's academic misses
+wikipedia = 600           # 300 until 2026-10-25; doubled for Claude's encyclopedic misses
 amazon_reviews = 300
 stackexchange = 300
 reddit = 300              # Webis-TLDR-17: first-person posts and comments, 2006-2016

@@ -50,7 +50,9 @@ Done when: a run that includes it is evaluated and compared with the 10-23 run.
 
 ## R3. Promote a learner-trained model
 
-Status: waiting on Nicky
+Status: done (2026-10-25). 10-18 (f37cef8b) is live; the previous model (e1d93574) stays in
+`server/models/classifier/` for rollback. Its `human_below` is capped at `ai_above`, so the
+classifier gives no "uncertain" band of its own.
 
 The 10-18 run catches Claude writing as a B1 learner 90% of the time (live model: 65%), for
 one extra false flag in 1,000 fresh human texts. See
@@ -58,13 +60,18 @@ one extra false flag in 1,000 fresh human texts. See
 The 10-23 run checked the same way: 80% on the learner set, 2 fresh human texts flagged, so
 10-18 is still the best candidate. Later runs should be checked the same way before choosing.
 
-## R4. Short texts
+## R4. Claude encyclopedia and abstract misses
 
-Status: ready
+Status: in progress (2026-10-25)
 
-At 50–149 words about 1 in 8 Claude texts is called "Likely human". More short matched items
-(reviews, forum replies, short answers) for Claude, and checking whether the 50-word minimum
-should move.
+Broken down by kind (10-23 run, held-out, classifier-only cutoff), Claude's misses are not
+mostly about length. Plain matched pieces in encyclopedia style are missed 16% of the time
+(14 of 87) and research abstracts 8% (4 of 54); every other kind is at 6% or under, and
+ChatGPT is at 5% or under everywhere. `wikipedia` and `arxiv` in `[human]` went from 300 to
+600 on 10-25, so both generators write matched pieces for 300 more of each. Growing a
+source keeps the rows already in use, so earlier matched AI rows and splits stay valid.
+
+Done when: Claude's encyclopedic and academic misses are under 5% on held-out.
 
 ## R5. A sealed final test
 

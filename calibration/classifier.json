@@ -1,72 +1,72 @@
 {
-  "version": "2026-10-14-min50",
-  "run": "modernbert-base-e1d93574b0af18b2",
+  "version": "2026-10-18",
+  "run": "modernbert-base-f37cef8b35373ff6",
   "model": "answerdotai/ModernBERT-base",
-  "path": "server/models/classifier/modernbert-base-e1d93574b0af18b2",
+  "path": "server/models/classifier/modernbert-base-f37cef8b35373ff6",
   "max_length": 512,
   "max_chunks": 8,
   "min_words": 50,
-  "ai_above": 0.998849,
-  "human_below": 0.995462,
-  "n_tune_ai": 1030,
+  "ai_above": 0.9991573095321655,
+  "human_below": 0.9991573095321655,
+  "n_tune_ai": 1131,
   "held_out": {
     "false_flags": {
       "n": 1340,
-      "flagged": 3,
-      "rate": 0.0022,
+      "flagged": 4,
+      "rate": 0.003,
       "ci95": [
-        0.0008,
-        0.0066
+        0.0012,
+        0.0077
       ]
     },
     "false_flags_non_native": {
       "n": 512,
-      "flagged": 0,
-      "rate": 0.0,
+      "flagged": 1,
+      "rate": 0.002,
       "ci95": [
-        0.0,
-        0.0074
+        0.0003,
+        0.011
       ]
     },
     "chatgpt_catch": {
-      "n": 607,
-      "flagged": 599,
-      "rate": 0.9868,
+      "n": 747,
+      "flagged": 744,
+      "rate": 0.996,
       "ci95": [
-        0.9742,
-        0.9933
+        0.9883,
+        0.9986
       ]
     }
   },
   "by_length": {
     "20-49": {
       "humans": 750,
-      "false_flag": 0.0293,
-      "humans_likely_human": 0.9667,
+      "false_flag": 0.0253,
+      "humans_likely_human": 0.9747,
       "chatgpt": {
-        "n": 339,
-        "caught": 0.8289,
-        "called_human": 0.1121
+        "n": 428,
+        "caught": 0.9159,
+        "called_human": 0.0841
       },
       "claude": {
-        "n": 296,
-        "caught": 0.6757,
-        "called_human": 0.2736
+        "n": 416,
+        "caught": 0.7308,
+        "called_human": 0.2692
       }
     },
     "50-149": {
       "humans": 753,
-      "false_flag": 0.004,
-      "humans_likely_human": 0.988,
+      "false_flag": 0.0053,
+      "humans_likely_human": 0.9947,
       "chatgpt": {
-        "n": 351,
-        "caught": 0.9772,
-        "called_human": 0.0199
+        "n": 426,
+        "caught": 0.993,
+        "called_human": 0.007
       },
       "claude": {
-        "n": 299,
-        "caught": 0.8495,
-        "called_human": 0.1271
+        "n": 415,
+        "caught": 0.9012,
+        "called_human": 0.0988
       }
     },
     "150+": {
@@ -74,17 +74,17 @@
       "false_flag": 0.0,
       "humans_likely_human": 1.0,
       "chatgpt": {
-        "n": 256,
+        "n": 321,
         "caught": 1.0,
         "called_human": 0.0
       },
       "claude": {
-        "n": 238,
-        "caught": 0.9412,
-        "called_human": 0.0504
+        "n": 316,
+        "caught": 0.9494,
+        "called_human": 0.0506
       }
     }
   },
-  "report": "classifier/reports/2026-10-14-min50.json",
+  "report": "classifier/reports/2026-10-18.json",
   "gate_pass": true
 }
