@@ -175,3 +175,21 @@ it, the server behaves as in v1.1.
    `false_flag`, `humans_likely_human` and per generator `{n, caught, called_human}`.
 8. The classifier runs on the CPU, loads with the model pair on the first check and unloads
    with it. If it fails to load, the server falls back to Binoculars verdicts.
+
+## v1.3 amendments (public preview mode, 2026-10-27)
+
+The server runs in one of two modes, set by `[server].mode` (or `SQUINT_MODE`):
+`full` (default; everything above) or `preview` (the public site). Preview never loads the
+Binoculars pair; only the trained classifier runs.
+
+1. `GET /api/status` adds `"mode": "full" | "preview"`. In preview, `model_state` describes the
+   classifier, and `limits` carries the preview limits (500 words, 3 checks an hour).
+2. A preview result has the same shape with the word-level parts empty:
+   `token_count: null`, `model_pair: null`, `tokens: []`, `sentences: []`, `paragraphs: []`,
+   every `stats` value `null`, `verdict.detector = "classifier"`, `verdict.score: null`,
+   `verdict.thresholds: null`, `segments[].score: null`. `reasons` holds only the `detector`
+   reason. The band, `classifier`, `ai_percent` and `segments[].flagged` work as in v1.2.
+3. Preview has no fallback: if `calibration/classifier.json` is missing or the classifier fails to
+   load, a job ends with `error.code = "model_unavailable"`.
+4. `GET /api/accuracy` is unchanged (the report is static data).
+5. Job status `loading_model` in preview means the classifier is loading (a few seconds).

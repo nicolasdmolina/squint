@@ -19,7 +19,7 @@ from fastapi.responses import FileResponse, JSONResponse, Response
 from starlette.concurrency import run_in_threadpool
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
-from .analysis import Analysis, TextTooShortToScore, score_text
+from .analysis import Analysis, PreviewAnalysis, TextTooShortToScore, score_text
 from .auth import COOKIE_NAME, PasswordMissing, SessionSigner, password_matches, read_keychain_password
 from .backend import LlamaCppPair, PairBackend
 from .calibration import CalibrationStore
@@ -130,6 +130,31 @@ def parse_multipart_file(content_type: str, body: bytes, field: str = "file") ->
     return None
 
 
+class ClassifierOnly:
+    """Stands in for the model pair in preview mode: "loading" it loads only the classifier."""
+
+    observer_label = performer_label = ""
+
+    def __init__(self, svc: Services):
+        self._svc = svc
+        self.clf = None
+
+    @property
+    def loaded(self) -> bool:
+        return self.clf is not None
+
+    def load(self) -> None:
+        self.clf = self._svc.classifier.get(self._svc.calibration.current().classifier)
+        if self.clf is None:
+            raise RuntimeError("the classifier is not configured or failed to load")
+
+    def unload(self) -> None:
+        self.clf = None
+
+    def score_ids(self, ids):
+        raise RuntimeError("preview mode has no model pair")
+
+
 class Services:
     """Everything the routes share; one instance per app."""
 
@@ -140,9 +165,11 @@ class Services:
         self.calibration = CalibrationStore(settings.calibration_dir)
         self._tokenizer = tokenizer
         self._tok_lock = threading.Lock()
-        if password is FROM_KEYCHAIN:
+        if settings.mode == "preview":
+            password = None  # the public preview is open by design; its limits are the protection
+        elif password is FROM_KEYCHAIN:
             password = read_keychain_password(settings.keychain_service)
-        if settings.require_password and not password:
+        if settings.require_password and not password and settings.mode != "preview":
             raise PasswordMissing(f"require_password is on but Keychain item {settings.keychain_service!r} "
                                   "was not found (add it, or set [server].require_password = false)")
         self.password: str | None = password
@@ -155,6 +182,8 @@ class Services:
         pair_factory = backend_factory or (lambda: LlamaCppPair(self.profile))
 
         def factory():
+            if settings.mode == "preview":
+                return ClassifierOnly(self)
             # load the classifier first, while memory is still free; the pair takes ~10 GB
             self.classifier.get(self.calibration.current().classifier)
             return pair_factory()
@@ -176,6 +205,8 @@ class Services:
             return self._tokenizer
 
     def process(self, text: str, backend: PairBackend) -> dict:
+        if isinstance(backend, ClassifierOnly):
+            return PreviewAnalysis(text, self.calibration.current(), self.settings.limits, backend.clf).result()
         tok = self.tokenizer()
         ids, _ = tok.encode(text)
         if len(ids) > self.settings.limits.max_tokens:
@@ -209,7 +240,8 @@ def create_app(
     @asynccontextmanager
     async def lifespan(app: FastAPI):
         svc.queue.start()
-        log.info("squint ready: profile=%s password_required=%s", settings.profile.name, svc.password is not None)
+        log.info("squint ready: mode=%s profile=%s password_required=%s", settings.mode, settings.profile.name,
+                 svc.password is not None)
         try:
             yield
         finally:
@@ -297,6 +329,7 @@ def create_app(
         svc.require_auth(request)
         cal = svc.calibration.current()
         return {
+            "mode": settings.mode,
             "model_state": svc.manager.state,
             "queue_length": svc.queue.queue_length(),
             "model_pair": svc.model_pair,
@@ -404,6 +437,9 @@ def create_app(
     # ------------------------------------------------------------------ web UI
     @app.get("/{path:path}")
     async def web(path: str):
+        # the public site serves its landing page at / and the app under /app/
+        if path == "app" or path.startswith("app/"):
+            path = path[4:]
         dist = Path(settings.web_dist)
         index = dist / "index.html"
         if not index.is_file():

@@ -417,3 +417,88 @@ class Analysis:
             "segments": segs,
             "model_pair": dict(self.pair),
         }
+
+
+class PreviewAnalysis:
+    """The public preview's result (contract v1.3): the classifier verdict and flagged segments,
+    with the word-level Binoculars parts left empty."""
+
+    def __init__(self, text: str, calibration: Calibration, limits: Limits, classifier):
+        self.text = text
+        self.cal = calibration
+        self.limits = limits
+        self.clf = classifier
+        self.cfg = calibration.classifier
+        self.u16 = utf16_map(text)
+        self.words = word_spans(text)
+        self.n_words = len(self.words)
+
+    @cached_property
+    def clf_p(self) -> float | None:
+        if self.n_words < self.cfg["min_words"]:
+            return None
+        return float(self.clf.predict([self.text])[0])
+
+    @cached_property
+    def band(self) -> str:
+        p = self.clf_p
+        if p is None:
+            return "too_short"
+        if p > self.cfg["ai_above"]:
+            return "likely_ai"
+        if p < self.cfg["human_below"]:
+            return "likely_human"
+        return "uncertain"
+
+    @cached_property
+    def segments(self) -> list[dict]:
+        if self.n_words < self.limits.percent_min_words:
+            return []
+        window, stride = self.cal.segment_params()
+        wins = segment_windows(self.n_words, window, stride)
+        texts = [self.text[self.words[ws][0]:self.words[we - 1][1]] for ws, we in wins]
+        probs = self.clf.predict(texts) if texts else []
+        return [{"start": self.u16[self.words[ws][0]], "end": self.u16[self.words[we - 1][1]],
+                 "word_start": ws, "word_end": we, "score": None, "flagged": bool(p > self.cfg["ai_above"])}
+                for (ws, we), p in zip(wins, probs)]
+
+    @cached_property
+    def ai_percent(self) -> int | None:
+        if not self.segments:
+            return None
+        covered = np.zeros(self.n_words, dtype=bool)
+        for seg in self.segments:
+            if seg["flagged"]:
+                covered[seg["word_start"]:seg["word_end"]] = True
+        return round(100.0 * covered.sum() / self.n_words)
+
+    def result(self) -> dict:
+        cfg = self.cfg
+        low = self.n_words < self.limits.percent_min_words
+        bucket = length_bucket(self.n_words)
+        return {
+            "word_count": self.n_words,
+            "token_count": None,
+            "model_pair": None,
+            "verdict": {
+                "band": self.band,
+                "label": LABELS[self.band],
+                "confidence": "low" if low else "normal",
+                "length_bucket": bucket,
+                "detector": "classifier",
+                "score": None,
+                "thresholds": None,
+                "classifier": {"ai_probability": _r(self.clf_p), "ai_above": _r(cfg["ai_above"], 6),
+                               "human_below": _r(cfg["human_below"], 6), "min_words": int(cfg["min_words"]),
+                               "version": cfg.get("version")},
+                "ai_percent": self.ai_percent,
+                "explanation": classifier_explanation(self.band, cfg, bucket, low),
+            },
+            "reasons": [classifier_reason(self.band, self.clf_p, cfg)],
+            "stats": {k: None for k in ("top1_rate", "top5_rate", "mean_surprise", "mean_expected_surprise",
+                                        "sentence_score_spread")},
+            "tokens": [],
+            "sentences": [],
+            "paragraphs": [],
+            "segments": self.segments,
+        }

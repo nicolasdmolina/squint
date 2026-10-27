@@ -1,0 +1,65 @@
+{
+  "night": "2026-10-26",
+  "report_date": "2026-10-27",
+  "exit": 0,
+  "stages": {
+    "fetch": {
+      "status": "skipped",
+      "at": "2026-10-26T23:00:05",
+      "reason": "human data complete"
+    },
+    "plan": {
+      "status": "done",
+      "at": "2026-10-26T23:00:06",
+      "rc": 0
+    },
+    "generate": {
+      "status": "done",
+      "at": "2026-10-27T05:54:42",
+      "generators": [
+        "chatgpt",
+        "claude"
+      ],
+      "rcs": {
+        "generate-chatgpt": 0,
+        "generate-claude": 0
+      }
+    },
+    "build": {
+      "status": "skipped",
+      "at": "2026-10-26T23:00:06",
+      "reason": "resuming unfinished run modernbert-base-2ba047ff8496e270"
+    },
+    "train": {
+      "status": "done",
+      "at": "2026-10-26T23:28:45",
+      "rc": 0
+    },
+    "evaluate": {
+      "status": "done",
+      "at": "2026-10-26T23:34:25",
+      "rc": 0
+    },
+    "build-2": {
+      "status": "done",
+      "at": "2026-10-26T23:34:28",
+      "rc": 0
+    },
+    "train-2": {
+      "status": "done",
+      "at": "2026-10-27T01:53:59",
+      "rc": 0
+    },
+    "evaluate-2": {
+      "status": "done",
+      "at": "2026-10-27T01:59:59",
+      "rc": 0
+    },
+    "night": {
+      "status": "finished",
+      "at": "2026-10-27T05:54:42",
+      "exit": 0
+    }
+  },
+  "stub": false
+}

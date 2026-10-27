@@ -11,6 +11,7 @@ Environment variables (all optional):
   SQUINT_KEYCHAIN_SERVICE  Keychain generic-password service name (default: squint-password)
   SQUINT_REQUIRE_PASSWORD  1/true: refuse to start when no password is found (default: [server].require_password)
   SQUINT_LOG_LEVEL         python logging level (default INFO)
+  SQUINT_MODE              full (default) or preview: classifier only, with [preview] limits
 """
 
 from __future__ import annotations
@@ -82,6 +83,7 @@ class Limits:
 @dataclass(frozen=True)
 class Settings:
     profile: ModelProfile
+    mode: str = "full"  # full | preview (classifier only, no Binoculars; docs/api-contract.md v1.3)
     host: str = "127.0.0.1"
     port: int = 8017
     limits: Limits = field(default_factory=Limits)
@@ -157,16 +159,25 @@ def load_settings(config_path: Path | None = None, profile: str | None = None) -
     if not name or name not in profiles:
         raise SystemExit(f"unknown model profile {name!r}; known: {', '.join(sorted(profiles))}")
     srv = raw.get("server") or {}
-    lim = raw.get("limits") or {}
+    lim = dict(raw.get("limits") or {})
     env = os.environ
+    mode = env.get("SQUINT_MODE", srv.get("mode", "full"))
+    if mode not in ("full", "preview"):
+        raise SystemExit(f"unknown server mode {mode!r}; use full or preview")
+    max_queue = srv.get("max_queue", 50)
+    if mode == "preview":
+        preview = dict(raw.get("preview") or {})
+        max_queue = preview.pop("max_queue", max_queue)
+        lim.update(preview)
     return Settings(
         profile=profiles[name],
+        mode=mode,
         host=env.get("SQUINT_HOST", srv.get("host", "127.0.0.1")),
         port=int(env.get("SQUINT_PORT", srv.get("port", 8017))),
         limits=Limits(**{k: int(v) for k, v in lim.items()}),
         idle_unload_s=float(env.get("SQUINT_IDLE_UNLOAD_S", srv.get("idle_unload_s", 600))),
         result_ttl_s=float(env.get("SQUINT_RESULT_TTL_S", srv.get("result_ttl_s", 600))),
-        max_queue=int(srv.get("max_queue", 50)),
+        max_queue=int(max_queue),
         calibration_dir=Path(env.get("SQUINT_CALIBRATION_DIR", REPO_DIR / "calibration")),
         web_dist=Path(env.get("SQUINT_WEB_DIST", REPO_DIR / "web" / "dist")),
         keychain_service=env.get("SQUINT_KEYCHAIN_SERVICE", srv.get("keychain_service", "squint-password")),

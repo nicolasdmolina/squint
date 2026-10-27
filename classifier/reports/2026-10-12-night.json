@@ -1,0 +1,54 @@
+{
+  "night": "2026-10-12",
+  "report_date": "2026-10-12",
+  "exit": 0,
+  "stages": {
+    "fetch": {
+      "status": "skipped",
+      "at": "2026-10-12T00:30:05",
+      "reason": "human data complete"
+    },
+    "plan": {
+      "status": "done",
+      "at": "2026-10-12T00:30:06",
+      "rc": 0
+    },
+    "generate": {
+      "status": "done",
+      "at": "2026-10-12T06:40:58",
+      "generators": [
+        "gemini",
+        "chatgpt",
+        "claude"
+      ],
+      "rcs": {
+        "generate-gemini": 0,
+        "generate-chatgpt": 0,
+        "generate-claude": 0
+      }
+    },
+    "build": {
+      "status": "skipped",
+      "at": "2026-10-12T00:30:06",
+      "reason": "resuming unfinished run modernbert-base-81f90309634f7e88"
+    },
+    "train": {
+      "status": "done",
+      "at": "2026-10-12T06:35:11",
+      "reason": "disk free 5.2 GB < 6 GB",
+      "rc": 0
+    },
+    "evaluate": {
+      "status": "done",
+      "at": "2026-10-12T06:40:58",
+      "reason": "disk free 5.4 GB < 6 GB",
+      "rc": 0
+    },
+    "night": {
+      "status": "finished",
+      "at": "2026-10-12T06:40:58",
+      "exit": 0
+    }
+  },
+  "stub": false
+}

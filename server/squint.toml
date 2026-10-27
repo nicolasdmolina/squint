@@ -6,13 +6,23 @@
 #   3. restart the server. Calibration must be re-run: thresholds.json is tied to model_pair labels.
 
 [server]
+mode = "full"           # full | preview (see [preview])
 host = "127.0.0.1"
 port = 8017
 idle_unload_s = 600     # unload the models after 10 idle minutes
 result_ttl_s = 600      # finished results stay in memory for 10 minutes
 max_queue = 50
 keychain_service = "squint-password"
-require_password = true   # true: refuse to start when the Keychain item is missing (SQUINT_REQUIRE_PASSWORD=1)
+require_password = false  # true: refuse to start when the Keychain item is missing (SQUINT_REQUIRE_PASSWORD=1)
+
+# The public site runs `mode = "preview"` (or SQUINT_MODE=preview): the classifier only, never the
+# Binoculars pair, with the [preview] limits below replacing [limits] and max_queue.
+[preview]
+max_words = 500
+max_chars = 6000
+checks_per_hour = 3
+extracts_per_hour = 3
+max_queue = 10
 
 [limits]
 min_words = 20

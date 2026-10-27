@@ -1,0 +1,53 @@
+{
+  "night": "2026-10-20",
+  "report_date": "2026-10-20",
+  "exit": 3,
+  "stages": {
+    "fetch": {
+      "status": "skipped",
+      "at": "2026-10-20T00:30:05",
+      "reason": "human data complete"
+    },
+    "plan": {
+      "status": "done",
+      "at": "2026-10-20T00:30:07",
+      "rc": 0
+    },
+    "generate": {
+      "status": "done",
+      "at": "2026-10-20T06:46:31",
+      "generators": [
+        "gemini",
+        "chatgpt",
+        "claude"
+      ],
+      "rcs": {
+        "generate-gemini": 0,
+        "generate-chatgpt": 0,
+        "generate-claude": 0
+      }
+    },
+    "build": {
+      "status": "done",
+      "at": "2026-10-20T00:30:40",
+      "rc": 0
+    },
+    "train": {
+      "status": "stopped",
+      "at": "2026-10-20T06:46:30",
+      "reason": "stage deadline",
+      "rc": 3
+    },
+    "evaluate": {
+      "status": "skipped",
+      "at": "2026-10-20T06:46:31",
+      "reason": "no finished run without a report"
+    },
+    "night": {
+      "status": "finished",
+      "at": "2026-10-20T06:46:31",
+      "exit": 3
+    }
+  },
+  "stub": false
+}

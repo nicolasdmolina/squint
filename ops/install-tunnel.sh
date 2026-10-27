@@ -1,6 +1,7 @@
 #!/bin/sh
 # Publish Squint at https://squint.nickymolina.com through a Cloudflare Tunnel (per-user launchd).
-# Refuses unless the local server requires a password, so the site is never public and open.
+# Refuses unless the local server runs in preview mode (classifier only, preview limits), so the
+# public site never reaches the full model pair.
 # Usage: ops/install-tunnel.sh          install + start
 #        ops/install-tunnel.sh remove   stop + uninstall (the tunnel and DNS record stay in Cloudflare)
 set -eu
@@ -20,8 +21,8 @@ if [ "${1:-}" = remove ]; then
 	exit 0
 fi
 
-if ! curl -fsS http://127.0.0.1:8017/api/session | grep -q '"password_required":true'; then
-	echo "refusing: the Squint server is not running with a password (see server/README.md)" >&2
+if ! curl -fsS http://127.0.0.1:8017/api/status | grep -q '"mode":"preview"'; then
+	echo "refusing: the Squint server is not running in preview mode (ops/install.sh sets it)" >&2
 	exit 1
 fi
 

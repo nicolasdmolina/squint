@@ -60,8 +60,12 @@ startup (`security find-generic-password -s squint-password -w`) and every API c
 session/login/logout needs the signed session cookie. Without the item the app runs in private
 mode (`password_required: false`). The server never creates the item. If the Keychain can't be
 read for another reason (locked, access denied) the server refuses to start rather than run open.
-Set `[server].require_password = true` (or `SQUINT_REQUIRE_PASSWORD=1`) on any deployment that is
-reachable from outside, such as through the tunnel: then a missing item also stops the server at
+In `preview` mode (`SQUINT_MODE=preview`, used by the public site) there is never a password:
+only the classifier runs, under the `[preview]` limits in `squint.toml` (500 words, 3 checks an
+hour per visitor, 10 queued jobs).
+
+Set `[server].require_password = true` (or `SQUINT_REQUIRE_PASSWORD=1`) on any full-mode
+deployment reachable from outside: then a missing item also stops the server at
 startup instead of quietly serving without a password. Sessions are signed with a per-process
 key, so restarting signs everyone out.
 

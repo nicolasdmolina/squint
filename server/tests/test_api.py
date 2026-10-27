@@ -280,7 +280,8 @@ def test_status_and_accuracy(settings):
     with make_client(settings) as c:
         st = c.get("/api/status").json()
         assert st == {
-            "model_state": "unloaded", "queue_length": 0, "model_pair": PAIR,
+            "mode": "full",
+        "model_state": "unloaded", "queue_length": 0, "model_pair": PAIR,
             "calibration": {"version": None, "ready": False},
             "classifier": {"version": None, "ready": False, "min_words": None},
             "limits": {"min_words": 20, "percent_min_words": 150, "max_words": 2500, "checks_per_hour": 30},

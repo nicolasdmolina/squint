@@ -17,6 +17,10 @@
 		<string>__HOME__</string>
 		<key>PATH</key>
 		<string>/usr/bin:/bin:/usr/sbin:/sbin</string>
+		<key>SQUINT_MODE</key>
+		<string>preview</string>
+		<key>SQUINT_REQUIRE_PASSWORD</key>
+		<string>0</string>
 		<key>PYTHONUNBUFFERED</key>
 		<string>1</string>
 	</dict>

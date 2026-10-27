@@ -1,0 +1,53 @@
+{
+  "night": "2026-10-13",
+  "report_date": "2026-10-13",
+  "exit": 1,
+  "stages": {
+    "fetch": {
+      "status": "skipped",
+      "at": "2026-10-13T00:30:19",
+      "reason": "human data complete"
+    },
+    "plan": {
+      "status": "done",
+      "at": "2026-10-13T00:31:23",
+      "rc": 0
+    },
+    "generate": {
+      "status": "stopped",
+      "at": "2026-10-13T07:30:07",
+      "generators": [
+        "gemini",
+        "chatgpt",
+        "claude"
+      ],
+      "rcs": {
+        "generate-gemini": 0,
+        "generate-chatgpt": 75,
+        "generate-claude": 0
+      }
+    },
+    "build": {
+      "status": "done",
+      "at": "2026-10-13T00:58:42",
+      "rc": 0
+    },
+    "train": {
+      "status": "failed",
+      "at": "2026-10-13T03:00:40",
+      "reason": "Squint did not answer /api/status in time (busy)",
+      "rc": -9
+    },
+    "evaluate": {
+      "status": "skipped",
+      "at": "2026-10-13T03:00:57",
+      "reason": "no finished run without a report"
+    },
+    "night": {
+      "status": "finished",
+      "at": "2026-10-13T07:30:08",
+      "exit": 1
+    }
+  },
+  "stub": false
+}

@@ -1,0 +1,44 @@
+{
+  "night": "2026-10-21",
+  "report_date": "2026-10-21",
+  "exit": 3,
+  "stages": {
+    "fetch": {
+      "status": "skipped",
+      "at": "2026-10-21T00:34:46",
+      "reason": "human data complete"
+    },
+    "plan": {
+      "status": "stopped",
+      "at": "2026-10-21T00:44:52",
+      "rc": -15,
+      "reason": "window end"
+    },
+    "generate": {
+      "status": "skipped",
+      "at": "2026-10-21T00:44:57",
+      "reason": "no plan"
+    },
+    "build": {
+      "status": "skipped",
+      "at": "2026-10-21T00:45:12",
+      "reason": "resuming unfinished run modernbert-base-ebcf616b70cc29b7"
+    },
+    "train": {
+      "status": "stopped",
+      "at": "2026-10-21T06:45:11",
+      "reason": "no time left before its deadline"
+    },
+    "evaluate": {
+      "status": "skipped",
+      "at": "2026-10-21T06:45:52",
+      "reason": "no finished run without a report"
+    },
+    "night": {
+      "status": "finished",
+      "at": "2026-10-21T06:45:52",
+      "exit": 3
+    }
+  },
+  "stub": false
+}

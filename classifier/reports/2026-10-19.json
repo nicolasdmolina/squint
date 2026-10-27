@@ -1,0 +1,3167 @@
+{
+  "date": "2026-10-19",
+  "run": "modernbert-base-e63ce997c7d2b358",
+  "model": "answerdotai/ModernBERT-base",
+  "dataset_hash": "e63ce997c7d2b358",
+  "trained": {
+    "finished_at": "2026-10-19T02:44:32-0400",
+    "steps": 913,
+    "model": "answerdotai/ModernBERT-base",
+    "amp": "bf16",
+    "dataset_hash": "e63ce997c7d2b358",
+    "train_rows": 13219
+  },
+  "cap": 0.01,
+  "min_chatgpt_catch": 0.5,
+  "gate": {
+    "pass": true,
+    "recommended_rule": "classifier_only",
+    "rules": {
+      "classifier_only": {
+        "pass": true,
+        "checks": {
+          "false_flags_overall": true,
+          "false_flags_non_native": true,
+          "chatgpt_catch": true
+        },
+        "false_flags_overall": {
+          "n": 1340,
+          "flagged": 6,
+          "rate": 0.0045,
+          "ci95": [
+            0.0021,
+            0.0097
+          ]
+        },
+        "false_flags_non_native": {
+          "n": 512,
+          "flagged": 2,
+          "rate": 0.0039,
+          "ci95": [
+            0.0011,
+            0.0141
+          ]
+        },
+        "chatgpt_catch_holdout": {
+          "n": 751,
+          "flagged": 739,
+          "rate": 0.984,
+          "ci95": [
+            0.9723,
+            0.9908
+          ]
+        }
+      },
+      "combined": {
+        "pass": false,
+        "checks": {
+          "false_flags_overall": true,
+          "false_flags_non_native": false,
+          "chatgpt_catch": true
+        },
+        "false_flags_overall": {
+          "n": 1340,
+          "flagged": 13,
+          "rate": 0.0097,
+          "ci95": [
+            0.0057,
+            0.0165
+          ]
+        },
+        "false_flags_non_native": {
+          "n": 512,
+          "flagged": 9,
+          "rate": 0.0176,
+          "ci95": [
+            0.0093,
+            0.0331
+          ]
+        },
+        "chatgpt_catch_holdout": {
+          "n": 751,
+          "flagged": 741,
+          "rate": 0.9867,
+          "ci95": [
+            0.9757,
+            0.9928
+          ]
+        }
+      }
+    },
+    "min_words": 50,
+    "short_texts_info": {
+      "classifier_only": {
+        "pass": false,
+        "checks": {
+          "false_flags_overall": false,
+          "false_flags_non_native": false,
+          "chatgpt_catch": true
+        },
+        "false_flags_overall": {
+          "n": 750,
+          "flagged": 22,
+          "rate": 0.0293,
+          "ci95": [
+            0.0194,
+            0.044
+          ]
+        },
+        "false_flags_non_native": {
+          "n": 297,
+          "flagged": 3,
+          "rate": 0.0101,
+          "ci95": [
+            0.0034,
+            0.0293
+          ]
+        },
+        "chatgpt_catch_holdout": {
+          "n": 430,
+          "flagged": 378,
+          "rate": 0.8791,
+          "ci95": [
+            0.8448,
+            0.9066
+          ]
+        }
+      },
+      "combined": {
+        "pass": false,
+        "checks": {
+          "false_flags_overall": false,
+          "false_flags_non_native": false,
+          "chatgpt_catch": true
+        },
+        "false_flags_overall": {
+          "n": 750,
+          "flagged": 37,
+          "rate": 0.0493,
+          "ci95": [
+            0.036,
+            0.0673
+          ]
+        },
+        "false_flags_non_native": {
+          "n": 297,
+          "flagged": 18,
+          "rate": 0.0606,
+          "ci95": [
+            0.0387,
+            0.0938
+          ]
+        },
+        "chatgpt_catch_holdout": {
+          "n": 430,
+          "flagged": 381,
+          "rate": 0.886,
+          "ci95": [
+            0.8525,
+            0.9127
+          ]
+        }
+      }
+    }
+  },
+  "cutoffs": {
+    "classifier_only": {
+      "t": 0.9984512329101562,
+      "binding": "all",
+      "n_tune_human": 1019
+    },
+    "combined": {
+      "t": 0.9367494583129883,
+      "b_cut": null,
+      "catch": 0.968,
+      "false_flags": 0.005291005291005291,
+      "binding": "all",
+      "n_tune_human": 189,
+      "n_tune_ai": 125
+    }
+  },
+  "by_rule": {
+    "classifier_only": {
+      "heldout": {
+        "ai": {
+          "*all*|chatgpt": {
+            "n": 933,
+            "flagged": 885,
+            "catch": 0.9486,
+            "ci95": [
+              0.9324,
+              0.961
+            ]
+          },
+          "*all*|claude": {
+            "n": 950,
+            "flagged": 795,
+            "catch": 0.8368,
+            "ci95": [
+              0.812,
+              0.859
+            ]
+          },
+          "chatgpt|chatgpt": {
+            "n": 933,
+            "flagged": 885,
+            "catch": 0.9486,
+            "ci95": [
+              0.9324,
+              0.961
+            ]
+          },
+          "claude|claude": {
+            "n": 950,
+            "flagged": 795,
+            "catch": 0.8368,
+            "ci95": [
+              0.812,
+              0.859
+            ]
+          }
+        },
+        "human": {
+          "*all*": {
+            "n": 992,
+            "flagged": 10,
+            "false_flag": 0.0101,
+            "ci95": [
+              0.0055,
+              0.0185
+            ]
+          },
+          "*non_native*": {
+            "n": 157,
+            "flagged": 0,
+            "false_flag": 0.0,
+            "ci95": [
+              0.0,
+              0.0239
+            ]
+          },
+          "amazon-reviews": {
+            "n": 70,
+            "flagged": 2,
+            "false_flag": 0.0286,
+            "ci95": [
+              0.0079,
+              0.0983
+            ]
+          },
+          "arxiv": {
+            "n": 103,
+            "flagged": 1,
+            "false_flag": 0.0097,
+            "ci95": [
+              0.0017,
+              0.053
+            ]
+          },
+          "ghostbuster-news": {
+            "n": 45,
+            "flagged": 0,
+            "false_flag": 0.0,
+            "ci95": [
+              0.0,
+              0.0787
+            ]
+          },
+          "ghostbuster-wp": {
+            "n": 44,
+            "flagged": 0,
+            "false_flag": 0.0,
+            "ci95": [
+              0.0,
+              0.0803
+            ]
+          },
+          "persuade": {
+            "n": 486,
+            "flagged": 1,
+            "false_flag": 0.0021,
+            "ci95": [
+              0.0004,
+              0.0116
+            ]
+          },
+          "stackexchange": {
+            "n": 114,
+            "flagged": 4,
+            "false_flag": 0.0351,
+            "ci95": [
+              0.0137,
+              0.0868
+            ]
+          },
+          "wikipedia": {
+            "n": 130,
+            "flagged": 2,
+            "false_flag": 0.0154,
+            "ci95": [
+              0.0042,
+              0.0544
+            ]
+          }
+        }
+      },
+      "heldout|150+": {
+        "ai": {
+          "*all*|chatgpt": {
+            "n": 229,
+            "flagged": 227,
+            "catch": 0.9913,
+            "ci95": [
+              0.9687,
+              0.9976
+            ]
+          },
+          "*all*|claude": {
+            "n": 230,
+            "flagged": 212,
+            "catch": 0.9217,
+            "ci95": [
+              0.8797,
+              0.9499
+            ]
+          },
+          "chatgpt|chatgpt": {
+            "n": 229,
+            "flagged": 227,
+            "catch": 0.9913,
+            "ci95": [
+              0.9687,
+              0.9976
+            ]
+          },
+          "claude|claude": {
+            "n": 230,
+            "flagged": 212,
+            "catch": 0.9217,
+            "ci95": [
+              0.8797,
+              0.9499
+            ]
+          }
+        },
+        "human": {
+          "*all*": {
+            "n": 273,
+            "flagged": 0,
+            "false_flag": 0.0,
+            "ci95": [
+              0.0,
+              0.0139
+            ]
+          },
+          "*non_native*": {
+            "n": 52,
+            "flagged": 0,
+            "false_flag": 0.0,
+            "ci95": [
+              0.0,
+              0.0688
+            ]
+          },
+          "amazon-reviews": {
+            "n": 3,
+            "flagged": 0,
+            "false_flag": 0.0,
+            "ci95": [
+              0.0,
+              0.5615
+            ]
+          },
+          "arxiv": {
+            "n": 14,
+            "flagged": 0,
+            "false_flag": 0.0,
+            "ci95": [
+              0.0,
+              0.2153
+            ]
+          },
+          "ghostbuster-news": {
+            "n": 15,
+            "flagged": 0,
+            "false_flag": 0.0,
+            "ci95": [
+              0.0,
+              0.2039
+            ]
+          },
+          "ghostbuster-wp": {
+            "n": 14,
+            "flagged": 0,
+            "false_flag": 0.0,
+            "ci95": [
+              0.0,
+              0.2153
+            ]
+          },
+          "persuade": {
+            "n": 161,
+            "flagged": 0,
+            "false_flag": 0.0,
+            "ci95": [
+              0.0,
+              0.0233
+            ]
+          },
+          "stackexchange": {
+            "n": 25,
+            "flagged": 0,
+            "false_flag": 0.0,
+            "ci95": [
+              0.0,
+              0.1332
+            ]
+          },
+          "wikipedia": {
+            "n": 41,
+            "flagged": 0,
+            "false_flag": 0.0,
+            "ci95": [
+              0.0,
+              0.0857
+            ]
+          }
+        }
+      },
+      "heldout|20-49": {
+        "ai": {
+          "*all*|chatgpt": {
+            "n": 368,
+            "flagged": 328,
+            "catch": 0.8913,
+            "ci95": [
+              0.8554,
+              0.9192
+            ]
+          },
+          "*all*|claude": {
+            "n": 366,
+            "flagged": 260,
+            "catch": 0.7104,
+            "ci95": [
+              0.6619,
+              0.7545
+            ]
+          },
+          "chatgpt|chatgpt": {
+            "n": 368,
+            "flagged": 328,
+            "catch": 0.8913,
+            "ci95": [
+              0.8554,
+              0.9192
+            ]
+          },
+          "claude|claude": {
+            "n": 366,
+            "flagged": 260,
+            "catch": 0.7104,
+            "ci95": [
+              0.6619,
+              0.7545
+            ]
+          }
+        },
+        "human": {
+          "*all*": {
+            "n": 365,
+            "flagged": 9,
+            "false_flag": 0.0247,
+            "ci95": [
+              0.013,
+              0.0462
+            ]
+          },
+          "*non_native*": {
+            "n": 52,
+            "flagged": 0,
+            "false_flag": 0.0,
+            "ci95": [
+              0.0,
+              0.0688
+            ]
+          },
+          "amazon-reviews": {
+            "n": 38,
+            "flagged": 2,
+            "false_flag": 0.0526,
+            "ci95": [
+              0.0146,
+              0.1729
+            ]
+          },
+          "arxiv": {
+            "n": 45,
+            "flagged": 1,
+            "false_flag": 0.0222,
+            "ci95": [
+              0.0039,
+              0.1157
+            ]
+          },
+          "ghostbuster-news": {
+            "n": 15,
+            "flagged": 0,
+            "false_flag": 0.0,
+            "ci95": [
+              0.0,
+              0.2039
+            ]
+          },
+          "ghostbuster-wp": {
+            "n": 15,
+            "flagged": 0,
+            "false_flag": 0.0,
+            "ci95": [
+              0.0,
+              0.2039
+            ]
+          },
+          "persuade": {
+            "n": 162,
+            "flagged": 1,
+            "false_flag": 0.0062,
+            "ci95": [
+              0.0011,
+              0.0341
+            ]
+          },
+          "stackexchange": {
+            "n": 45,
+            "flagged": 3,
+            "false_flag": 0.0667,
+            "ci95": [
+              0.0229,
+              0.1786
+            ]
+          },
+          "wikipedia": {
+            "n": 45,
+            "flagged": 2,
+            "false_flag": 0.0444,
+            "ci95": [
+              0.0123,
+              0.1483
+            ]
+          }
+        }
+      },
+      "heldout|50-149": {
+        "ai": {
+          "*all*|chatgpt": {
+            "n": 336,
+            "flagged": 330,
+            "catch": 0.9821,
+            "ci95": [
+              0.9616,
+              0.9918
+            ]
+          },
+          "*all*|claude": {
+            "n": 354,
+            "flagged": 323,
+            "catch": 0.9124,
+            "ci95": [
+              0.8784,
+              0.9376
+            ]
+          },
+          "chatgpt|chatgpt": {
+            "n": 336,
+            "flagged": 330,
+            "catch": 0.9821,
+            "ci95": [
+              0.9616,
+              0.9918
+            ]
+          },
+          "claude|claude": {
+            "n": 354,
+            "flagged": 323,
+            "catch": 0.9124,
+            "ci95": [
+              0.8784,
+              0.9376
+            ]
+          }
+        },
+        "human": {
+          "*all*": {
+            "n": 354,
+            "flagged": 1,
+            "false_flag": 0.0028,
+            "ci95": [
+              0.0005,
+              0.0158
+            ]
+          },
+          "*non_native*": {
+            "n": 53,
+            "flagged": 0,
+            "false_flag": 0.0,
+            "ci95": [
+              0.0,
+              0.0676
+            ]
+          },
+          "amazon-reviews": {
+            "n": 29,
+            "flagged": 0,
+            "false_flag": 0.0,
+            "ci95": [
+              0.0,
+              0.117
+            ]
+          },
+          "arxiv": {
+            "n": 44,
+            "flagged": 0,
+            "false_flag": 0.0,
+            "ci95": [
+              0.0,
+              0.0803
+            ]
+          },
+          "ghostbuster-news": {
+            "n": 15,
+            "flagged": 0,
+            "false_flag": 0.0,
+            "ci95": [
+              0.0,
+              0.2039
+            ]
+          },
+          "ghostbuster-wp": {
+            "n": 15,
+            "flagged": 0,
+            "false_flag": 0.0,
+            "ci95": [
+              0.0,
+              0.2039
+            ]
+          },
+          "persuade": {
+            "n": 163,
+            "flagged": 0,
+            "false_flag": 0.0,
+            "ci95": [
+              0.0,
+              0.023
+            ]
+          },
+          "stackexchange": {
+            "n": 44,
+            "flagged": 1,
+            "false_flag": 0.0227,
+            "ci95": [
+              0.004,
+              0.1181
+            ]
+          },
+          "wikipedia": {
+            "n": 44,
+            "flagged": 0,
+            "false_flag": 0.0,
+            "ci95": [
+              0.0,
+              0.0803
+            ]
+          }
+        }
+      },
+      "holdout": {
+        "ai": {
+          "*all*|chatgpt": {
+            "n": 1181,
+            "flagged": 1117,
+            "catch": 0.9458,
+            "ci95": [
+              0.9314,
+              0.9573
+            ]
+          },
+          "*all*|claude": {
+            "n": 1150,
+            "flagged": 975,
+            "catch": 0.8478,
+            "ci95": [
+              0.8259,
+              0.8674
+            ]
+          },
+          "chatgpt|chatgpt": {
+            "n": 1181,
+            "flagged": 1117,
+            "catch": 0.9458,
+            "ci95": [
+              0.9314,
+              0.9573
+            ]
+          },
+          "claude|claude": {
+            "n": 1150,
+            "flagged": 975,
+            "catch": 0.8478,
+            "ci95": [
+              0.8259,
+              0.8674
+            ]
+          }
+        },
+        "human": {
+          "*all*": {
+            "n": 809,
+            "flagged": 5,
+            "false_flag": 0.0062,
+            "ci95": [
+              0.0026,
+              0.0144
+            ]
+          },
+          "*non_native*": {
+            "n": 809,
+            "flagged": 5,
+            "false_flag": 0.0062,
+            "ci95": [
+              0.0026,
+              0.0144
+            ]
+          },
+          "ellipse": {
+            "n": 633,
+            "flagged": 1,
+            "false_flag": 0.0016,
+            "ci95": [
+              0.0003,
+              0.0089
+            ]
+          },
+          "toefl91": {
+            "n": 176,
+            "flagged": 4,
+            "false_flag": 0.0227,
+            "ci95": [
+              0.0089,
+              0.057
+            ]
+          }
+        }
+      },
+      "holdout|150+": {
+        "ai": {
+          "*all*|chatgpt": {
+            "n": 323,
+            "flagged": 322,
+            "catch": 0.9969,
+            "ci95": [
+              0.9827,
+              0.9995
+            ]
+          },
+          "*all*|claude": {
+            "n": 317,
+            "flagged": 298,
+            "catch": 0.9401,
+            "ci95": [
+              0.9083,
+              0.9613
+            ]
+          },
+          "chatgpt|chatgpt": {
+            "n": 323,
+            "flagged": 322,
+            "catch": 0.9969,
+            "ci95": [
+              0.9827,
+              0.9995
+            ]
+          },
+          "claude|claude": {
+            "n": 317,
+            "flagged": 298,
+            "catch": 0.9401,
+            "ci95": [
+              0.9083,
+              0.9613
+            ]
+          }
+        },
+        "human": {
+          "*all*": {
+            "n": 208,
+            "flagged": 0,
+            "false_flag": 0.0,
+            "ci95": [
+              0.0,
+              0.0181
+            ]
+          },
+          "*non_native*": {
+            "n": 208,
+            "flagged": 0,
+            "false_flag": 0.0,
+            "ci95": [
+              0.0,
+              0.0181
+            ]
+          },
+          "ellipse": {
+            "n": 208,
+            "flagged": 0,
+            "false_flag": 0.0,
+            "ci95": [
+              0.0,
+              0.0181
+            ]
+          }
+        }
+      },
+      "holdout|20-49": {
+        "ai": {
+          "*all*|chatgpt": {
+            "n": 430,
+            "flagged": 378,
+            "catch": 0.8791,
+            "ci95": [
+              0.8448,
+              0.9066
+            ]
+          },
+          "*all*|claude": {
+            "n": 417,
+            "flagged": 306,
+            "catch": 0.7338,
+            "ci95": [
+              0.6894,
+              0.774
+            ]
+          },
+          "chatgpt|chatgpt": {
+            "n": 430,
+            "flagged": 378,
+            "catch": 0.8791,
+            "ci95": [
+              0.8448,
+              0.9066
+            ]
+          },
+          "claude|claude": {
+            "n": 417,
+            "flagged": 306,
+            "catch": 0.7338,
+            "ci95": [
+              0.6894,
+              0.774
+            ]
+          }
+        },
+        "human": {
+          "*all*": {
+            "n": 297,
+            "flagged": 3,
+            "false_flag": 0.0101,
+            "ci95": [
+              0.0034,
+              0.0293
+            ]
+          },
+          "*non_native*": {
+            "n": 297,
+            "flagged": 3,
+            "false_flag": 0.0101,
+            "ci95": [
+              0.0034,
+              0.0293
+            ]
+          },
+          "ellipse": {
+            "n": 210,
+            "flagged": 0,
+            "false_flag": 0.0,
+            "ci95": [
+              0.0,
+              0.018
+            ]
+          },
+          "toefl91": {
+            "n": 87,
+            "flagged": 3,
+            "false_flag": 0.0345,
+            "ci95": [
+              0.0118,
+              0.0965
+            ]
+          }
+        }
+      },
+      "holdout|50-149": {
+        "ai": {
+          "*all*|chatgpt": {
+            "n": 428,
+            "flagged": 417,
+            "catch": 0.9743,
+            "ci95": [
+              0.9546,
+              0.9856
+            ]
+          },
+          "*all*|claude": {
+            "n": 416,
+            "flagged": 371,
+            "catch": 0.8918,
+            "ci95": [
+              0.8583,
+              0.9182
+            ]
+          },
+          "chatgpt|chatgpt": {
+            "n": 428,
+            "flagged": 417,
+            "catch": 0.9743,
+            "ci95": [
+              0.9546,
+              0.9856
+            ]
+          },
+          "claude|claude": {
+            "n": 416,
+            "flagged": 371,
+            "catch": 0.8918,
+            "ci95": [
+              0.8583,
+              0.9182
+            ]
+          }
+        },
+        "human": {
+          "*all*": {
+            "n": 304,
+            "flagged": 2,
+            "false_flag": 0.0066,
+            "ci95": [
+              0.0018,
+              0.0237
+            ]
+          },
+          "*non_native*": {
+            "n": 304,
+            "flagged": 2,
+            "false_flag": 0.0066,
+            "ci95": [
+              0.0018,
+              0.0237
+            ]
+          },
+          "ellipse": {
+            "n": 215,
+            "flagged": 1,
+            "false_flag": 0.0047,
+            "ci95": [
+              0.0008,
+              0.0259
+            ]
+          },
+          "toefl91": {
+            "n": 89,
+            "flagged": 1,
+            "false_flag": 0.0112,
+            "ci95": [
+              0.002,
+              0.0609
+            ]
+          }
+        }
+      },
+      "ood": {
+        "human": {
+          "*all*": {
+            "n": 1281,
+            "flagged": 23,
+            "false_flag": 0.018,
+            "ci95": [
+              0.012,
+              0.0268
+            ]
+          },
+          "ood-college-essay": {
+            "n": 210,
+            "flagged": 12,
+            "false_flag": 0.0571,
+            "ci95": [
+              0.033,
+              0.0972
+            ]
+          },
+          "ood-cs224n": {
+            "n": 362,
+            "flagged": 0,
+            "false_flag": 0.0,
+            "ci95": [
+              0.0,
+              0.0105
+            ]
+          },
+          "ood-gb-essay": {
+            "n": 447,
+            "flagged": 7,
+            "false_flag": 0.0157,
+            "ci95": [
+              0.0076,
+              0.032
+            ]
+          },
+          "ood-hewlett": {
+            "n": 262,
+            "flagged": 4,
+            "false_flag": 0.0153,
+            "ci95": [
+              0.006,
+              0.0386
+            ]
+          }
+        }
+      },
+      "ood|150+": {
+        "human": {
+          "*all*": {
+            "n": 379,
+            "flagged": 0,
+            "false_flag": 0.0,
+            "ci95": [
+              0.0,
+              0.01
+            ]
+          },
+          "ood-college-essay": {
+            "n": 70,
+            "flagged": 0,
+            "false_flag": 0.0,
+            "ci95": [
+              0.0,
+              0.052
+            ]
+          },
+          "ood-cs224n": {
+            "n": 75,
+            "flagged": 0,
+            "false_flag": 0.0,
+            "ci95": [
+              0.0,
+              0.0487
+            ]
+          },
+          "ood-gb-essay": {
+            "n": 148,
+            "flagged": 0,
+            "false_flag": 0.0,
+            "ci95": [
+              0.0,
+              0.0253
+            ]
+          },
+          "ood-hewlett": {
+            "n": 86,
+            "flagged": 0,
+            "false_flag": 0.0,
+            "ci95": [
+              0.0,
+              0.0428
+            ]
+          }
+        }
+      },
+      "ood|20-49": {
+        "human": {
+          "*all*": {
+            "n": 453,
+            "flagged": 19,
+            "false_flag": 0.0419,
+            "ci95": [
+              0.027,
+              0.0646
+            ]
+          },
+          "ood-college-essay": {
+            "n": 70,
+            "flagged": 9,
+            "false_flag": 0.1286,
+            "ci95": [
+              0.0691,
+              0.2266
+            ]
+          },
+          "ood-cs224n": {
+            "n": 145,
+            "flagged": 0,
+            "false_flag": 0.0,
+            "ci95": [
+              0.0,
+              0.0258
+            ]
+          },
+          "ood-gb-essay": {
+            "n": 150,
+            "flagged": 7,
+            "false_flag": 0.0467,
+            "ci95": [
+              0.0228,
+              0.0932
+            ]
+          },
+          "ood-hewlett": {
+            "n": 88,
+            "flagged": 3,
+            "false_flag": 0.0341,
+            "ci95": [
+              0.0117,
+              0.0955
+            ]
+          }
+        }
+      },
+      "ood|50-149": {
+        "human": {
+          "*all*": {
+            "n": 449,
+            "flagged": 4,
+            "false_flag": 0.0089,
+            "ci95": [
+              0.0035,
+              0.0227
+            ]
+          },
+          "ood-college-essay": {
+            "n": 70,
+            "flagged": 3,
+            "false_flag": 0.0429,
+            "ci95": [
+              0.0147,
+              0.1186
+            ]
+          },
+          "ood-cs224n": {
+            "n": 142,
+            "flagged": 0,
+            "false_flag": 0.0,
+            "ci95": [
+              0.0,
+              0.0263
+            ]
+          },
+          "ood-gb-essay": {
+            "n": 149,
+            "flagged": 0,
+            "false_flag": 0.0,
+            "ci95": [
+              0.0,
+              0.0251
+            ]
+          },
+          "ood-hewlett": {
+            "n": 88,
+            "flagged": 1,
+            "false_flag": 0.0114,
+            "ci95": [
+              0.002,
+              0.0616
+            ]
+          }
+        }
+      },
+      "tune": {
+        "ai": {
+          "*all*|chatgpt": {
+            "n": 917,
+            "flagged": 861,
+            "catch": 0.9389,
+            "ci95": [
+              0.9215,
+              0.9527
+            ]
+          },
+          "*all*|claude": {
+            "n": 954,
+            "flagged": 804,
+            "catch": 0.8428,
+            "ci95": [
+              0.8183,
+              0.8645
+            ]
+          },
+          "chatgpt|chatgpt": {
+            "n": 917,
+            "flagged": 861,
+            "catch": 0.9389,
+            "ci95": [
+              0.9215,
+              0.9527
+            ]
+          },
+          "claude|claude": {
+            "n": 954,
+            "flagged": 804,
+            "catch": 0.8428,
+            "ci95": [
+              0.8183,
+              0.8645
+            ]
+          }
+        },
+        "human": {
+          "*all*": {
+            "n": 1019,
+            "flagged": 10,
+            "false_flag": 0.0098,
+            "ci95": [
+              0.0053,
+              0.018
+            ]
+          },
+          "*non_native*": {
+            "n": 161,
+            "flagged": 0,
+            "false_flag": 0.0,
+            "ci95": [
+              0.0,
+              0.0233
+            ]
+          },
+          "amazon-reviews": {
+            "n": 76,
+            "flagged": 0,
+            "false_flag": 0.0,
+            "ci95": [
+              0.0,
+              0.0481
+            ]
+          },
+          "arxiv": {
+            "n": 107,
+            "flagged": 1,
+            "false_flag": 0.0093,
+            "ci95": [
+              0.0017,
+              0.0511
+            ]
+          },
+          "ghostbuster-news": {
+            "n": 45,
+            "flagged": 0,
+            "false_flag": 0.0,
+            "ci95": [
+              0.0,
+              0.0787
+            ]
+          },
+          "ghostbuster-wp": {
+            "n": 45,
+            "flagged": 1,
+            "false_flag": 0.0222,
+            "ci95": [
+              0.0039,
+              0.1157
+            ]
+          },
+          "persuade": {
+            "n": 496,
+            "flagged": 5,
+            "false_flag": 0.0101,
+            "ci95": [
+              0.0043,
+              0.0234
+            ]
+          },
+          "stackexchange": {
+            "n": 123,
+            "flagged": 1,
+            "false_flag": 0.0081,
+            "ci95": [
+              0.0014,
+              0.0446
+            ]
+          },
+          "wikipedia": {
+            "n": 127,
+            "flagged": 2,
+            "false_flag": 0.0157,
+            "ci95": [
+              0.0043,
+              0.0556
+            ]
+          }
+        }
+      },
+      "tune|150+": {
+        "ai": {
+          "*all*|chatgpt": {
+            "n": 214,
+            "flagged": 213,
+            "catch": 0.9953,
+            "ci95": [
+              0.974,
+              0.9992
+            ]
+          },
+          "*all*|claude": {
+            "n": 226,
+            "flagged": 206,
+            "catch": 0.9115,
+            "ci95": [
+              0.8673,
+              0.942
+            ]
+          },
+          "chatgpt|chatgpt": {
+            "n": 214,
+            "flagged": 213,
+            "catch": 0.9953,
+            "ci95": [
+              0.974,
+              0.9992
+            ]
+          },
+          "claude|claude": {
+            "n": 226,
+            "flagged": 206,
+            "catch": 0.9115,
+            "ci95": [
+              0.8673,
+              0.942
+            ]
+          }
+        },
+        "human": {
+          "*all*": {
+            "n": 287,
+            "flagged": 0,
+            "false_flag": 0.0,
+            "ci95": [
+              0.0,
+              0.0132
+            ]
+          },
+          "*non_native*": {
+            "n": 54,
+            "flagged": 0,
+            "false_flag": 0.0,
+            "ci95": [
+              0.0,
+              0.0664
+            ]
+          },
+          "amazon-reviews": {
+            "n": 2,
+            "flagged": 0,
+            "false_flag": 0.0,
+            "ci95": [
+              0.0,
+              0.6576
+            ]
+          },
+          "arxiv": {
+            "n": 18,
+            "flagged": 0,
+            "false_flag": 0.0,
+            "ci95": [
+              0.0,
+              0.1759
+            ]
+          },
+          "ghostbuster-news": {
+            "n": 15,
+            "flagged": 0,
+            "false_flag": 0.0,
+            "ci95": [
+              0.0,
+              0.2039
+            ]
+          },
+          "ghostbuster-wp": {
+            "n": 15,
+            "flagged": 0,
+            "false_flag": 0.0,
+            "ci95": [
+              0.0,
+              0.2039
+            ]
+          },
+          "persuade": {
+            "n": 166,
+            "flagged": 0,
+            "false_flag": 0.0,
+            "ci95": [
+              0.0,
+              0.0226
+            ]
+          },
+          "stackexchange": {
+            "n": 33,
+            "flagged": 0,
+            "false_flag": 0.0,
+            "ci95": [
+              0.0,
+              0.1043
+            ]
+          },
+          "wikipedia": {
+            "n": 38,
+            "flagged": 0,
+            "false_flag": 0.0,
+            "ci95": [
+              0.0,
+              0.0918
+            ]
+          }
+        }
+      },
+      "tune|20-49": {
+        "ai": {
+          "*all*|chatgpt": {
+            "n": 365,
+            "flagged": 323,
+            "catch": 0.8849,
+            "ci95": [
+              0.8481,
+              0.9137
+            ]
+          },
+          "*all*|claude": {
+            "n": 366,
+            "flagged": 276,
+            "catch": 0.7541,
+            "ci95": [
+              0.7075,
+              0.7954
+            ]
+          },
+          "chatgpt|chatgpt": {
+            "n": 365,
+            "flagged": 323,
+            "catch": 0.8849,
+            "ci95": [
+              0.8481,
+              0.9137
+            ]
+          },
+          "claude|claude": {
+            "n": 366,
+            "flagged": 276,
+            "catch": 0.7541,
+            "ci95": [
+              0.7075,
+              0.7954
+            ]
+          }
+        },
+        "human": {
+          "*all*": {
+            "n": 371,
+            "flagged": 7,
+            "false_flag": 0.0189,
+            "ci95": [
+              0.0092,
+              0.0384
+            ]
+          },
+          "*non_native*": {
+            "n": 53,
+            "flagged": 0,
+            "false_flag": 0.0,
+            "ci95": [
+              0.0,
+              0.0676
+            ]
+          },
+          "amazon-reviews": {
+            "n": 41,
+            "flagged": 0,
+            "false_flag": 0.0,
+            "ci95": [
+              0.0,
+              0.0857
+            ]
+          },
+          "arxiv": {
+            "n": 45,
+            "flagged": 1,
+            "false_flag": 0.0222,
+            "ci95": [
+              0.0039,
+              0.1157
+            ]
+          },
+          "ghostbuster-news": {
+            "n": 15,
+            "flagged": 0,
+            "false_flag": 0.0,
+            "ci95": [
+              0.0,
+              0.2039
+            ]
+          },
+          "ghostbuster-wp": {
+            "n": 15,
+            "flagged": 1,
+            "false_flag": 0.0667,
+            "ci95": [
+              0.0119,
+              0.2982
+            ]
+          },
+          "persuade": {
+            "n": 165,
+            "flagged": 3,
+            "false_flag": 0.0182,
+            "ci95": [
+              0.0062,
+              0.0521
+            ]
+          },
+          "stackexchange": {
+            "n": 45,
+            "flagged": 0,
+            "false_flag": 0.0,
+            "ci95": [
+              0.0,
+              0.0787
+            ]
+          },
+          "wikipedia": {
+            "n": 45,
+            "flagged": 2,
+            "false_flag": 0.0444,
+            "ci95": [
+              0.0123,
+              0.1483
+            ]
+          }
+        }
+      },
+      "tune|50-149": {
+        "ai": {
+          "*all*|chatgpt": {
+            "n": 338,
+            "flagged": 325,
+            "catch": 0.9615,
+            "ci95": [
+              0.9353,
+              0.9774
+            ]
+          },
+          "*all*|claude": {
+            "n": 362,
+            "flagged": 322,
+            "catch": 0.8895,
+            "ci95": [
+              0.853,
+              0.9178
+            ]
+          },
+          "chatgpt|chatgpt": {
+            "n": 338,
+            "flagged": 325,
+            "catch": 0.9615,
+            "ci95": [
+              0.9353,
+              0.9774
+            ]
+          },
+          "claude|claude": {
+            "n": 362,
+            "flagged": 322,
+            "catch": 0.8895,
+            "ci95": [
+              0.853,
+              0.9178
+            ]
+          }
+        },
+        "human": {
+          "*all*": {
+            "n": 361,
+            "flagged": 3,
+            "false_flag": 0.0083,
+            "ci95": [
+              0.0028,
+              0.0241
+            ]
+          },
+          "*non_native*": {
+            "n": 54,
+            "flagged": 0,
+            "false_flag": 0.0,
+            "ci95": [
+              0.0,
+              0.0664
+            ]
+          },
+          "amazon-reviews": {
+            "n": 33,
+            "flagged": 0,
+            "false_flag": 0.0,
+            "ci95": [
+              0.0,
+              0.1043
+            ]
+          },
+          "arxiv": {
+            "n": 44,
+            "flagged": 0,
+            "false_flag": 0.0,
+            "ci95": [
+              0.0,
+              0.0803
+            ]
+          },
+          "ghostbuster-news": {
+            "n": 15,
+            "flagged": 0,
+            "false_flag": 0.0,
+            "ci95": [
+              0.0,
+              0.2039
+            ]
+          },
+          "ghostbuster-wp": {
+            "n": 15,
+            "flagged": 0,
+            "false_flag": 0.0,
+            "ci95": [
+              0.0,
+              0.2039
+            ]
+          },
+          "persuade": {
+            "n": 165,
+            "flagged": 2,
+            "false_flag": 0.0121,
+            "ci95": [
+              0.0033,
+              0.0431
+            ]
+          },
+          "stackexchange": {
+            "n": 45,
+            "flagged": 1,
+            "false_flag": 0.0222,
+            "ci95": [
+              0.0039,
+              0.1157
+            ]
+          },
+          "wikipedia": {
+            "n": 44,
+            "flagged": 0,
+            "false_flag": 0.0,
+            "ci95": [
+              0.0,
+              0.0803
+            ]
+          }
+        }
+      }
+    },
+    "combined": {
+      "heldout": {
+        "ai": {
+          "*all*|chatgpt": {
+            "n": 933,
+            "flagged": 886,
+            "catch": 0.9496,
+            "ci95": [
+              0.9337,
+              0.9619
+            ]
+          },
+          "*all*|claude": {
+            "n": 950,
+            "flagged": 799,
+            "catch": 0.8411,
+            "ci95": [
+              0.8164,
+              0.8629
+            ]
+          },
+          "chatgpt|chatgpt": {
+            "n": 933,
+            "flagged": 886,
+            "catch": 0.9496,
+            "ci95": [
+              0.9337,
+              0.9619
+            ]
+          },
+          "claude|claude": {
+            "n": 950,
+            "flagged": 799,
+            "catch": 0.8411,
+            "ci95": [
+              0.8164,
+              0.8629
+            ]
+          }
+        },
+        "human": {
+          "*all*": {
+            "n": 992,
+            "flagged": 12,
+            "false_flag": 0.0121,
+            "ci95": [
+              0.0069,
+              0.021
+            ]
+          },
+          "*non_native*": {
+            "n": 157,
+            "flagged": 0,
+            "false_flag": 0.0,
+            "ci95": [
+              0.0,
+              0.0239
+            ]
+          },
+          "amazon-reviews": {
+            "n": 70,
+            "flagged": 2,
+            "false_flag": 0.0286,
+            "ci95": [
+              0.0079,
+              0.0983
+            ]
+          },
+          "arxiv": {
+            "n": 103,
+            "flagged": 1,
+            "false_flag": 0.0097,
+            "ci95": [
+              0.0017,
+              0.053
+            ]
+          },
+          "ghostbuster-news": {
+            "n": 45,
+            "flagged": 2,
+            "false_flag": 0.0444,
+            "ci95": [
+              0.0123,
+              0.1483
+            ]
+          },
+          "ghostbuster-wp": {
+            "n": 44,
+            "flagged": 0,
+            "false_flag": 0.0,
+            "ci95": [
+              0.0,
+              0.0803
+            ]
+          },
+          "persuade": {
+            "n": 486,
+            "flagged": 1,
+            "false_flag": 0.0021,
+            "ci95": [
+              0.0004,
+              0.0116
+            ]
+          },
+          "stackexchange": {
+            "n": 114,
+            "flagged": 4,
+            "false_flag": 0.0351,
+            "ci95": [
+              0.0137,
+              0.0868
+            ]
+          },
+          "wikipedia": {
+            "n": 130,
+            "flagged": 2,
+            "false_flag": 0.0154,
+            "ci95": [
+              0.0042,
+              0.0544
+            ]
+          }
+        }
+      },
+      "heldout|150+": {
+        "ai": {
+          "*all*|chatgpt": {
+            "n": 229,
+            "flagged": 227,
+            "catch": 0.9913,
+            "ci95": [
+              0.9687,
+              0.9976
+            ]
+          },
+          "*all*|claude": {
+            "n": 230,
+            "flagged": 212,
+            "catch": 0.9217,
+            "ci95": [
+              0.8797,
+              0.9499
+            ]
+          },
+          "chatgpt|chatgpt": {
+            "n": 229,
+            "flagged": 227,
+            "catch": 0.9913,
+            "ci95": [
+              0.9687,
+              0.9976
+            ]
+          },
+          "claude|claude": {
+            "n": 230,
+            "flagged": 212,
+            "catch": 0.9217,
+            "ci95": [
+              0.8797,
+              0.9499
+            ]
+          }
+        },
+        "human": {
+          "*all*": {
+            "n": 273,
+            "flagged": 0,
+            "false_flag": 0.0,
+            "ci95": [
+              0.0,
+              0.0139
+            ]
+          },
+          "*non_native*": {
+            "n": 52,
+            "flagged": 0,
+            "false_flag": 0.0,
+            "ci95": [
+              0.0,
+              0.0688
+            ]
+          },
+          "amazon-reviews": {
+            "n": 3,
+            "flagged": 0,
+            "false_flag": 0.0,
+            "ci95": [
+              0.0,
+              0.5615
+            ]
+          },
+          "arxiv": {
+            "n": 14,
+            "flagged": 0,
+            "false_flag": 0.0,
+            "ci95": [
+              0.0,
+              0.2153
+            ]
+          },
+          "ghostbuster-news": {
+            "n": 15,
+            "flagged": 0,
+            "false_flag": 0.0,
+            "ci95": [
+              0.0,
+              0.2039
+            ]
+          },
+          "ghostbuster-wp": {
+            "n": 14,
+            "flagged": 0,
+            "false_flag": 0.0,
+            "ci95": [
+              0.0,
+              0.2153
+            ]
+          },
+          "persuade": {
+            "n": 161,
+            "flagged": 0,
+            "false_flag": 0.0,
+            "ci95": [
+              0.0,
+              0.0233
+            ]
+          },
+          "stackexchange": {
+            "n": 25,
+            "flagged": 0,
+            "false_flag": 0.0,
+            "ci95": [
+              0.0,
+              0.1332
+            ]
+          },
+          "wikipedia": {
+            "n": 41,
+            "flagged": 0,
+            "false_flag": 0.0,
+            "ci95": [
+              0.0,
+              0.0857
+            ]
+          }
+        }
+      },
+      "heldout|20-49": {
+        "ai": {
+          "*all*|chatgpt": {
+            "n": 368,
+            "flagged": 329,
+            "catch": 0.894,
+            "ci95": [
+              0.8584,
+              0.9215
+            ]
+          },
+          "*all*|claude": {
+            "n": 366,
+            "flagged": 263,
+            "catch": 0.7186,
+            "ci95": [
+              0.6704,
+              0.7622
+            ]
+          },
+          "chatgpt|chatgpt": {
+            "n": 368,
+            "flagged": 329,
+            "catch": 0.894,
+            "ci95": [
+              0.8584,
+              0.9215
+            ]
+          },
+          "claude|claude": {
+            "n": 366,
+            "flagged": 263,
+            "catch": 0.7186,
+            "ci95": [
+              0.6704,
+              0.7622
+            ]
+          }
+        },
+        "human": {
+          "*all*": {
+            "n": 365,
+            "flagged": 11,
+            "false_flag": 0.0301,
+            "ci95": [
+              0.0169,
+              0.0532
+            ]
+          },
+          "*non_native*": {
+            "n": 52,
+            "flagged": 0,
+            "false_flag": 0.0,
+            "ci95": [
+              0.0,
+              0.0688
+            ]
+          },
+          "amazon-reviews": {
+            "n": 38,
+            "flagged": 2,
+            "false_flag": 0.0526,
+            "ci95": [
+              0.0146,
+              0.1729
+            ]
+          },
+          "arxiv": {
+            "n": 45,
+            "flagged": 1,
+            "false_flag": 0.0222,
+            "ci95": [
+              0.0039,
+              0.1157
+            ]
+          },
+          "ghostbuster-news": {
+            "n": 15,
+            "flagged": 2,
+            "false_flag": 0.1333,
+            "ci95": [
+              0.0374,
+              0.3788
+            ]
+          },
+          "ghostbuster-wp": {
+            "n": 15,
+            "flagged": 0,
+            "false_flag": 0.0,
+            "ci95": [
+              0.0,
+              0.2039
+            ]
+          },
+          "persuade": {
+            "n": 162,
+            "flagged": 1,
+            "false_flag": 0.0062,
+            "ci95": [
+              0.0011,
+              0.0341
+            ]
+          },
+          "stackexchange": {
+            "n": 45,
+            "flagged": 3,
+            "false_flag": 0.0667,
+            "ci95": [
+              0.0229,
+              0.1786
+            ]
+          },
+          "wikipedia": {
+            "n": 45,
+            "flagged": 2,
+            "false_flag": 0.0444,
+            "ci95": [
+              0.0123,
+              0.1483
+            ]
+          }
+        }
+      },
+      "heldout|50-149": {
+        "ai": {
+          "*all*|chatgpt": {
+            "n": 336,
+            "flagged": 330,
+            "catch": 0.9821,
+            "ci95": [
+              0.9616,
+              0.9918
+            ]
+          },
+          "*all*|claude": {
+            "n": 354,
+            "flagged": 324,
+            "catch": 0.9153,
+            "ci95": [
+              0.8816,
+              0.94
+            ]
+          },
+          "chatgpt|chatgpt": {
+            "n": 336,
+            "flagged": 330,
+            "catch": 0.9821,
+            "ci95": [
+              0.9616,
+              0.9918
+            ]
+          },
+          "claude|claude": {
+            "n": 354,
+            "flagged": 324,
+            "catch": 0.9153,
+            "ci95": [
+              0.8816,
+              0.94
+            ]
+          }
+        },
+        "human": {
+          "*all*": {
+            "n": 354,
+            "flagged": 1,
+            "false_flag": 0.0028,
+            "ci95": [
+              0.0005,
+              0.0158
+            ]
+          },
+          "*non_native*": {
+            "n": 53,
+            "flagged": 0,
+            "false_flag": 0.0,
+            "ci95": [
+              0.0,
+              0.0676
+            ]
+          },
+          "amazon-reviews": {
+            "n": 29,
+            "flagged": 0,
+            "false_flag": 0.0,
+            "ci95": [
+              0.0,
+              0.117
+            ]
+          },
+          "arxiv": {
+            "n": 44,
+            "flagged": 0,
+            "false_flag": 0.0,
+            "ci95": [
+              0.0,
+              0.0803
+            ]
+          },
+          "ghostbuster-news": {
+            "n": 15,
+            "flagged": 0,
+            "false_flag": 0.0,
+            "ci95": [
+              0.0,
+              0.2039
+            ]
+          },
+          "ghostbuster-wp": {
+            "n": 15,
+            "flagged": 0,
+            "false_flag": 0.0,
+            "ci95": [
+              0.0,
+              0.2039
+            ]
+          },
+          "persuade": {
+            "n": 163,
+            "flagged": 0,
+            "false_flag": 0.0,
+            "ci95": [
+              0.0,
+              0.023
+            ]
+          },
+          "stackexchange": {
+            "n": 44,
+            "flagged": 1,
+            "false_flag": 0.0227,
+            "ci95": [
+              0.004,
+              0.1181
+            ]
+          },
+          "wikipedia": {
+            "n": 44,
+            "flagged": 0,
+            "false_flag": 0.0,
+            "ci95": [
+              0.0,
+              0.0803
+            ]
+          }
+        }
+      },
+      "holdout": {
+        "ai": {
+          "*all*|chatgpt": {
+            "n": 1181,
+            "flagged": 1122,
+            "catch": 0.95,
+            "ci95": [
+              0.9361,
+              0.9611
+            ]
+          },
+          "*all*|claude": {
+            "n": 1150,
+            "flagged": 986,
+            "catch": 0.8574,
+            "ci95": [
+              0.836,
+              0.8764
+            ]
+          },
+          "chatgpt|chatgpt": {
+            "n": 1181,
+            "flagged": 1122,
+            "catch": 0.95,
+            "ci95": [
+              0.9361,
+              0.9611
+            ]
+          },
+          "claude|claude": {
+            "n": 1150,
+            "flagged": 986,
+            "catch": 0.8574,
+            "ci95": [
+              0.836,
+              0.8764
+            ]
+          }
+        },
+        "human": {
+          "*all*": {
+            "n": 809,
+            "flagged": 27,
+            "false_flag": 0.0334,
+            "ci95": [
+              0.023,
+              0.0481
+            ]
+          },
+          "*non_native*": {
+            "n": 809,
+            "flagged": 27,
+            "false_flag": 0.0334,
+            "ci95": [
+              0.023,
+              0.0481
+            ]
+          },
+          "ellipse": {
+            "n": 633,
+            "flagged": 12,
+            "false_flag": 0.019,
+            "ci95": [
+              0.0109,
+              0.0328
+            ]
+          },
+          "toefl91": {
+            "n": 176,
+            "flagged": 15,
+            "false_flag": 0.0852,
+            "ci95": [
+              0.0523,
+              0.1358
+            ]
+          }
+        }
+      },
+      "holdout|150+": {
+        "ai": {
+          "*all*|chatgpt": {
+            "n": 323,
+            "flagged": 323,
+            "catch": 1.0,
+            "ci95": [
+              0.9882,
+              1.0
+            ]
+          },
+          "*all*|claude": {
+            "n": 317,
+            "flagged": 298,
+            "catch": 0.9401,
+            "ci95": [
+              0.9083,
+              0.9613
+            ]
+          },
+          "chatgpt|chatgpt": {
+            "n": 323,
+            "flagged": 323,
+            "catch": 1.0,
+            "ci95": [
+              0.9882,
+              1.0
+            ]
+          },
+          "claude|claude": {
+            "n": 317,
+            "flagged": 298,
+            "catch": 0.9401,
+            "ci95": [
+              0.9083,
+              0.9613
+            ]
+          }
+        },
+        "human": {
+          "*all*": {
+            "n": 208,
+            "flagged": 0,
+            "false_flag": 0.0,
+            "ci95": [
+              0.0,
+              0.0181
+            ]
+          },
+          "*non_native*": {
+            "n": 208,
+            "flagged": 0,
+            "false_flag": 0.0,
+            "ci95": [
+              0.0,
+              0.0181
+            ]
+          },
+          "ellipse": {
+            "n": 208,
+            "flagged": 0,
+            "false_flag": 0.0,
+            "ci95": [
+              0.0,
+              0.0181
+            ]
+          }
+        }
+      },
+      "holdout|20-49": {
+        "ai": {
+          "*all*|chatgpt": {
+            "n": 430,
+            "flagged": 381,
+            "catch": 0.886,
+            "ci95": [
+              0.8525,
+              0.9127
+            ]
+          },
+          "*all*|claude": {
+            "n": 417,
+            "flagged": 314,
+            "catch": 0.753,
+            "ci95": [
+              0.7094,
+              0.792
+            ]
+          },
+          "chatgpt|chatgpt": {
+            "n": 430,
+            "flagged": 381,
+            "catch": 0.886,
+            "ci95": [
+              0.8525,
+              0.9127
+            ]
+          },
+          "claude|claude": {
+            "n": 417,
+            "flagged": 314,
+            "catch": 0.753,
+            "ci95": [
+              0.7094,
+              0.792
+            ]
+          }
+        },
+        "human": {
+          "*all*": {
+            "n": 297,
+            "flagged": 18,
+            "false_flag": 0.0606,
+            "ci95": [
+              0.0387,
+              0.0938
+            ]
+          },
+          "*non_native*": {
+            "n": 297,
+            "flagged": 18,
+            "false_flag": 0.0606,
+            "ci95": [
+              0.0387,
+              0.0938
+            ]
+          },
+          "ellipse": {
+            "n": 210,
+            "flagged": 9,
+            "false_flag": 0.0429,
+            "ci95": [
+              0.0227,
+              0.0794
+            ]
+          },
+          "toefl91": {
+            "n": 87,
+            "flagged": 9,
+            "false_flag": 0.1034,
+            "ci95": [
+              0.0554,
+              0.1851
+            ]
+          }
+        }
+      },
+      "holdout|50-149": {
+        "ai": {
+          "*all*|chatgpt": {
+            "n": 428,
+            "flagged": 418,
+            "catch": 0.9766,
+            "ci95": [
+              0.9575,
+              0.9873
+            ]
+          },
+          "*all*|claude": {
+            "n": 416,
+            "flagged": 374,
+            "catch": 0.899,
+            "ci95": [
+              0.8663,
+              0.9244
+            ]
+          },
+          "chatgpt|chatgpt": {
+            "n": 428,
+            "flagged": 418,
+            "catch": 0.9766,
+            "ci95": [
+              0.9575,
+              0.9873
+            ]
+          },
+          "claude|claude": {
+            "n": 416,
+            "flagged": 374,
+            "catch": 0.899,
+            "ci95": [
+              0.8663,
+              0.9244
+            ]
+          }
+        },
+        "human": {
+          "*all*": {
+            "n": 304,
+            "flagged": 9,
+            "false_flag": 0.0296,
+            "ci95": [
+              0.0157,
+              0.0553
+            ]
+          },
+          "*non_native*": {
+            "n": 304,
+            "flagged": 9,
+            "false_flag": 0.0296,
+            "ci95": [
+              0.0157,
+              0.0553
+            ]
+          },
+          "ellipse": {
+            "n": 215,
+            "flagged": 3,
+            "false_flag": 0.014,
+            "ci95": [
+              0.0048,
+              0.0402
+            ]
+          },
+          "toefl91": {
+            "n": 89,
+            "flagged": 6,
+            "false_flag": 0.0674,
+            "ci95": [
+              0.0313,
+              0.1394
+            ]
+          }
+        }
+      },
+      "ood": {
+        "human": {
+          "*all*": {
+            "n": 1281,
+            "flagged": 23,
+            "false_flag": 0.018,
+            "ci95": [
+              0.012,
+              0.0268
+            ]
+          },
+          "ood-college-essay": {
+            "n": 210,
+            "flagged": 12,
+            "false_flag": 0.0571,
+            "ci95": [
+              0.033,
+              0.0972
+            ]
+          },
+          "ood-cs224n": {
+            "n": 362,
+            "flagged": 0,
+            "false_flag": 0.0,
+            "ci95": [
+              0.0,
+              0.0105
+            ]
+          },
+          "ood-gb-essay": {
+            "n": 447,
+            "flagged": 7,
+            "false_flag": 0.0157,
+            "ci95": [
+              0.0076,
+              0.032
+            ]
+          },
+          "ood-hewlett": {
+            "n": 262,
+            "flagged": 4,
+            "false_flag": 0.0153,
+            "ci95": [
+              0.006,
+              0.0386
+            ]
+          }
+        }
+      },
+      "ood|150+": {
+        "human": {
+          "*all*": {
+            "n": 379,
+            "flagged": 0,
+            "false_flag": 0.0,
+            "ci95": [
+              0.0,
+              0.01
+            ]
+          },
+          "ood-college-essay": {
+            "n": 70,
+            "flagged": 0,
+            "false_flag": 0.0,
+            "ci95": [
+              0.0,
+              0.052
+            ]
+          },
+          "ood-cs224n": {
+            "n": 75,
+            "flagged": 0,
+            "false_flag": 0.0,
+            "ci95": [
+              0.0,
+              0.0487
+            ]
+          },
+          "ood-gb-essay": {
+            "n": 148,
+            "flagged": 0,
+            "false_flag": 0.0,
+            "ci95": [
+              0.0,
+              0.0253
+            ]
+          },
+          "ood-hewlett": {
+            "n": 86,
+            "flagged": 0,
+            "false_flag": 0.0,
+            "ci95": [
+              0.0,
+              0.0428
+            ]
+          }
+        }
+      },
+      "ood|20-49": {
+        "human": {
+          "*all*": {
+            "n": 453,
+            "flagged": 19,
+            "false_flag": 0.0419,
+            "ci95": [
+              0.027,
+              0.0646
+            ]
+          },
+          "ood-college-essay": {
+            "n": 70,
+            "flagged": 9,
+            "false_flag": 0.1286,
+            "ci95": [
+              0.0691,
+              0.2266
+            ]
+          },
+          "ood-cs224n": {
+            "n": 145,
+            "flagged": 0,
+            "false_flag": 0.0,
+            "ci95": [
+              0.0,
+              0.0258
+            ]
+          },
+          "ood-gb-essay": {
+            "n": 150,
+            "flagged": 7,
+            "false_flag": 0.0467,
+            "ci95": [
+              0.0228,
+              0.0932
+            ]
+          },
+          "ood-hewlett": {
+            "n": 88,
+            "flagged": 3,
+            "false_flag": 0.0341,
+            "ci95": [
+              0.0117,
+              0.0955
+            ]
+          }
+        }
+      },
+      "ood|50-149": {
+        "human": {
+          "*all*": {
+            "n": 449,
+            "flagged": 4,
+            "false_flag": 0.0089,
+            "ci95": [
+              0.0035,
+              0.0227
+            ]
+          },
+          "ood-college-essay": {
+            "n": 70,
+            "flagged": 3,
+            "false_flag": 0.0429,
+            "ci95": [
+              0.0147,
+              0.1186
+            ]
+          },
+          "ood-cs224n": {
+            "n": 142,
+            "flagged": 0,
+            "false_flag": 0.0,
+            "ci95": [
+              0.0,
+              0.0263
+            ]
+          },
+          "ood-gb-essay": {
+            "n": 149,
+            "flagged": 0,
+            "false_flag": 0.0,
+            "ci95": [
+              0.0,
+              0.0251
+            ]
+          },
+          "ood-hewlett": {
+            "n": 88,
+            "flagged": 1,
+            "false_flag": 0.0114,
+            "ci95": [
+              0.002,
+              0.0616
+            ]
+          }
+        }
+      },
+      "tune": {
+        "ai": {
+          "*all*|chatgpt": {
+            "n": 917,
+            "flagged": 861,
+            "catch": 0.9389,
+            "ci95": [
+              0.9215,
+              0.9527
+            ]
+          },
+          "*all*|claude": {
+            "n": 954,
+            "flagged": 810,
+            "catch": 0.8491,
+            "ci95": [
+              0.8249,
+              0.8704
+            ]
+          },
+          "chatgpt|chatgpt": {
+            "n": 917,
+            "flagged": 861,
+            "catch": 0.9389,
+            "ci95": [
+              0.9215,
+              0.9527
+            ]
+          },
+          "claude|claude": {
+            "n": 954,
+            "flagged": 810,
+            "catch": 0.8491,
+            "ci95": [
+              0.8249,
+              0.8704
+            ]
+          }
+        },
+        "human": {
+          "*all*": {
+            "n": 1019,
+            "flagged": 10,
+            "false_flag": 0.0098,
+            "ci95": [
+              0.0053,
+              0.018
+            ]
+          },
+          "*non_native*": {
+            "n": 161,
+            "flagged": 0,
+            "false_flag": 0.0,
+            "ci95": [
+              0.0,
+              0.0233
+            ]
+          },
+          "amazon-reviews": {
+            "n": 76,
+            "flagged": 0,
+            "false_flag": 0.0,
+            "ci95": [
+              0.0,
+              0.0481
+            ]
+          },
+          "arxiv": {
+            "n": 107,
+            "flagged": 1,
+            "false_flag": 0.0093,
+            "ci95": [
+              0.0017,
+              0.0511
+            ]
+          },
+          "ghostbuster-news": {
+            "n": 45,
+            "flagged": 0,
+            "false_flag": 0.0,
+            "ci95": [
+              0.0,
+              0.0787
+            ]
+          },
+          "ghostbuster-wp": {
+            "n": 45,
+            "flagged": 1,
+            "false_flag": 0.0222,
+            "ci95": [
+              0.0039,
+              0.1157
+            ]
+          },
+          "persuade": {
+            "n": 496,
+            "flagged": 5,
+            "false_flag": 0.0101,
+            "ci95": [
+              0.0043,
+              0.0234
+            ]
+          },
+          "stackexchange": {
+            "n": 123,
+            "flagged": 1,
+            "false_flag": 0.0081,
+            "ci95": [
+              0.0014,
+              0.0446
+            ]
+          },
+          "wikipedia": {
+            "n": 127,
+            "flagged": 2,
+            "false_flag": 0.0157,
+            "ci95": [
+              0.0043,
+              0.0556
+            ]
+          }
+        }
+      },
+      "tune|150+": {
+        "ai": {
+          "*all*|chatgpt": {
+            "n": 214,
+            "flagged": 213,
+            "catch": 0.9953,
+            "ci95": [
+              0.974,
+              0.9992
+            ]
+          },
+          "*all*|claude": {
+            "n": 226,
+            "flagged": 206,
+            "catch": 0.9115,
+            "ci95": [
+              0.8673,
+              0.942
+            ]
+          },
+          "chatgpt|chatgpt": {
+            "n": 214,
+            "flagged": 213,
+            "catch": 0.9953,
+            "ci95": [
+              0.974,
+              0.9992
+            ]
+          },
+          "claude|claude": {
+            "n": 226,
+            "flagged": 206,
+            "catch": 0.9115,
+            "ci95": [
+              0.8673,
+              0.942
+            ]
+          }
+        },
+        "human": {
+          "*all*": {
+            "n": 287,
+            "flagged": 0,
+            "false_flag": 0.0,
+            "ci95": [
+              0.0,
+              0.0132
+            ]
+          },
+          "*non_native*": {
+            "n": 54,
+            "flagged": 0,
+            "false_flag": 0.0,
+            "ci95": [
+              0.0,
+              0.0664
+            ]
+          },
+          "amazon-reviews": {
+            "n": 2,
+            "flagged": 0,
+            "false_flag": 0.0,
+            "ci95": [
+              0.0,
+              0.6576
+            ]
+          },
+          "arxiv": {
+            "n": 18,
+            "flagged": 0,
+            "false_flag": 0.0,
+            "ci95": [
+              0.0,
+              0.1759
+            ]
+          },
+          "ghostbuster-news": {
+            "n": 15,
+            "flagged": 0,
+            "false_flag": 0.0,
+            "ci95": [
+              0.0,
+              0.2039
+            ]
+          },
+          "ghostbuster-wp": {
+            "n": 15,
+            "flagged": 0,
+            "false_flag": 0.0,
+            "ci95": [
+              0.0,
+              0.2039
+            ]
+          },
+          "persuade": {
+            "n": 166,
+            "flagged": 0,
+            "false_flag": 0.0,
+            "ci95": [
+              0.0,
+              0.0226
+            ]
+          },
+          "stackexchange": {
+            "n": 33,
+            "flagged": 0,
+            "false_flag": 0.0,
+            "ci95": [
+              0.0,
+              0.1043
+            ]
+          },
+          "wikipedia": {
+            "n": 38,
+            "flagged": 0,
+            "false_flag": 0.0,
+            "ci95": [
+              0.0,
+              0.0918
+            ]
+          }
+        }
+      },
+      "tune|20-49": {
+        "ai": {
+          "*all*|chatgpt": {
+            "n": 365,
+            "flagged": 323,
+            "catch": 0.8849,
+            "ci95": [
+              0.8481,
+              0.9137
+            ]
+          },
+          "*all*|claude": {
+            "n": 366,
+            "flagged": 280,
+            "catch": 0.765,
+            "ci95": [
+              0.719,
+              0.8056
+            ]
+          },
+          "chatgpt|chatgpt": {
+            "n": 365,
+            "flagged": 323,
+            "catch": 0.8849,
+            "ci95": [
+              0.8481,
+              0.9137
+            ]
+          },
+          "claude|claude": {
+            "n": 366,
+            "flagged": 280,
+            "catch": 0.765,
+            "ci95": [
+              0.719,
+              0.8056
+            ]
+          }
+        },
+        "human": {
+          "*all*": {
+            "n": 371,
+            "flagged": 7,
+            "false_flag": 0.0189,
+            "ci95": [
+              0.0092,
+              0.0384
+            ]
+          },
+          "*non_native*": {
+            "n": 53,
+            "flagged": 0,
+            "false_flag": 0.0,
+            "ci95": [
+              0.0,
+              0.0676
+            ]
+          },
+          "amazon-reviews": {
+            "n": 41,
+            "flagged": 0,
+            "false_flag": 0.0,
+            "ci95": [
+              0.0,
+              0.0857
+            ]
+          },
+          "arxiv": {
+            "n": 45,
+            "flagged": 1,
+            "false_flag": 0.0222,
+            "ci95": [
+              0.0039,
+              0.1157
+            ]
+          },
+          "ghostbuster-news": {
+            "n": 15,
+            "flagged": 0,
+            "false_flag": 0.0,
+            "ci95": [
+              0.0,
+              0.2039
+            ]
+          },
+          "ghostbuster-wp": {
+            "n": 15,
+            "flagged": 1,
+            "false_flag": 0.0667,
+            "ci95": [
+              0.0119,
+              0.2982
+            ]
+          },
+          "persuade": {
+            "n": 165,
+            "flagged": 3,
+            "false_flag": 0.0182,
+            "ci95": [
+              0.0062,
+              0.0521
+            ]
+          },
+          "stackexchange": {
+            "n": 45,
+            "flagged": 0,
+            "false_flag": 0.0,
+            "ci95": [
+              0.0,
+              0.0787
+            ]
+          },
+          "wikipedia": {
+            "n": 45,
+            "flagged": 2,
+            "false_flag": 0.0444,
+            "ci95": [
+              0.0123,
+              0.1483
+            ]
+          }
+        }
+      },
+      "tune|50-149": {
+        "ai": {
+          "*all*|chatgpt": {
+            "n": 338,
+            "flagged": 325,
+            "catch": 0.9615,
+            "ci95": [
+              0.9353,
+              0.9774
+            ]
+          },
+          "*all*|claude": {
+            "n": 362,
+            "flagged": 324,
+            "catch": 0.895,
+            "ci95": [
+              0.8592,
+              0.9226
+            ]
+          },
+          "chatgpt|chatgpt": {
+            "n": 338,
+            "flagged": 325,
+            "catch": 0.9615,
+            "ci95": [
+              0.9353,
+              0.9774
+            ]
+          },
+          "claude|claude": {
+            "n": 362,
+            "flagged": 324,
+            "catch": 0.895,
+            "ci95": [
+              0.8592,
+              0.9226
+            ]
+          }
+        },
+        "human": {
+          "*all*": {
+            "n": 361,
+            "flagged": 3,
+            "false_flag": 0.0083,
+            "ci95": [
+              0.0028,
+              0.0241
+            ]
+          },
+          "*non_native*": {
+            "n": 54,
+            "flagged": 0,
+            "false_flag": 0.0,
+            "ci95": [
+              0.0,
+              0.0664
+            ]
+          },
+          "amazon-reviews": {
+            "n": 33,
+            "flagged": 0,
+            "false_flag": 0.0,
+            "ci95": [
+              0.0,
+              0.1043
+            ]
+          },
+          "arxiv": {
+            "n": 44,
+            "flagged": 0,
+            "false_flag": 0.0,
+            "ci95": [
+              0.0,
+              0.0803
+            ]
+          },
+          "ghostbuster-news": {
+            "n": 15,
+            "flagged": 0,
+            "false_flag": 0.0,
+            "ci95": [
+              0.0,
+              0.2039
+            ]
+          },
+          "ghostbuster-wp": {
+            "n": 15,
+            "flagged": 0,
+            "false_flag": 0.0,
+            "ci95": [
+              0.0,
+              0.2039
+            ]
+          },
+          "persuade": {
+            "n": 165,
+            "flagged": 2,
+            "false_flag": 0.0121,
+            "ci95": [
+              0.0033,
+              0.0431
+            ]
+          },
+          "stackexchange": {
+            "n": 45,
+            "flagged": 1,
+            "false_flag": 0.0222,
+            "ci95": [
+              0.0039,
+              0.1157
+            ]
+          },
+          "wikipedia": {
+            "n": 44,
+            "flagged": 0,
+            "false_flag": 0.0,
+            "ci95": [
+              0.0,
+              0.0803
+            ]
+          }
+        }
+      }
+    }
+  },
+  "binoculars": {
+    "files": [
+      "/Users/nicky/workspace/projects/squint/calibration/data/scores-falcon-7b.jsonl"
+    ],
+    "joined": 1780,
+    "text_mismatch": 0,
+    "errors": 0,
+    "pairs": [
+      "{\"observer\": \"Falcon-7B (4-bit)\", \"performer\": \"Falcon-7B-Instruct (4-bit)\"}"
+    ]
+  },
+  "binoculars_needed": 8406,
+  "rows_scored": 10186,
+  "limited": false
+}
