@@ -22,6 +22,7 @@ How a night goes (all stages are separate processes in their own process groups)
   7. repeat    4-6 (without waiting for the generators) up to SQUINT_NIGHTLY_ROUNDS times while
                training finished and SQUINT_NIGHTLY_MIN_ROUND_MIN minutes are left; reports of
                later rounds are <date>-2.*, ...
+     chart     classifier/reports/progress.png from every report (classifier/progress.py)
   8. wait      for the generators until they finish or the window closes
 Heavy stages only start when Squint has no queued checks and no models loaded, no other
 heavy job (squint-score) is running, memory and disk are free enough. While one runs the same
@@ -414,6 +415,10 @@ class Night:
             if rc != EXIT_DONE or rnd > self.rounds or self.time_left() < self.min_round:
                 break
             log(f"round {rnd}: {self.time_left() / 60:.0f} min left, building from what the generators added since")
+
+        # chart every evaluated run (classifier/reports/progress.png); light, and never fails the night
+        if not self.args.stub:
+            self.run_light("chart", [PY, "-u", "classifier/progress.py"], 1, 5 * 60)
 
         # 8. let the generators use the rest of the window
         gens = {n: p for n, p in self.children.items() if n.startswith("generate-")}

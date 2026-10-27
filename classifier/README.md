@@ -134,6 +134,7 @@ night's summary in `reports/<date>-night.json`.
 | train | rest of the night, minus a 45 min eval reserve | ModernBERT-base, bf16 on MPS, MPS memory capped (`mps_memory_fraction`). Checkpoints every 200 steps and on SIGTERM; the next night resumes. |
 | evaluate | 10-45 min | newest finished run without a report |
 | round 2 | build, train, evaluate again | when training finished and 3 h are left (`SQUINT_NIGHTLY_ROUNDS`, `SQUINT_NIGHTLY_MIN_ROUND_MIN`); uses what the generators wrote since, without waiting for them. Report: `reports/<date>-2.*` |
+| chart | seconds | `reports/progress.png`: every evaluated run against the target (`progress.py`) |
 
 Heavy stages (train, evaluate) start only when Squint's `/api/status` shows no queued checks
 and no loaded or loading models, no `squint-score` job is running, `memory_pressure` reports

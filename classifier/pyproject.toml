@@ -10,6 +10,7 @@ dependencies = [
     "safetensors>=0.4",
     "sentencepiece>=0.2",   # DeBERTa-v3 tokenizer (fallback model)
     "protobuf>=4",          # DeBERTa-v3 tokenizer conversion
+    "matplotlib>=3.11.2",
 ]
 
 [tool.uv]
