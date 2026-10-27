@@ -5,7 +5,8 @@
 //   GET  /__mock/state            -> current switches
 //   POST /__mock/state {..}       -> merge switches (see `MockState`)
 //   GET  /__mock/fixtures         -> the sample texts
-// Mock password: "squint".
+// Mock password: "squint". For the public site: POST {"mode": "preview", "password_required": false};
+// {"offline": true} answers every /api call the way the edge Worker does when the Mac mini is down.
 
 import { readFileSync } from 'node:fs';
 import type { IncomingMessage, ServerResponse } from 'node:http';
@@ -15,6 +16,10 @@ import { fixtures, fixtureText } from './fixtures.ts';
 import { analyze, countWords, LIMITS, MOCK_ACCURACY, MODEL_PAIR, type MockClassifier } from './generate.ts';
 
 type MockState = {
+  /** contract v1.3: `preview` is the public site (classifier only, no word-level data, tighter limits) */
+  mode: 'full' | 'preview';
+  /** the Mac mini is unreachable: every /api call answers 503 offline, as the edge Worker does */
+  offline: boolean;
   password_required: boolean;
   calibrated: boolean;
   /** the trained classifier is promoted (calibration/classifier.json); false = Binoculars only */
@@ -37,6 +42,8 @@ type MockState = {
 };
 
 const DEFAULTS: MockState = {
+  mode: 'full',
+  offline: false,
   password_required: true,
   calibrated: true,
   classifier: true,
@@ -70,6 +77,24 @@ const CLASSIFIER_CFG: MockClassifier | null = (() => {
   }
 })();
 
+const PREVIEW_LIMITS = { ...LIMITS, max_words: 500, checks_per_hour: 3 };
+
+/** Contract v1.3 #2: a preview result keeps the shape with every word-level part emptied. */
+function toPreview(r: Result): Result {
+  return {
+    ...r,
+    token_count: null,
+    model_pair: null,
+    verdict: { ...r.verdict, detector: 'classifier', score: null, thresholds: null },
+    reasons: r.reasons.filter(x => x.kind === 'detector'),
+    stats: { top1_rate: null, top5_rate: null, mean_surprise: null, mean_expected_surprise: null, sentence_score_spread: null },
+    tokens: [],
+    sentences: [],
+    paragraphs: [],
+    segments: r.segments.map(x => ({ ...x, score: null })),
+  };
+}
+
 const PASSWORD = 'squint';
 const COOKIE = 'squint_mock_session';
 
@@ -81,6 +106,7 @@ type MockJob = {
   loadMs: number;
   scoreMs: number;
   fail: false | 'scoring_failed' | 'model_unavailable';
+  preview: boolean;
   result: Result | null;
 };
 
@@ -160,11 +186,14 @@ export function squintMockApi(): Plugin {
           : { code: 'scoring_failed', message: 'Scoring failed on the server. Please try again.' };
       return { ...base, status, position: 0, error };
     }
-    job.result ??= analyze(job.text, {
-      calibrated: state.calibrated,
-      classifier: state.classifier ? CLASSIFIER_CFG : null,
-      timing: { queue: Math.round(job.queueMs), load: Math.round(job.loadMs), score: Math.round(job.scoreMs) },
-    });
+    if (!job.result) {
+      const full = analyze(job.text, {
+        calibrated: state.calibrated,
+        classifier: state.mode === 'preview' || state.classifier ? CLASSIFIER_CFG : null,
+        timing: { queue: Math.round(job.queueMs), load: Math.round(job.loadMs), score: Math.round(job.scoreMs) },
+      });
+      job.result = job.preview ? toPreview(full) : full;
+    }
     return { ...base, status: 'done', position: 0, result: job.result };
   };
 
@@ -197,6 +226,10 @@ export function squintMockApi(): Plugin {
     // small, realistic network delay
     await new Promise(r => setTimeout(r, 90));
 
+    if (state.offline) return fail(res, 503, 'offline', 'Squint is offline right now. Try again later.');
+    const preview = state.mode === 'preview';
+    const limits = preview ? PREVIEW_LIMITS : LIMITS;
+
     if (path === '/api/session' && method === 'GET') {
       return send(res, 200, { authenticated: authed(req), password_required: state.password_required });
     }
@@ -223,14 +256,15 @@ export function squintMockApi(): Plugin {
     if (path === '/api/status' && method === 'GET') {
       const active = [...jobs.values()].filter(j => jobView(j).status === 'queued').length;
       return send(res, 200, {
+        mode: state.mode,
         model_state: modelsWarm ? 'ready' : [...jobs.values()].some(j => jobView(j).status === 'loading_model') ? 'loading' : 'unloaded',
         queue_length: active + state.queue_ahead,
-        model_pair: MODEL_PAIR,
+        model_pair: preview ? null : MODEL_PAIR,
         calibration: { version: state.calibrated ? '2026-10-07' : null, ready: state.calibrated },
         classifier: state.classifier && CLASSIFIER
           ? { version: CLASSIFIER.version, ready: true, min_words: CLASSIFIER.min_words }
           : { version: null, ready: false, min_words: null },
-        limits: LIMITS,
+        limits,
       });
     }
 
@@ -261,14 +295,14 @@ export function squintMockApi(): Plugin {
 
     if (path === '/api/analyze' && method === 'POST') {
       if (state.rate_limited) {
-        return fail(res, 429, 'rate_limited', `You've hit the limit of ${LIMITS.checks_per_hour} checks an hour. Try again in 21 min.`, { retry_after_s: 1260 });
+        return fail(res, 429, 'rate_limited', `You've hit the limit of ${limits.checks_per_hour} checks an hour. Try again in 21 min.`, { retry_after_s: 1260 });
       }
       const body = await readJson(req);
       if (typeof body?.text !== 'string') return fail(res, 400, 'invalid_request', 'Send the text to check as {"text": "..."}.');
       const text: string = body.text;
       const words = countWords(text);
-      if (words < LIMITS.min_words) return fail(res, 422, 'too_short', `Paste at least ${LIMITS.min_words} words. This text has ${words}.`);
-      if (words > LIMITS.max_words) return fail(res, 422, 'too_long', `Squint checks up to 2,500 words at a time. This text has ${words}.`);
+      if (words < limits.min_words) return fail(res, 422, 'too_short', `Paste at least ${limits.min_words} words. This text has ${words}.`);
+      if (words > limits.max_words) return fail(res, 422, 'too_long', `Squint checks up to ${limits.max_words} words at a time. This text has ${words}.`);
       if (state.busy) return fail(res, 503, 'busy', 'Squint is busy right now. Try again in a minute.');
       const id = `j_${Math.random().toString(36).slice(2, 10)}`;
       const job: MockJob = {
@@ -276,9 +310,10 @@ export function squintMockApi(): Plugin {
         text,
         created: Date.now(),
         queueMs: state.queue_ahead * 1600,
-        loadMs: state.cold_start && !modelsWarm ? 4200 : 0,
-        scoreMs: 1200 + Math.min(2400, words * 4),
+        loadMs: state.cold_start && !modelsWarm ? (preview ? 1500 : 4200) : 0,
+        scoreMs: preview ? 600 + words : 1200 + Math.min(2400, words * 4),
         fail: state.job_error === true ? 'scoring_failed' : state.job_error,
+        preview,
         result: null,
       };
       jobs.set(id, job);

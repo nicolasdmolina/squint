@@ -3,6 +3,7 @@ import { SegmentedControl, SegmentedControlItem } from '@astryxdesign/core/Segme
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, type KeyboardEvent, type MouseEvent, type ReactNode } from 'react';
 import { fmtInt } from '../lib/format';
 import { useMedia } from '../lib/hooks';
+import { flaggedPassages } from '../lib/passages';
 import { buildWords, leanShares, stopAt, type Word } from '../lib/words';
 import type { Result } from '../types';
 import { HeatText } from './HeatText';
@@ -212,17 +213,7 @@ export function Evidence({ result, text, head }: { result: Result; text: string;
   const current: Word | null = active != null ? stops[active] ?? null : null;
 
   // Flagged passages, merged where the overlapping windows touch: each becomes one margin bracket.
-  const passages = useMemo(() => {
-    const out: { start: number; end: number; ws: number; we: number }[] = [];
-    for (const seg of result.segments.filter(x => x.flagged)) {
-      const last = out[out.length - 1];
-      if (last && seg.start <= last.end) {
-        last.end = Math.max(last.end, seg.end);
-        last.we = Math.max(last.we, seg.word_end);
-      } else out.push({ start: seg.start, end: seg.end, ws: seg.word_start, we: seg.word_end });
-    }
-    return out;
-  }, [result.segments]);
+  const passages = useMemo(() => flaggedPassages(result.segments), [result.segments]);
 
   // Measure each passage's first and last line so its bracket spans exactly those lines.
   const [brackets, setBrackets] = useState<{ top: number; height: number }[]>([]);

@@ -1,4 +1,4 @@
-import { notes } from '../copy';
+import { DOWNLOAD_HREF, notes } from '../copy';
 import { ArrowRightIcon } from '../components/Icons';
 import { hrefFor } from '../lib/hooks';
 import type { Status } from '../types';
@@ -48,15 +48,24 @@ export function HowItWorks({ status }: { status: Status | null }) {
   const pair = status?.model_pair;
   const clf = !!status?.classifier?.ready;
   const minWords = status?.classifier?.min_words ?? 50;
+  // The public site runs the detector alone; the word marks live in Squint for Mac.
+  const preview = status?.mode === 'preview';
+  const mac = (
+    <a className="text-link" href={DOWNLOAD_HREF}>
+      Squint for Mac
+    </a>
+  );
   return (
     <div className="screen how page">
       <article className="galley page-sheet">
       <header className="screen-head">
         <h1>How it works</h1>
         <p className="lede">
-          {clf
-            ? 'Squint uses two methods. A detector trained on human and AI writing gives the verdict. A second method measures how predictable each word is, and that is what the word marks show.'
-            : 'Squint doesn’t hunt for giveaway words. It measures how predictable each word is, and compares that with how predictable it ought to be.'}
+          {preview
+            ? <>A detector trained on human and AI writing gives the verdict. A second method, in {mac}, marks how predictable each word is.</>
+            : clf
+              ? 'Squint uses two methods. A detector trained on human and AI writing gives the verdict. A second method measures how predictable each word is, and that is what the word marks show.'
+              : 'Squint doesn’t hunt for giveaway words. It measures how predictable each word is, and compares that with how predictable it ought to be.'}
         </p>
       </header>
 
@@ -81,15 +90,27 @@ export function HowItWorks({ status }: { status: Status | null }) {
               Under {minWords} words it won&rsquo;t give a verdict. Short snippets don&rsquo;t carry enough signal, and in
               testing the detector wrongly flagged about 2.5% of short human texts.
             </p>
+            {preview && (
+              <p>
+                From 150 words it also reads overlapping 150-word passages. The AI-written share is the share of words inside a
+                flagged passage, and each flagged passage is shaded on your text with a blue bracket beside it.
+              </p>
+            )}
           </div>
         </section>
       )}
 
       <section className="how-section" aria-labelledby="method-title">
         <h2 id="method-title" className="section-title">
-          {clf ? 'The word marks: two models, one ratio' : 'Two models, one ratio'}
+          {preview ? 'The word marks, in Squint for Mac' : clf ? 'The word marks: two models, one ratio' : 'Two models, one ratio'}
         </h2>
         <div className="prose">
+          {preview && (
+            <p>
+              The word marks need two 7-billion-parameter models, so they run on your own computer in {mac}. This site runs
+              the detector alone.
+            </p>
+          )}
           <p>
             A language model is a prediction machine. Give it the words so far and it guesses the next one. AI writing is made
             by picking likely next words, so it tends to be predictable. People surprise the models more.
@@ -142,7 +163,7 @@ export function HowItWorks({ status }: { status: Status | null }) {
         </h2>
         <div className="prose">
           <p>
-            In a result, every word has its own little score: was it more or less predictable than the models expected at
+            {preview ? 'In Squint for Mac' : 'In a result'}, every word has its own little score: was it more or less predictable than the models expected at
             that spot?
           </p>
         </div>
@@ -208,11 +229,13 @@ export function HowItWorks({ status }: { status: Status | null }) {
             Hover or tab to a word to see the model&rsquo;s top five guesses for that spot and where your word ranked. The
             sentence lean shown there is a hint for where to look, never a verdict on its own.
           </p>
-          <p>
-            For texts of 150 words or more, Squint also {clf ? 'runs the detector on' : 'scores'} overlapping 150-word
-            passages. The AI-written share is the share of words that sit inside a flagged passage, and each flagged passage gets
-            a blue bracket in the margin.
-          </p>
+          {!preview && (
+            <p>
+              For texts of 150 words or more, Squint also {clf ? 'runs the detector on' : 'scores'} overlapping 150-word
+              passages. The AI-written share is the share of words that sit inside a flagged passage, and each flagged passage gets
+              a blue bracket in the margin.
+            </p>
+          )}
         </div>
       </section>
 
@@ -242,11 +265,22 @@ export function HowItWorks({ status }: { status: Status | null }) {
           <div className="row">
             <dt className="row-label">Short text</dt>
             <dd className="row-body">
-              {clf
+              {preview
+                ? `A few sentences don’t give the detector much to read. Under 20 words Squint won’t try. Under ${minWords} it gives no verdict. Under 150 the verdict is marked low confidence, and there is no AI-written share.`
+                : clf
                 ? `A few sentences don’t give the models much to measure. Under 20 words Squint won’t try. Under ${minWords} it shows the word marks but no verdict. Under 150 the verdict is marked low confidence, and there is no AI-written share.`
                 : 'A few sentences don’t give the models much to measure. Under 20 words Squint won’t try. Under 150 it gives a rough verdict marked low confidence, and no AI-written share.'}
             </dd>
           </div>
+          {clf && (
+            <div className="row">
+              <dt className="row-label">College essays</dt>
+              <dd className="row-body">
+                Human college essays from a source the detector never trained on are wrongly flagged about 4 to 6% of the time.
+                That is the largest gap still open.
+              </dd>
+            </div>
+          )}
           <div className="row">
             <dt className="row-label">Non-native English writers</dt>
             <dd className="row-body">
@@ -258,8 +292,9 @@ export function HowItWorks({ status }: { status: Status | null }) {
           <div className="row">
             <dt className="row-label">Formulaic writing</dt>
             <dd className="row-body">
-              Forms, boilerplate, lists and heavily templated text are predictable by design. The two-model ratio corrects for
-              much of this, not all of it.
+              {preview
+                ? 'Forms, boilerplate, lists and heavily templated text are predictable by design and can read as machine-made. Weigh a verdict on them with care.'
+                : 'Forms, boilerplate, lists and heavily templated text are predictable by design. The two-model ratio corrects for much of this, not all of it.'}
             </dd>
           </div>
         </dl>

@@ -9,6 +9,9 @@ export default defineConfig(({ command, mode }) => {
   const plugins: PluginOption[] = [react()];
   if (mock) plugins.push(squintMockApi());
   return {
+    // Relative asset URLs: the same build is served at / (the Mac app) and /app/ (the public site).
+    // Routing is hash-based, so no path ever needs the base.
+    base: './',
     plugins,
     server: {
       host: '127.0.0.1',

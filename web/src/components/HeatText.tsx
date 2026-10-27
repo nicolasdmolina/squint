@@ -20,7 +20,7 @@ export const HeatText = memo(function HeatText({
 }) {
   const paragraphs: Paragraph[] = result.paragraphs.length
     ? result.paragraphs
-    : [{ i: 0, start: 0, end: text.length, score: result.verdict.score, lean: 'neutral' }];
+    : [{ i: 0, start: 0, end: text.length, score: result.verdict.score ?? 0, lean: 'neutral' }];
 
   let wi = 0;
   return (

@@ -7,11 +7,11 @@ import { CheckIcon } from './Icons';
  * The guide sentence (screen readers, and the textarea's description) says the same in words,
  * so this list stays out of the accessibility tree.
  */
-export function Stops({ n, limits, verdictAt }: { n: number; limits: Status['limits']; verdictAt: number | null }) {
+export function Stops({ n, limits, verdictAt, preview = false }: { n: number; limits: Status['limits']; verdictAt: number | null; preview?: boolean }) {
   const { min_words: min, percent_min_words: pct, max_words: max } = limits;
   const over = n > max;
   const stops = [
-    ...(verdictAt != null && verdictAt > min ? [{ v: min, label: 'Word marks' }] : []),
+    ...(!preview && verdictAt != null && verdictAt > min ? [{ v: min, label: 'Word marks' }] : []),
     { v: verdictAt ?? min, label: 'Verdict' },
     { v: pct, label: 'AI-written share' },
   ];

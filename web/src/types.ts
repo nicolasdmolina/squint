@@ -1,13 +1,19 @@
-// Shapes from docs/api-contract.md (v1 plus the v1.1 and v1.2 amendments). The server is the source of truth; keep these in step.
+// Shapes from docs/api-contract.md (v1 plus the v1.1, v1.2 and v1.3 amendments). The server is the source of truth; keep these in step.
 
 export type ModelPair = { observer: string; performer: string };
 
 export type Session = { authenticated: boolean; password_required: boolean };
 
+/** v1.3: `preview` is the public site: classifier only, no word-level data. */
+export type Mode = 'full' | 'preview';
+
 export type Status = {
+  /** v1.3; absent from older servers, which means full */
+  mode?: Mode;
   model_state: 'unloaded' | 'loading' | 'ready';
   queue_length: number;
-  model_pair: ModelPair;
+  /** null in preview, which never loads the Binoculars pair */
+  model_pair: ModelPair | null;
   calibration: { version: string | null; ready: boolean };
   /** v1.2: the trained detector that decides verdicts at 50+ words */
   classifier?: { version: string | null; ready: boolean; min_words: number | null };
@@ -54,7 +60,8 @@ export type Segment = {
   end: number;
   word_start: number;
   word_end: number;
-  score: number;
+  /** the Binoculars score; null in preview */
+  score: number | null;
   flagged: boolean;
 };
 
@@ -67,8 +74,8 @@ export type Verdict = {
   length_bucket: LengthBucket;
   /** v1.2: which method set the band. Absent from older servers, which means binoculars. */
   detector?: 'classifier' | 'binoculars';
-  /** the Binoculars score; it sets the band only when detector is binoculars */
-  score: number;
+  /** the Binoculars score; it sets the band only when detector is binoculars. null in preview. */
+  score: number | null;
   thresholds: { ai_below: number; human_above: number } | null;
   classifier?: {
     ai_probability: number | null;
@@ -81,17 +88,18 @@ export type Verdict = {
   explanation: string;
 };
 
+/** v1.3 #2: a preview result keeps the shape, with every word-level part empty or null. */
 export type Result = {
   word_count: number;
-  token_count: number;
-  model_pair: ModelPair;
+  token_count: number | null;
+  model_pair: ModelPair | null;
   verdict: Verdict;
   reasons: Reason[];
   stats: {
-    top1_rate: number;
-    top5_rate: number;
-    mean_surprise: number;
-    mean_expected_surprise: number;
+    top1_rate: number | null;
+    top5_rate: number | null;
+    mean_surprise: number | null;
+    mean_expected_surprise: number | null;
     /** null with fewer than two sentences of 8+ scored tokens (v1.1) */
     sentence_score_spread: number | null;
   };
@@ -139,3 +147,6 @@ export type ClassifierAccuracy = {
 };
 
 export type ApiErrorBody = { error: { code: string; message: string; retry_after_s?: number } };
+
+/** A result without word-level data: the public preview server's (contract v1.3). */
+export const isPreviewResult = (r: Result) => r.model_pair == null || r.token_count == null;

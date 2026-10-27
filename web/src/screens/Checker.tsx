@@ -2,6 +2,7 @@ import { Button } from '@astryxdesign/core/Button';
 import { useEffect, useMemo, useRef, useState, type ChangeEvent, type DragEvent, type KeyboardEvent } from 'react';
 import { api, ApiError } from '../api';
 import { Evidence } from '../components/Evidence';
+import { PreviewEvidence } from '../components/PreviewEvidence';
 import { AlertIcon, CloseIcon, FileIcon, UploadIcon } from '../components/Icons';
 import { Stops } from '../components/LengthMeter';
 import { VerdictHead } from '../components/Readout';
@@ -9,7 +10,7 @@ import { StageRows, type Progress } from '../components/StageRows';
 import { describeError, lengthGuide, LIMITS_FALLBACK, type UiError } from '../copy';
 import { countWords, fmtInt, words } from '../lib/format';
 import { reflowPdfText } from '../lib/reflow';
-import type { Result, Status } from '../types';
+import { isPreviewResult, type Result, type Status } from '../types';
 
 type Run =
   | { kind: 'idle' }
@@ -25,6 +26,7 @@ const sleep = (ms: number) => new Promise(r => window.setTimeout(r, ms));
 
 export function Checker({ status, onChecked }: { status: Status | null; onChecked: () => void }) {
   const limits = status?.limits ?? LIMITS_FALLBACK;
+  const preview = status?.mode === 'preview';
   const calibrated = status ? status.calibration.ready : true;
   const [text, setText] = useState('');
   const [run, setRun] = useState<Run>({ kind: 'idle' });
@@ -42,7 +44,7 @@ export function Checker({ status, onChecked }: { status: Status | null; onChecke
 
   const n = useMemo(() => countWords(text), [text]);
   const clfMin = status?.classifier?.ready ? status.classifier.min_words : null;
-  const guide = lengthGuide(n, limits, calibrated, clfMin);
+  const guide = lengthGuide(n, limits, calibrated, clfMin, preview);
   const running = run.kind === 'running';
 
   // announce only when what you'd get changes, not on every keystroke
@@ -91,7 +93,7 @@ export function Checker({ status, onChecked }: { status: Status | null; onChecke
     if (running || upload.busy) return;
     const count = countWords(source);
     if (count < limits.min_words || count > limits.max_words) {
-      setInputError(describeError(new ApiError(422, count < limits.min_words ? 'too_short' : 'too_long', ''), limits));
+      setInputError(describeError(new ApiError(422, count < limits.min_words ? 'too_short' : 'too_long', ''), limits, preview));
       areaRef.current?.focus();
       return;
     }
@@ -141,11 +143,11 @@ export function Checker({ status, onChecked }: { status: Status | null; onChecke
         return;
       }
       if (e instanceof ApiError && (e.code === 'too_short' || e.code === 'too_long')) {
-        setInputError(describeError(e, limits));
+        setInputError(describeError(e, limits, preview));
         setRun({ kind: 'idle' });
         return;
       }
-      setRun({ kind: 'failed', error: describeError(e, limits), text: source });
+      setRun({ kind: 'failed', error: describeError(e, limits, preview), text: source });
       onChecked();
     }
   };
@@ -193,7 +195,7 @@ export function Checker({ status, onChecked }: { status: Status | null; onChecke
     } catch (e) {
       if ((e as Error).name === 'AbortError') return;
       setUpload({ busy: false, note: null, undo: null });
-      setInputError(describeError(e, limits));
+      setInputError(describeError(e, limits, preview));
     }
   };
 
@@ -217,13 +219,14 @@ export function Checker({ status, onChecked }: { status: Status | null; onChecke
   };
 
   if (run.kind === 'done') {
+    const head = <VerdictHead result={run.result} percentMin={limits.percent_min_words} titleRef={titleRef} onAnother={startOver} onEdit={backToEdit} />;
     return (
       <div className="screen checker is-done">
-        <Evidence
-          result={run.result}
-          text={run.text}
-          head={<VerdictHead result={run.result} percentMin={limits.percent_min_words} titleRef={titleRef} onAnother={startOver} onEdit={backToEdit} />}
-        />
+        {isPreviewResult(run.result) ? (
+          <PreviewEvidence result={run.result} text={run.text} head={head} />
+        ) : (
+          <Evidence result={run.result} text={run.text} head={head} />
+        )}
       </div>
     );
   }
@@ -311,6 +314,14 @@ export function Checker({ status, onChecked }: { status: Status | null; onChecke
                 <AlertIcon size={18} />
                 <p>
                   <strong>{error.title}</strong> {error.body}
+                  {error.link && (
+                    <>
+                      {' '}
+                      <a className="text-link" href={error.link.href}>
+                        {error.link.label}
+                      </a>
+                    </>
+                  )}
                 </p>
               </div>
             )}
@@ -337,18 +348,20 @@ export function Checker({ status, onChecked }: { status: Status | null; onChecke
         </div>
 
         <aside className="margin" aria-label="Margin notes">
-          {running ? <StageRows p={run.progress} /> : <Stops n={n} limits={limits} verdictAt={clfMin} />}
+          {running ? <StageRows p={run.progress} preview={preview} /> : <Stops n={n} limits={limits} verdictAt={clfMin} preview={preview} />}
           <p id="sample-guide" className="sr-only">
             {guide.text}
           </p>
-          {!running && <ModelNote status={status} />}
+          {!running && !preview && <ModelNote status={status} />}
           {status && !calibrated && !status.classifier?.ready && (
             <div className="query">
               <p className="query-tag">Not tuned yet</p>
               <p className="query-text">You&rsquo;ll get the word marks, but no verdict or AI-written share.</p>
             </div>
           )}
-          <p className="margin-quiet">Nothing you paste is stored.</p>
+          <p className="margin-quiet">
+            {preview && `${limits.checks_per_hour} ${limits.checks_per_hour === 1 ? 'check' : 'checks'} an hour. `}Nothing you paste is stored.
+          </p>
         </aside>
       </div>
 

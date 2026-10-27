@@ -2,7 +2,7 @@ import { Button } from '@astryxdesign/core/Button';
 import { useEffect, useState, type RefObject } from 'react';
 import { bandLine, gap, gapBinoculars } from '../copy';
 import { fmtInt, words } from '../lib/format';
-import type { Result } from '../types';
+import { isPreviewResult, type Result } from '../types';
 
 /** The editor's note at the head of the galley: how long, the band in large type, one plain sentence. */
 export function VerdictHead({
@@ -39,7 +39,7 @@ export function VerdictHead({
           <b>{v.ai_percent}%</b> of the text reads as AI-written
         </p>
       )}
-      {v.detector !== 'classifier' && v.thresholds && <Duochrome score={v.score} thresholds={v.thresholds} />}
+      {v.detector !== 'classifier' && v.thresholds && v.score != null && <Duochrome score={v.score} thresholds={v.thresholds} />}
       <div className="verdict-actions">
         <Button label="Check another" variant="primary" onClick={onAnother} />
         <Button label="Edit text" variant="secondary" onClick={onEdit} />
@@ -57,7 +57,7 @@ function verdictLine(result: Result): string {
     const to = Math.max(...flagged.map(s => s.word_end));
     return `Words ${fmtInt(from)} to ${fmtInt(to)} read most like ChatGPT or Claude. Treat it as a reason to look closer, not proof.`;
   }
-  return bandLine(v.band, v.classifier?.min_words ?? 50);
+  return bandLine(v.band, v.classifier?.min_words ?? 50, isPreviewResult(result));
 }
 
 /** The margin's opening: every figure in one tabular column. */
@@ -65,25 +65,30 @@ export function MarginFacts({ result }: { result: Result }) {
   const v = result.verdict;
   const s = result.stats;
   const pct = (x: number) => `${Math.round(x * 100)}%`;
-  const rows: [string, string][] = [
-    ...(v.ai_percent != null ? ([['AI-written share', `${v.ai_percent}%`]] as [string, string][]) : []),
-    ["Model's first guess", pct(s.top1_rate)],
-    ['In its top five', pct(s.top5_rate)],
-    ['Predictability', v.score.toFixed(3)],
-  ];
+  // Preview results (contract v1.3) carry no Binoculars figures: those rows drop out.
+  const rows = (
+    [
+      ['AI-written share', v.ai_percent != null ? `${v.ai_percent}%` : null],
+      ["Model's first guess", s.top1_rate != null ? pct(s.top1_rate) : null],
+      ['In its top five', s.top5_rate != null ? pct(s.top5_rate) : null],
+      ['Predictability', v.score != null ? v.score.toFixed(3) : null],
+    ] as [string, string | null][]
+  ).filter((r): r is [string, string] => r[1] != null);
   return (
     <>
-      <table className="figures">
-        <caption className="sr-only">Figures for this text</caption>
-        <tbody>
-          {rows.map(([k, val]) => (
-            <tr key={k} className={k === 'AI-written share' ? 'is-lead' : undefined}>
-              <th scope="row">{k}</th>
-              <td>{val}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+      {rows.length > 0 && (
+        <table className={rows.length === 1 && rows[0][0] === 'AI-written share' ? 'figures is-lead-only' : 'figures'}>
+          <caption className="sr-only">Figures for this text</caption>
+          <tbody>
+            {rows.map(([k, val]) => (
+              <tr key={k} className={k === 'AI-written share' ? 'is-lead' : undefined}>
+                <th scope="row">{k}</th>
+                <td>{val}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
       {v.ai_percent == null && v.band !== 'uncalibrated' && v.band !== 'too_short' && (
         <p className="margin-quiet">The AI-written share starts at 150 words.</p>
       )}

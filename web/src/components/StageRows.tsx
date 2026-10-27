@@ -1,4 +1,4 @@
-import { queueLine, stage } from '../copy';
+import { queueLine, stage, stagePreview } from '../copy';
 import { useNow } from '../lib/hooks';
 import { words } from '../lib/format';
 import type { JobStatus } from '../types';
@@ -19,7 +19,7 @@ const SLOW_S = 30;
 type RowState = 'pending' | 'active' | 'done' | 'skipped';
 
 /** Honest progress: each stage is one row that restyles in place as the job moves, and stays lit until the next lands. */
-export function StageRows({ p }: { p: Progress }) {
+export function StageRows({ p, preview = false }: { p: Progress; preview?: boolean }) {
   const now = useNow(true);
   const s = p.status;
   const queue: RowState = s === 'submitting' || s === 'queued' ? 'active' : 'done';
@@ -40,7 +40,18 @@ export function StageRows({ p }: { p: Progress }) {
       key: 'warm',
       state: warm,
       name: stage.warmup.name,
-      text: warm === 'active' ? stage.warmup.active : warm === 'done' ? stage.warmup.done : warm === 'skipped' ? stage.warmup.skipped : stage.warmup.pending,
+      text:
+        warm === 'active'
+          ? preview
+            ? stagePreview.warmup.active
+            : stage.warmup.active
+          : warm === 'done'
+            ? stage.warmup.done
+            : warm === 'skipped'
+              ? stage.warmup.skipped
+              : preview
+                ? stagePreview.warmup.pending
+                : stage.warmup.pending,
       time: warm === 'active' ? secs(p.warmStart) : warm === 'done' ? secs(p.warmStart, p.scoreStart) : null,
     },
     {
@@ -49,8 +60,10 @@ export function StageRows({ p }: { p: Progress }) {
       name: stage.scoring.name,
       text:
         score === 'active'
-          ? `Reading ${words(p.words)} with both models.${(secs(p.scoreStart) ?? 0) >= SLOW_S ? ` ${stage.scoring.slow}` : ''}`
-          : stage.scoring.pending,
+          ? `Reading ${words(p.words)}${preview ? '' : ' with both models'}.${(secs(p.scoreStart) ?? 0) >= SLOW_S ? ` ${stage.scoring.slow}` : ''}`
+          : preview
+            ? stagePreview.scoring.pending
+            : stage.scoring.pending,
       time: score === 'active' ? secs(p.scoreStart) : null,
     },
   ];

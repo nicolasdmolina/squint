@@ -676,6 +676,26 @@ em,
   }
 }
 
+/* Preview (public site): the classifier's flagged passages, one blue-pencil stroke under a pale wash. */
+.passage {
+  color: inherit;
+  background: var(--blue-2);
+  text-decoration: underline solid var(--blue) 1.5px;
+  text-underline-offset: 0.28em;
+  text-decoration-skip-ink: none;
+  border-radius: var(--r-mark);
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+  transition: background-color var(--fast) var(--ease);
+}
+.passage[data-current] {
+  background: var(--blue-3);
+}
+.margin-link {
+  align-self: flex-start;
+  font-size: var(--t-sm);
+}
+
 /* Margin figures: one tight tabular column. */
 .figures {
   width: 100%;
@@ -1311,6 +1331,12 @@ tr[data-mine] .wd-p {
   color: var(--ink);
   font-weight: 650;
 }
+.boot-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--s3) var(--s5);
+}
 
 /* ------------------------------------------------------------------ narrow screens */
 
@@ -1333,7 +1359,8 @@ tr[data-mine] .wd-p {
   .verdict-share {
     display: block;
   }
-  .figures tr.is-lead {
+  .figures tr.is-lead,
+  .figures.is-lead-only {
     display: none;
   }
   .margin {
@@ -1425,4 +1452,9 @@ tr[data-mine] .wd-p {
   .bracket {
     border-color: CanvasText;
   }
+}
+
+/* keep the words/time line above the verdict clear of the sticky rail */
+#checker-title {
+  scroll-margin-top: calc(var(--rail-h) + var(--s5) + 32px);
 }

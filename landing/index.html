@@ -1,0 +1,681 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Squint · See why text reads like AI</title>
+<meta name="description" content="Squint checks whether writing was likely made by AI and marks the exact words behind its answer. Runs on one private machine. Nothing you paste is stored.">
+<meta property="og:title" content="Squint · See why text reads like AI">
+<meta property="og:description" content="An AI writing check that shows its working, word by word.">
+<meta property="og:type" content="website">
+<meta property="og:image" content="og.png">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  color-scheme: light;
+  --bg: #f6f7f6;
+  --surface: #ffffff;
+  --surface-2: #eef1f0;
+  --ink: #111417;
+  --ink-2: #3f454c;
+  --muted: #5f666e;
+  --line: #dde2e0;
+  --line-strong: #b9c1be;
+  --nav: rgba(255, 255, 255, 0.72);
+  --panel: rgba(246, 247, 246, 0.94);
+  --head-from: #000000;
+  --head-to: #666666;
+  --ai: #0a6870;
+  --ai-tint: #d4ecec;
+  --hu: #ad2f4f;
+  --hu-tint: #f6dde3;
+  --shadow: 0 1px 2px rgba(17, 20, 23, 0.06), 0 24px 48px -24px rgba(17, 20, 23, 0.18);
+  --ease: cubic-bezier(0.22, 1, 0.36, 1);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --bg: #181818; --surface: #1f1f1f; --surface-2: #272727;
+    --ink: #f2f2f2; --ink-2: #c9c9c9; --muted: #9b9b9b;
+    --line: #313131; --line-strong: #474747;
+    --nav: rgba(31, 31, 31, 0.72); --panel: rgba(24, 24, 24, 0.94);
+    --head-from: #ffffff; --head-to: #9b9b9b;
+    --ai: #63c7c6; --ai-tint: #1c3b3c; --hu: #f291a8; --hu-tint: #45222c;
+    --shadow: 0 1px 2px rgba(0, 0, 0, 0.5), 0 24px 48px -24px rgba(0, 0, 0, 0.8);
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #181818; --surface: #1f1f1f; --surface-2: #272727;
+  --ink: #f2f2f2; --ink-2: #c9c9c9; --muted: #9b9b9b;
+  --line: #313131; --line-strong: #474747;
+  --nav: rgba(31, 31, 31, 0.72); --panel: rgba(24, 24, 24, 0.94);
+  --head-from: #ffffff; --head-to: #9b9b9b;
+  --ai: #63c7c6; --ai-tint: #1c3b3c; --hu: #f291a8; --hu-tint: #45222c;
+  --shadow: 0 1px 2px rgba(0, 0, 0, 0.5), 0 24px 48px -24px rgba(0, 0, 0, 0.8);
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+html { scroll-behavior: smooth; scroll-padding-top: 96px; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: "Geist", system-ui, sans-serif;
+  font-size: 1rem; line-height: 1.5rem;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+h1, h2, h3, p { margin: 0; }
+h1, h2, h3 { text-wrap: balance; font-weight: 600; }
+p, li, dd { text-wrap: pretty; }
+a { color: inherit; }
+:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; border-radius: 4px; }
+.wrap { max-width: 1120px; margin: 0 auto; padding: 0 24px; }
+@media (max-width: 640px) { .wrap { padding: 0 16px; } }
+
+.skip {
+  position: fixed; top: 8px; left: 8px; z-index: 100;
+  background: var(--ink); color: var(--bg); padding: 8px 12px; border-radius: 8px;
+  font-weight: 600; text-decoration: none;
+  transform: translateY(-64px); transition: transform 300ms var(--ease);
+}
+.skip:focus { transform: none; }
+
+/* Buttons */
+.btn {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 8px 12px; border-radius: 8px; border: 0;
+  font: inherit; font-size: 1rem; line-height: 1.5rem; font-weight: 600;
+  text-decoration: none; cursor: pointer;
+  transition: transform 300ms var(--ease), opacity 300ms var(--ease);
+}
+.btn:hover { transform: translateY(-1px); }
+.btn:active { transform: scale(0.98); }
+.btn-primary { background: var(--ink); color: var(--bg); }
+.btn-primary:hover { opacity: 0.88; }
+.btn-sm { font-size: 0.875rem; line-height: 1.25rem; }
+.i { width: 1em; height: 1em; flex: none; fill: none; stroke: currentColor; stroke-width: 1.75; stroke-linecap: round; stroke-linejoin: round; }
+.btn .i { font-size: 1rem; }
+
+/* Nav */
+.nav {
+  position: fixed; top: 16px; left: 50%; z-index: 50;
+  transform: translateX(-50%);
+  display: flex; align-items: center; gap: 24px;
+  padding: 8px 8px 8px 16px; border-radius: 16px;
+  background: var(--nav); border: 1px solid var(--line);
+  -webkit-backdrop-filter: blur(16px); backdrop-filter: blur(16px);
+  width: max-content; max-width: calc(100% - 32px);
+}
+.brand { display: inline-flex; align-items: center; gap: 8px; font-weight: 600; text-decoration: none; font-size: 1.125rem; line-height: 1.75rem; }
+.brand svg { width: 24px; height: 24px; }
+.nav-links { display: flex; gap: 4px; list-style: none; margin: 0; padding: 0; }
+.nav-links a {
+  display: block; padding: 4px 12px; border-radius: 8px;
+  font-size: 0.875rem; line-height: 1.25rem; font-weight: 500; color: var(--muted); text-decoration: none;
+  transition: opacity 300ms var(--ease), background-color 300ms var(--ease), color 300ms var(--ease);
+}
+.nav-links a:hover { color: var(--ink); background: var(--surface-2); }
+.nav-links a[aria-current="true"] { color: var(--ink); background: var(--surface-2); }
+.toggle {
+  display: none; width: 40px; height: 40px; border: 0; border-radius: 8px;
+  background: transparent; color: var(--ink); cursor: pointer; position: relative;
+}
+.toggle span {
+  position: absolute; left: 12px; width: 16px; height: 2px; border-radius: 2px; background: currentColor;
+  transition: transform 500ms var(--ease);
+}
+.toggle span:first-child { transform: translateY(-4px); }
+.toggle span:last-child { transform: translateY(4px); }
+.menu-open .toggle span:first-child { transform: rotate(45deg); }
+.menu-open .toggle span:last-child { transform: rotate(-45deg); }
+.panel {
+  position: fixed; inset: 0; z-index: 40;
+  background: var(--panel); -webkit-backdrop-filter: blur(24px); backdrop-filter: blur(24px);
+  padding: 96px 24px 32px;
+  opacity: 0; pointer-events: none; transition: opacity 500ms var(--ease);
+}
+.menu-open .panel { opacity: 1; pointer-events: auto; }
+.panel ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.panel ul a {
+  display: block; padding: 12px 0; font-size: 1.875rem; line-height: 2.25rem; font-weight: 600; text-decoration: none;
+  opacity: 0; transform: translateY(24px);
+  transition: opacity 500ms var(--ease), transform 500ms var(--ease);
+}
+.panel .btn { margin-top: 24px; opacity: 0; transform: translateY(24px); transition: opacity 500ms var(--ease), transform 500ms var(--ease); }
+.menu-open .panel ul a, .menu-open .panel .btn { opacity: 1; transform: none; }
+@media (max-width: 767px) {
+  .nav { left: 16px; right: 16px; transform: none; width: auto; justify-content: space-between; gap: 8px; }
+  .nav-links, .nav .btn { display: none; }
+  .toggle { display: block; }
+}
+@media (min-width: 768px) { .panel { display: none; } }
+
+/* Sections */
+main section { padding: 96px 0; }
+.section-head { max-width: 680px; margin-bottom: 48px; }
+.section-head h2 { font-size: 2.25rem; line-height: 2.5rem; letter-spacing: -0.02em; }
+.section-head p { margin-top: 16px; font-size: 1.125rem; line-height: 1.75rem; color: var(--ink-2); }
+@media (max-width: 640px) {
+  main section { padding: 64px 0; }
+  .section-head h2 { font-size: 1.875rem; line-height: 2.25rem; }
+}
+
+/* Hero */
+.hero { padding: 160px 0 80px; }
+.hero-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 64px; align-items: center; }
+.hero h1 {
+  max-width: 680px;
+  font-size: 3.75rem; line-height: 1; letter-spacing: -0.03em; padding-bottom: 4px;
+  background: linear-gradient(90deg, var(--head-from), var(--head-to));
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+}
+.hero .sub { max-width: 680px; margin-top: 24px; font-size: 1.125rem; line-height: 1.75rem; color: var(--ink-2); }
+.hero .actions { margin-top: 32px; display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+.proof { display: inline-flex; align-items: center; gap: 8px; font-size: 0.875rem; line-height: 1.25rem; color: var(--muted); }
+.proof b { color: var(--ink); font-weight: 600; font-variant-numeric: tabular-nums; }
+@media (max-width: 1023px) {
+  .hero-grid { grid-template-columns: minmax(0, 1fr); gap: 48px; }
+}
+@media (max-width: 640px) {
+  .hero { padding: 112px 0 48px; }
+  .hero h1 { font-size: 2.25rem; line-height: 2.5rem; }
+  .hero h1 br { display: none; }
+}
+
+/* Demo card */
+.demo {
+  background: var(--surface); border: 1px solid var(--line); border-radius: 24px;
+  padding: 8px; box-shadow: var(--shadow);
+}
+.demo-top { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 8px 12px 12px; font-size: 0.875rem; line-height: 1.25rem; color: var(--muted); }
+.demo-top b { color: var(--ink); font-weight: 600; }
+.legend { display: flex; gap: 12px; flex-wrap: wrap; }
+.legend span { display: inline-flex; align-items: center; gap: 4px; }
+.legend i.k { display: inline-block; width: 16px; border-bottom: 2px solid var(--ai); }
+.legend i.k.hu { border-bottom-style: dotted; border-color: var(--hu); }
+.sheet { background: var(--surface-2); border-radius: 16px; padding: 24px; }
+.sample { font-size: 1.125rem; line-height: 2rem; color: var(--ink); }
+.w { border-radius: 4px; padding: 0 2px; margin: 0 -2px; cursor: pointer; transition: background-color 300ms var(--ease); }
+.w.ai { text-decoration: underline solid var(--ai); text-decoration-thickness: 2px; text-underline-offset: 4px; }
+.w.hu { text-decoration: underline dotted var(--hu); text-decoration-thickness: 2px; text-underline-offset: 4px; }
+.w.s2.ai, .w.s3.ai { background: var(--ai-tint); }
+.w.s2.hu, .w.s3.hu { background: var(--hu-tint); }
+.w.s3 { text-decoration-thickness: 3px; }
+.w[aria-pressed="true"] { outline: 2px solid var(--ink); outline-offset: 1px; }
+.lens { margin-top: 8px; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 16px; padding: 16px; }
+.lens-word { font-size: 1.875rem; line-height: 2.25rem; font-weight: 600; letter-spacing: -0.02em; }
+.lens-lean { margin-top: 8px; display: inline-flex; align-items: center; gap: 8px; font-size: 0.875rem; line-height: 1.25rem; font-weight: 500; color: var(--ink-2); }
+.lens-lean::before { content: ""; width: 16px; border-bottom: 2px solid var(--ai); }
+.lens-lean.hu::before { border-bottom-style: dotted; border-color: var(--hu); }
+.lens-rank { margin-top: 4px; font-size: 0.875rem; line-height: 1.25rem; color: var(--muted); }
+.guesses { list-style: none; margin: 0; padding: 0; font-size: 0.875rem; line-height: 1.25rem; }
+.guesses li { display: flex; justify-content: space-between; gap: 12px; padding: 4px 8px; border-radius: 4px; color: var(--ink-2); }
+.guesses li.hit { background: var(--surface-2); color: var(--ink); font-weight: 600; }
+.guesses li span:last-child { color: var(--muted); font-variant-numeric: tabular-nums; }
+.lens-cap { grid-column: 1 / -1; font-size: 0.75rem; line-height: 1rem; color: var(--muted); }
+@media (max-width: 640px) {
+  .demo-top { flex-direction: column; align-items: flex-start; }
+  .sheet { padding: 16px; }
+  .sample { font-size: 1rem; line-height: 1.75rem; }
+  .lens { grid-template-columns: minmax(0, 1fr); }
+}
+
+/* Contrast */
+.versus { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 24px; }
+.vcard { border: 1px solid var(--line); border-radius: 24px; padding: 32px; background: var(--surface); }
+.vcard h3 { font-size: 1.25rem; line-height: 1.75rem; }
+.vcard p { margin-top: 8px; color: var(--ink-2); }
+.gauge { margin-top: 24px; display: flex; align-items: baseline; gap: 12px; }
+.gauge strong { font-size: 3rem; line-height: 1; font-weight: 600; color: var(--muted); font-variant-numeric: tabular-nums; }
+.gauge span { color: var(--muted); }
+.vcard ul { margin: 24px 0 0; padding: 0; list-style: none; display: grid; gap: 12px; }
+.vcard li { display: flex; gap: 12px; align-items: flex-start; color: var(--ink-2); }
+.vcard li .i { margin-top: 4px; color: var(--ink); }
+.vcard.dim { background: transparent; }
+@media (max-width: 767px) { .versus { grid-template-columns: minmax(0, 1fr); } .vcard { padding: 24px; } }
+
+/* Benefits */
+.benefits { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); border-top: 1px solid var(--line); }
+.benefits li { padding: 32px 32px 32px 0; border-bottom: 1px solid var(--line); display: grid; grid-template-columns: 40px minmax(0, 1fr); gap: 16px; }
+.benefits li:nth-child(even) { padding: 32px 0 32px 32px; }
+.benefits .i { font-size: 1.5rem; margin-top: 4px; }
+.benefits h3 { font-size: 1.25rem; line-height: 1.75rem; }
+.benefits p { margin-top: 8px; color: var(--ink-2); }
+@media (max-width: 767px) {
+  .benefits { grid-template-columns: minmax(0, 1fr); }
+  .benefits li, .benefits li:nth-child(even) { padding: 24px 0; }
+}
+
+/* Steps */
+.steps { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px; counter-reset: s; }
+.steps li { counter-increment: s; background: var(--surface); border: 1px solid var(--line); border-radius: 24px; padding: 32px; }
+.steps li::before {
+  content: counter(s); display: grid; place-items: center; width: 40px; height: 40px; border-radius: 12px;
+  background: var(--surface-2); font-weight: 600; font-variant-numeric: tabular-nums; margin-bottom: 24px;
+}
+.steps h3 { font-size: 1.25rem; line-height: 1.75rem; }
+.steps p { margin-top: 8px; color: var(--ink-2); }
+@media (max-width: 1023px) { .steps { grid-template-columns: minmax(0, 1fr); } .steps li { padding: 24px; } }
+
+/* Proof */
+.stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 24px; border-top: 1px solid var(--line); padding-top: 32px; }
+.stat strong { display: block; font-size: 3rem; line-height: 1; font-weight: 600; letter-spacing: -0.03em; font-variant-numeric: tabular-nums; }
+.stat span { display: block; margin-top: 12px; color: var(--ink-2); }
+.stat small { display: block; margin-top: 4px; font-size: 0.875rem; line-height: 1.25rem; color: var(--muted); font-variant-numeric: tabular-nums; }
+.gaps { margin-top: 48px; background: var(--surface); border: 1px solid var(--line); border-radius: 24px; padding: 32px; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 2fr); gap: 32px; }
+.gaps h3 { font-size: 1.25rem; line-height: 1.75rem; }
+.gaps > div > p { margin-top: 8px; color: var(--ink-2); }
+.gaps ul { margin: 0; padding: 0; list-style: none; display: grid; gap: 12px; }
+.gaps li { display: flex; gap: 12px; color: var(--ink-2); }
+.gaps li .i { margin-top: 4px; color: var(--ink); }
+@media (max-width: 1023px) { .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); row-gap: 40px; } .gaps { grid-template-columns: minmax(0, 1fr); padding: 24px; gap: 24px; } }
+@media (max-width: 640px) { .stat strong { font-size: 2.25rem; line-height: 2.5rem; } }
+
+/* FAQ */
+.faq-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 2fr); gap: 64px; }
+.faq-grid .section-head { margin-bottom: 0; }
+.faq details { border-bottom: 1px solid var(--line); }
+.faq details:first-child { border-top: 1px solid var(--line); }
+.faq summary {
+  list-style: none; cursor: pointer; display: flex; justify-content: space-between; align-items: center; gap: 16px;
+  padding: 24px 0; font-size: 1.125rem; line-height: 1.75rem; font-weight: 600;
+}
+.faq summary::-webkit-details-marker { display: none; }
+.faq summary .i { transition: transform 500ms var(--ease); }
+.faq details[open] summary .i { transform: rotate(45deg); }
+.faq summary:hover { opacity: 0.8; }
+.faq details p { padding: 0 0 24px; color: var(--ink-2); max-width: 640px; }
+@media (max-width: 1023px) { .faq-grid { grid-template-columns: minmax(0, 1fr); gap: 32px; } }
+
+/* Final CTA */
+.final { text-align: center; }
+.final .box { background: var(--surface); border: 1px solid var(--line); border-radius: 24px; padding: 80px 32px; }
+.final h2 {
+  max-width: 680px; margin: 0 auto; font-size: 3rem; line-height: 1; letter-spacing: -0.03em; padding-bottom: 4px;
+  background: linear-gradient(90deg, var(--head-from), var(--head-to));
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+}
+.final p { max-width: 560px; margin: 24px auto 0; font-size: 1.125rem; line-height: 1.75rem; color: var(--ink-2); }
+.final .actions { margin-top: 32px; display: flex; flex-direction: column; align-items: center; gap: 16px; }
+@media (max-width: 640px) { .final .box { padding: 48px 24px; } .final h2 { font-size: 1.875rem; line-height: 2.25rem; } }
+
+/* Download */
+.download { background: var(--surface); border: 1px solid var(--line); border-radius: 24px; padding: 48px; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 48px; }
+.download h2 { font-size: 2.25rem; line-height: 2.5rem; letter-spacing: -0.02em; }
+.download .lead { margin-top: 16px; font-size: 1.125rem; line-height: 1.75rem; color: var(--ink-2); max-width: 520px; }
+.download .actions { margin-top: 32px; display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+.btn-ghost { box-shadow: inset 0 0 0 1px var(--line-strong); color: var(--ink); background: transparent; }
+.btn-ghost:hover { background: var(--surface-2); }
+.soon { display: inline-flex; align-items: center; gap: 8px; padding: 8px 12px; border-radius: 8px; background: var(--surface-2); font-weight: 600; color: var(--ink-2); }
+.specs { margin: 0; display: grid; align-content: start; border-top: 1px solid var(--line); }
+.specs div { display: grid; grid-template-columns: 112px minmax(0, 1fr); gap: 16px; padding: 16px 0; border-bottom: 1px solid var(--line); }
+.specs dt { color: var(--muted); font-size: 0.875rem; line-height: 1.5rem; }
+.specs dd { margin: 0; color: var(--ink); }
+.specs dd span { display: block; margin-top: 4px; color: var(--ink-2); font-size: 0.875rem; line-height: 1.25rem; }
+@media (max-width: 1023px) { .download { grid-template-columns: minmax(0, 1fr); padding: 32px; gap: 32px; } }
+@media (max-width: 640px) { .download { padding: 24px; } .download h2 { font-size: 1.875rem; line-height: 2.25rem; } .specs div { grid-template-columns: minmax(0, 1fr); gap: 4px; } }
+
+footer { padding: 48px 0 64px; color: var(--muted); font-size: 0.875rem; line-height: 1.25rem; border-top: 1px solid var(--line); }
+footer .wrap { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 24px 48px; align-items: start; }
+footer .by { color: var(--ink); font-weight: 600; font-size: 1rem; line-height: 1.5rem; }
+.nw { white-space: nowrap; }
+footer .fine { margin-top: 8px; max-width: 640px; }
+footer nav { display: flex; gap: 24px; flex-wrap: wrap; }
+footer a { text-decoration: none; transition: color 300ms var(--ease); }
+footer a:hover { color: var(--ink); }
+footer .fine a { text-decoration: underline; text-decoration-color: var(--line-strong); text-underline-offset: 3px; }
+@media (max-width: 767px) { footer .wrap { grid-template-columns: minmax(0, 1fr); } }
+
+/* Reveal */
+.reveal { opacity: 0; transform: translateY(32px); transition: opacity 700ms var(--ease), transform 700ms var(--ease); }
+.reveal.in { opacity: 1; transform: none; }
+.no-js .reveal { opacity: 1; transform: none; }
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  .reveal, .panel ul a, .panel .btn { transform: none !important; }
+  .btn:hover, .btn:active { transform: none; }
+  .toggle span { transition-duration: 200ms; }
+}
+</style>
+</head>
+<body class="no-js">
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></symbol>
+  <symbol id="i-out" viewBox="0 0 24 24"><path d="M7 17 17 7M9 7h8v8"/></symbol>
+  <symbol id="i-seal" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="m8.5 12.5 2.5 2.5 4.5-5"/></symbol>
+  <symbol id="i-question" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9.6 9.4a2.5 2.5 0 1 1 3.4 2.4c-.6.3-1 .8-1 1.5v.3M12 16.8v.1"/></symbol>
+  <symbol id="i-underline" viewBox="0 0 24 24"><path d="M7 4v7a5 5 0 0 0 10 0V4M5 20h14"/></symbol>
+  <symbol id="i-bars" viewBox="0 0 24 24"><path d="M4 6h9M4 12h16M4 18h6"/></symbol>
+  <symbol id="i-hourglass" viewBox="0 0 24 24"><path d="M7 3h10M7 21h10M8 3c0 5 8 5 8 9s-8 4-8 9M16 3c0 5-8 5-8 9s8 4 8 9"/></symbol>
+  <symbol id="i-users" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3"/><path d="M3 19c0-3.2 2.7-5 6-5s6 1.8 6 5"/><circle cx="17" cy="9" r="2.5"/><path d="M16.5 14c2.7 0 4.5 1.6 4.5 4.5"/></symbol>
+  <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6"/><path d="m20 20-4.5-4.5"/></symbol>
+  <symbol id="i-gauge" viewBox="0 0 24 24"><path d="M4 17a8 8 0 0 1 16 0M12 17l4-5"/></symbol>
+  <symbol id="i-scales" viewBox="0 0 24 24"><path d="M12 4v16M8 20h8M5 7h14M5 7l-3 6a3 3 0 0 0 6 0zM19 7l-3 6a3 3 0 0 0 6 0z"/></symbol>
+  <symbol id="i-lock" viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></symbol>
+  <symbol id="i-warn" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7.5V13M12 16.4v.1"/></symbol>
+  <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+  <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></symbol>
+</svg>
+<a class="skip" href="#main">Skip to content</a>
+
+<header>
+  <nav class="nav" aria-label="Main">
+    <a class="brand" href="#top" aria-label="Squint home">
+      <svg viewBox="0 0 32 32" aria-hidden="true"><path d="M3.5 17.5C8 10.5 24 10.5 28.5 17.5" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/><path d="M8 20.5C12.5 23.5 19.5 23.5 24 20.5" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/><circle cx="16" cy="17.25" r="3.8" fill="currentColor"/></svg>
+      Squint
+    </a>
+    <ul class="nav-links">
+      <li><a href="#how">How it works</a></li>
+      <li><a href="#accuracy">Accuracy</a></li>
+      <li><a href="#download">Mac app</a></li>
+      <li><a href="#faq">FAQ</a></li>
+    </ul>
+    <a class="btn btn-primary btn-sm" href="/app/">Try it</a>
+    <button class="toggle" type="button" aria-expanded="false" aria-controls="menu" aria-label="Open menu"><span></span><span></span></button>
+  </nav>
+  <div class="panel" id="menu" aria-hidden="true">
+    <ul>
+      <li><a href="#how">How it works</a></li>
+      <li><a href="#accuracy">Accuracy</a></li>
+      <li><a href="#download">Mac app</a></li>
+      <li><a href="#faq">FAQ</a></li>
+    </ul>
+    <a class="btn btn-primary" href="/app/">Try it <svg class="i" aria-hidden="true"><use href="#i-arrow"/></svg></a>
+  </div>
+</header>
+
+<main id="main">
+  <section class="hero" id="top">
+    <div class="wrap hero-grid">
+      <div>
+        <h1>Know if AI wrote it.<br> See exactly why.</h1>
+        <p class="sub">Squint reads a piece of writing and marks the passages that look machine made, so you get evidence you can weigh instead of a scary percentage.</p>
+        <div class="actions">
+          <a class="btn btn-primary" href="/app/">Try it <svg class="i" aria-hidden="true"><use href="#i-arrow"/></svg></a>
+          <span class="proof"><svg class="i" aria-hidden="true"><use href="#i-seal"/></svg><span>Wrongly flagged <b>4 of 1,340</b> human texts in testing</span></span>
+        </div>
+      </div>
+
+      <figure class="demo reveal" aria-labelledby="demo-cap" style="margin:0">
+        <div class="demo-top">
+          <span id="demo-cap"><b>Squint for Mac</b> · tap a marked word</span>
+          <span class="legend" aria-hidden="true"><span><i class="k"></i>AI like</span><span><i class="k hu"></i>Human like</span></span>
+        </div>
+        <div class="sheet">
+          <p class="sample" id="sample"></p>
+        </div>
+        <div class="lens" aria-live="polite">
+          <div>
+            <div class="lens-word" id="lens-word"></div>
+            <div class="lens-lean" id="lens-lean"></div>
+            <div class="lens-rank" id="lens-rank"></div>
+          </div>
+          <ol class="guesses" id="guesses" aria-label="The model's top five guesses"></ol>
+          <p class="lens-cap">Excerpt from a longer sample. Verdicts start at 50 words.</p>
+        </div>
+      </figure>
+    </div>
+  </section>
+
+  <section id="problem">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <h2>A number alone can’t tell you what to do next</h2>
+        <p>Most detectors hand back one score and a red label. When someone’s grade or job depends on it, you need to see what the tool saw.</p>
+      </div>
+      <div class="versus">
+        <div class="vcard dim reveal">
+          <h3>A typical detector</h3>
+          <div class="gauge"><strong>87%</strong><span>AI generated</span></div>
+          <ul>
+            <li><svg class="i" aria-hidden="true"><use href="#i-question"/></svg>Which parts? It won’t say.</li>
+            <li><svg class="i" aria-hidden="true"><use href="#i-question"/></svg>How sure? Same confidence at 40 words as at 4,000.</li>
+            <li><svg class="i" aria-hidden="true"><use href="#i-question"/></svg>English learners get flagged and nobody checks how often.</li>
+          </ul>
+        </div>
+        <div class="vcard reveal">
+          <h3>Squint</h3>
+          <ul>
+            <li><svg class="i" aria-hidden="true"><use href="#i-bars"/></svg>The passages that read as AI written, marked on your text, and the share of the text they cover.</li>
+            <li><svg class="i" aria-hidden="true"><use href="#i-underline"/></svg>In the Mac app, every word marked with the model’s top five guesses for it.</li>
+            <li><svg class="i" aria-hidden="true"><use href="#i-hourglass"/></svg>Says “Too short to tell” under 50 words instead of guessing.</li>
+            <li><svg class="i" aria-hidden="true"><use href="#i-users"/></svg>Tested on 512 essays by English learners. One was wrongly flagged.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="benefits">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <h2>Built for the person who has to make the call</h2>
+      </div>
+      <ul class="benefits reveal">
+        <li><svg class="i" aria-hidden="true"><use href="#i-search"/></svg><div><h3>Evidence you can point to</h3><p>Flagged passages are marked on your text. In the Mac app, tap any word to see what the model expected there and where the real word ranked.</p></div></li>
+        <li><svg class="i" aria-hidden="true"><use href="#i-gauge"/></svg><div><h3>Honest about doubt</h3><p>Under 150 words you get a low confidence label. Under 50 you get no verdict at all.</p></div></li>
+        <li><svg class="i" aria-hidden="true"><use href="#i-scales"/></svg><div><h3>Fair to English learners</h3><p>Plain or formulaic writing isn’t treated as cheating. Learner essays are measured as their own group.</p></div></li>
+        <li><svg class="i" aria-hidden="true"><use href="#i-lock"/></svg><div><h3>Private by default</h3><p>Runs on one Mac mini with no cloud AI. Nothing you paste is saved, and results are gone after 10 minutes.</p></div></li>
+      </ul>
+    </div>
+  </section>
+
+  <section id="how">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <h2>How it works</h2>
+      </div>
+      <ol class="steps">
+        <li class="reveal"><h3>Paste or upload</h3><p>Type, paste, or drop in a .docx, .pdf, or .txt file. Up to 500 words and 3 checks an hour here; 2,500 words and no limit in the Mac app.</p></li>
+        <li class="reveal"><h3>A trained classifier reads it</h3><p>ModernBERT, fine tuned on human, ChatGPT, and Claude writing, gives the verdict and checks the text in overlapping 150 word passages.</p></li>
+        <li class="reveal"><h3>Read the evidence</h3><p>Likely human, Uncertain, or Likely AI, the AI written share, and the passages behind it. The Mac app adds Binoculars: two Falcon-7B models rate every word.</p></li>
+      </ol>
+    </div>
+  </section>
+
+  <section id="accuracy">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <h2>Tested on writing it never saw in training</h2>
+        <p>Held out results for texts of 50 words or more, measured October 2026.</p>
+      </div>
+      <div class="stats reveal">
+        <div class="stat"><strong>0.3%</strong><span>of human texts wrongly flagged</span><small>4 of 1,340 · 1 of 512 non-native</small></div>
+        <div class="stat"><strong>99.6%</strong><span>of ChatGPT texts caught</span><small>744 of 747</small></div>
+        <div class="stat"><strong>92.2%</strong><span>of Claude texts caught</span><small>674 of 731</small></div>
+        <div class="stat"><strong>0</strong><span>flags on a fresh set of human writing</span><small>0 of 1,000</small></div>
+      </div>
+      <div class="gaps reveal">
+        <div>
+          <h3>What it still gets wrong</h3>
+        </div>
+        <ul>
+          <li><svg class="i" aria-hidden="true"><use href="#i-warn"/></svg>College essays by real students, from a source it never trained on, are wrongly flagged about 4 to 6% of the time.</li>
+          <li><svg class="i" aria-hidden="true"><use href="#i-warn"/></svg>Some Claude writing gets through, mostly under 150 words: about 90% caught there, 95% at 150 words and up.</li>
+          <li><svg class="i" aria-hidden="true"><use href="#i-warn"/></svg>Older models are mostly missed. 2022 era ChatGPT answers got through almost every time.</li>
+          <li><svg class="i" aria-hidden="true"><use href="#i-warn"/></svg>Edited or paraphrased AI text is untested, and so is Gemini.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section id="download">
+    <div class="wrap">
+      <div class="download reveal">
+        <div>
+          <h2>Squint for Mac</h2>
+          <p class="lead">The full Squint on your own computer: the word by word heat map, 2,500 words a check, no hourly limit, and nothing leaves your Mac.</p>
+          <div class="actions">
+            <!-- On release: swap .soon for <a class="btn btn-primary" href="https://github.com/nicolasdmolina/squint/releases">Download</a> -->
+            <span class="soon"><svg class="i" aria-hidden="true"><use href="#i-clock"/></svg>Coming this weekend</span>
+            <a class="btn btn-ghost" href="https://github.com/nicolasdmolina/squint">GitHub <svg class="i" aria-hidden="true"><use href="#i-out"/></svg></a>
+          </div>
+        </div>
+        <dl class="specs">
+          <div><dt>Mac</dt><dd>Apple Silicon</dd></div>
+          <div><dt>Memory</dt><dd>16 GB or more for the word heat map<span>Under 16 GB you get the classifier only.</span></dd></div>
+          <div><dt>First launch</dt><dd>The app is unsigned, so macOS blocks it the first time<span>Allow it in System Settings → Privacy &amp; Security → Open Anyway. Full steps come with the release.</span></dd></div>
+        </dl>
+      </div>
+    </div>
+  </section>
+
+  <section id="faq">
+    <div class="wrap faq-grid">
+      <div class="section-head reveal">
+        <h2>Questions</h2>
+      </div>
+      <div class="faq reveal">
+        <details><summary>Is a “Likely AI” result proof?<svg class="i" aria-hidden="true"><use href="#i-plus"/></svg></summary><p>No. It means the text reads like current ChatGPT or Claude writing. Treat it as a reason to look closer and talk to the writer, never as a verdict on its own.</p></details>
+        <details><summary>How much text do I need?<svg class="i" aria-hidden="true"><use href="#i-plus"/></svg></summary><p>At least 20 words to check, 50 for a verdict, and 150 for the AI written share. Results are most reliable from 150 words up. This site takes up to 500 words a check.</p></details>
+        <details id="privacy"><summary>Do you store what I paste?<svg class="i" aria-hidden="true"><use href="#i-plus"/></svg></summary><p>No. Text is checked in memory on one Mac mini and never written to disk. Results are dropped after 10 minutes, and no third party AI service sees your text. The Mac app never sends it anywhere.</p></details>
+        <details><summary>Will it flag writers who are still learning English?<svg class="i" aria-hidden="true"><use href="#i-plus"/></svg></summary><p>It wrongly flagged 1 of 512 learner essays in testing, and 0 of 600 on a fresh set. Simple or formulaic writing is not treated as a sign of AI on its own. College essays are the weak spot: about 4 to 6% are wrongly flagged.</p></details>
+        <details><summary>Which AI models can it detect?<svg class="i" aria-hidden="true"><use href="#i-plus"/></svg></summary><p>Current ChatGPT and Claude. Older models are mostly missed, and Gemini hasn’t been tested yet. The known gaps are listed in the app next to every verdict.</p></details>
+        <details><summary>Why don’t I see every word marked?<svg class="i" aria-hidden="true"><use href="#i-plus"/></svg></summary><p>The word marks come from two 7 billion parameter models, too heavy to run for everyone on one Mac mini. This site runs the classifier and marks whole passages. The Mac app runs both on your own computer.</p></details>
+        <details><summary>Why is there a limit of 3 checks an hour?<svg class="i" aria-hidden="true"><use href="#i-plus"/></svg></summary><p>Every check runs on one Mac mini at home. The limit keeps it free for everyone. The Mac app has no limit.</p></details>
+      </div>
+    </div>
+  </section>
+
+  <section class="final" id="start">
+    <div class="wrap">
+      <div class="box reveal">
+        <h2>Know if AI wrote it.<br> See exactly why.</h2>
+        <p>Paste up to 500 words and get the verdict and the passages behind it. Nothing you paste is stored.</p>
+        <div class="actions">
+          <a class="btn btn-primary" href="/app/">Try it <svg class="i" aria-hidden="true"><use href="#i-arrow"/></svg></a>
+          <a class="proof" href="#download">Or get Squint for Mac</a>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <div>
+      <p class="by">Built by Nicky Molina</p>
+      <p class="fine">Open source on <a href="https://github.com/nicolasdmolina/squint">GitHub</a>: code under MIT, model weights under CC BY-NC-SA 4.0.</p>
+      <p class="fine">Built on <a href="https://arxiv.org/abs/2401.12070">Binoculars</a> (Hans et al., 2024), ModernBERT and Falcon-7B. Trained and tested with Persuade 2.0, Ghostbuster, arXiv abstracts, Amazon polarity, Stack Exchange, Wikipedia, <span class="nw">Webis-TLDR-17</span>, ELLIPSE and <span class="nw">ChatGPT-Detector-Bias</span>.</p>
+    </div>
+    <nav aria-label="Footer">
+      <a href="/app/">Try it</a>
+      <a href="#accuracy">Accuracy</a>
+      <a href="#download">Mac app</a>
+      <a href="#top">Back to top</a>
+    </nav>
+  </div>
+</footer>
+
+<script>
+document.body.classList.remove('no-js');
+const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+// Demo words: [text, lean ('ai'|'hu'|null), strength 1..3, rank, guesses [[word, %]...]]
+const S = [
+  ['In'], ["today’s", 'ai', 2, 1, [["today’s", 41], ['the', 22], ['our', 9], ['a', 7], ['this', 4]]], ['fast'], ['paced'],
+  ['world,', 'ai', 3, 1, [['world', 88], ['environment', 4], ['society', 2], ['era', 2], ['landscape', 1]]],
+  ['effective'], ['communication'], ['is'],
+  ['essential', 'ai', 3, 1, [['essential', 52], ['crucial', 19], ['key', 11], ['vital', 8], ['important', 6]]],
+  ['for'], ['building'], ['strong', 'ai', 1, 2, [['lasting', 24], ['strong', 21], ['healthy', 12], ['trust', 9], ['effective', 5]]],
+  ['relationships.'], ['By'],
+  ['leveraging', 'ai', 2, 1, [['leveraging', 33], ['implementing', 21], ['using', 18], ['adopting', 7], ['following', 5]]],
+  ['clear'], ['strategies,'], ['teams'], ['can'],
+  ['foster', 'ai', 3, 1, [['foster', 46], ['enhance', 17], ['improve', 12], ['boost', 6], ['build', 5]]],
+  ['collaboration'], ['and'], ['drive'],
+  ['meaningful', 'ai', 3, 1, [['meaningful', 61], ['better', 11], ['real', 8], ['measurable', 7], ['positive', 5]]],
+  ['results.'], ['My'], ['manager'], ['still'],
+  ['prints', 'hu', 3, 214, [['sends', 31], ['uses', 14], ['reads', 9], ['says', 6], ['forwards', 4]]],
+  ['every'], ['email,'], ['though,'], ['and'],
+  ['annotates', 'hu', 3, 1862, [['reads', 22], ['files', 13], ['keeps', 9], ['replies', 7], ['forwards', 5]]],
+  ['them'], ['in'], ['green', 'hu', 2, 37, [['red', 38], ['the', 12], ['a', 9], ['his', 7], ['blue', 6]]],
+  ['pen'], ['like'], ['a'], ['1970s'],
+  ['schoolteacher.', 'hu', 2, 409, [['teacher', 29], ['boss', 15], ['manager', 11], ['professor', 8], ['secretary', 6]]],
+];
+const sample = document.getElementById('sample');
+const marks = [];
+S.forEach(([t, lean, s, rank, g], i) => {
+  if (i) sample.append(' ');
+  if (!lean) { sample.append(t); return; }
+  const b = document.createElement('span');
+  b.className = `w ${lean} s${s}`;
+  b.tabIndex = 0;
+  b.setAttribute('role', 'button');
+  b.setAttribute('aria-pressed', 'false');
+  b.textContent = t;
+  b.dataset.i = i;
+  b.addEventListener('click', () => pick(b));
+  b.addEventListener('mouseenter', () => { if (matchMedia('(hover: hover)').matches) pick(b); });
+  b.addEventListener('keydown', e => {
+    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); pick(b); }
+    if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') {
+      e.preventDefault();
+      const n = marks[(marks.indexOf(b) + (e.key === 'ArrowRight' ? 1 : -1) + marks.length) % marks.length];
+      n.focus(); pick(n);
+    }
+  });
+  marks.push(b);
+  sample.append(b);
+});
+const fmt = n => n.toLocaleString('en-US');
+function pick(el) {
+  marks.forEach(m => m.setAttribute('aria-pressed', String(m === el)));
+  const [t, lean, , rank, g] = S[+el.dataset.i];
+  const clean = t.replace(/[.,]/g, '');
+  document.getElementById('lens-word').textContent = clean;
+  const l = document.getElementById('lens-lean');
+  l.className = 'lens-lean' + (lean === 'hu' ? ' hu' : '');
+  l.textContent = lean === 'ai' ? 'More predictable than expected' : 'More surprising than expected';
+  document.getElementById('lens-rank').textContent =
+    rank === 1 ? "The model’s first guess" : `Ranked ${fmt(rank)} among the model’s guesses`;
+  const ol = document.getElementById('guesses');
+  ol.replaceChildren(...g.map(([w, p]) => {
+    const li = document.createElement('li');
+    if (w.toLowerCase() === clean.toLowerCase()) li.className = 'hit';
+    li.innerHTML = `<span></span><span>${p}%</span>`;
+    li.firstChild.textContent = w;
+    return li;
+  }));
+}
+pick(marks.find(m => S[+m.dataset.i][0] === 'foster'));
+
+// Scroll reveals, once each.
+const io = new IntersectionObserver(es => es.forEach(e => {
+  if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); }
+}), { rootMargin: '0px 0px -10% 0px' });
+document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+
+// Mobile menu: full height panel, links arrive 60ms apart, capped at 400ms.
+const toggle = document.querySelector('.toggle');
+const panel = document.getElementById('menu');
+const items = panel.querySelectorAll('ul a, .btn');
+items.forEach((a, i) => { a.style.transitionDelay = `${Math.min(i * 60, 400)}ms`; });
+function setMenu(open) {
+  document.body.classList.toggle('menu-open', open);
+  toggle.setAttribute('aria-expanded', String(open));
+  toggle.setAttribute('aria-label', open ? 'Close menu' : 'Open menu');
+  panel.setAttribute('aria-hidden', String(!open));
+  document.body.style.overflow = open ? 'hidden' : '';
+}
+toggle.addEventListener('click', () => setMenu(!document.body.classList.contains('menu-open')));
+items.forEach(a => a.addEventListener('click', () => setMenu(false)));
+addEventListener('keydown', e => { if (e.key === 'Escape') setMenu(false); });
+
+// Mark the nav link for the section in view.
+const links = [...document.querySelectorAll('.nav-links a')];
+const spy = new IntersectionObserver(es => es.forEach(e => {
+  if (!e.isIntersecting) return;
+  links.forEach(a => a.toggleAttribute('aria-current', a.hash === '#' + e.target.id));
+  links.forEach(a => a.hasAttribute('aria-current') && a.setAttribute('aria-current', 'true'));
+}), { rootMargin: '-45% 0px -50% 0px' });
+document.querySelectorAll('main section[id]').forEach(s => spy.observe(s));
+</script>
+</body>
+</html>
