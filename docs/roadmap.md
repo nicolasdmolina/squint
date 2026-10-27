@@ -41,8 +41,10 @@ human sources no worse.
 
 ## R2. Reddit as a human source
 
-Status: in progress (2026-10-24). The first run with Reddit (2ba047ff) trained 776 of 1,006
-steps on 10-25 before the window closed and finishes the next night.
+Status: done (2026-10-27). The first run with Reddit (2ba047ff, report `2026-10-27`) is the
+best so far on held-out sources: Claude caught 88.8% (10-18: 85.3%, 10-23: 85.8%), ChatGPT
+97.0%, 3 of 1,340 humans flagged, no non-native essay flagged. College essays got worse
+(5.7% flagged, 10-18: 4.8%), so R1 stays open. Needs the learner check (R3) before promotion.
 
 300 posts and comments from Webis-TLDR-17 (2006–2016, CC BY 4.0), with matched ChatGPT and
 Claude posts written from each post's tl;dr. `build_dataset.py` keeps the human rows out of
@@ -73,6 +75,11 @@ mostly about length. Plain matched pieces in encyclopedia style are missed 16% o
 ChatGPT is at 5% or under everywhere. `wikipedia` and `arxiv` in `[human]` went from 300 to
 600 on 10-25, so both generators write matched pieces for 300 more of each. Growing a
 source keeps the rows already in use, so earlier matched AI rows and splits stay valid.
+
+The first run with the grown sources (531532d3, report `2026-10-27-2`) trained before the
+300 new Wikipedia and arXiv humans had matched AI pieces, and caught less AI (Claude 84.0%,
+ChatGPT 94.1%) for fewer college-essay flags (3.8%). Judge R4 on a run trained after the
+generators catch up.
 
 Done when: Claude's encyclopedic and academic misses are under 5% on held-out.
 
