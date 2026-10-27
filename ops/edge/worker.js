@@ -1,11 +1,16 @@
-// Cloudflare Worker on squint.nickymolina.com/*. Serves the landing page itself, so the site
-// stays up when the Mac mini is off, and passes everything else (the app under /app/ and /api)
-// through the tunnel to the preview server. When the tunnel is down it answers /api with
-// 503 offline and the app from its last cached copy. build.mjs inlines the landing files.
+// Cloudflare Worker on squint.nickymolina.com/*. Serves the landing page from landing/ on
+// GitHub (so it stays up when the Mac mini is off, and a push updates it within 5 minutes) and
+// passes everything else (the app under /app/ and /api) through the tunnel to the preview
+// server. When the tunnel is down it answers /api with 503 offline and the app from its last
+// cached copy. Deploy: paste this file as the `squint-edge` Worker (route squint.nickymolina.com/*).
 
-const LANDING = __LANDING_HTML__;
-const FAVICON = __FAVICON_SVG__;
-const OG_IMAGE = 'https://raw.githubusercontent.com/nicolasdmolina/squint/main/landing/og.png';
+const LANDING_BASE = 'https://raw.githubusercontent.com/nicolasdmolina/squint/main/landing/';
+const LANDING_FILES = {
+  '/': ['index.html', 'text/html; charset=utf-8'],
+  '/index.html': ['index.html', 'text/html; charset=utf-8'],
+  '/favicon.svg': ['favicon.svg', 'image/svg+xml'],
+  '/og.png': ['og.png', 'image/png'],
+};
 const OFFLINE_MESSAGE = 'The live demo is offline right now. You can run Squint on your own Mac instead.';
 
 const OFFLINE_PAGE = `<!doctype html><html lang="en"><head><meta charset="utf-8">
@@ -19,6 +24,12 @@ a{color:inherit}p{color:var(--muted)}</style></head><body><main><h1>Squint</h1>
 <p>${OFFLINE_MESSAGE}</p><p><a href="/#download">Get Squint for Mac</a> · <a href="/">Home</a></p>
 </main></body></html>`;
 
+async function landing(file, type) {
+  const res = await fetch(LANDING_BASE + file, { cf: { cacheTtl: 300, cacheEverything: true } });
+  if (!res.ok) return new Response('Not found', { status: 502 });
+  return new Response(res.body, { headers: { 'content-type': type, 'cache-control': 'public, max-age=300' } });
+}
+
 function originDown(res) {
   // 502: tunnel up, server down. 520-530: tunnel down. The server's own 503 busy is JSON.
   return res.status === 502 || (res.status === 503 && !res.headers.get('content-type')?.includes('json'))
@@ -29,11 +40,7 @@ export default {
   async fetch(request, env, ctx) {
     const url = new URL(request.url);
     const html = { 'content-type': 'text/html; charset=utf-8', 'cache-control': 'no-cache' };
-    if (url.pathname === '/' || url.pathname === '/index.html') return new Response(LANDING, { headers: html });
-    if (url.pathname === '/favicon.svg') {
-      return new Response(FAVICON, { headers: { 'content-type': 'image/svg+xml', 'cache-control': 'public, max-age=86400' } });
-    }
-    if (url.pathname === '/og.png') return fetch(OG_IMAGE, { cf: { cacheTtl: 86400, cacheEverything: true } });
+    if (LANDING_FILES[url.pathname]) return landing(...LANDING_FILES[url.pathname]);
     if (url.pathname === '/app') return Response.redirect(`${url.origin}/app/`, 301);
 
     const api = url.pathname.startsWith('/api/');

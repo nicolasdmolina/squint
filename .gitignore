@@ -18,4 +18,3 @@ classifier/data/
 classifier/generated/
 classifier/runs/
 classifier/state/
-ops/edge/dist/
