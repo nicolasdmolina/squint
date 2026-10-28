@@ -10,6 +10,8 @@ export type Mode = 'full' | 'preview';
 export type Status = {
   /** v1.3; absent from older servers, which means full */
   mode?: Mode;
+  /** v1.4: true inside Squint for Mac, where preview means a Mac under 16 GB, not the public site */
+  app?: boolean;
   model_state: 'unloaded' | 'loading' | 'ready';
   queue_length: number;
   /** null in preview, which never loads the Binoculars pair */

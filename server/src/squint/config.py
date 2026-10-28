@@ -12,6 +12,8 @@ Environment variables (all optional):
   SQUINT_REQUIRE_PASSWORD  1/true: refuse to start when no password is found (default: [server].require_password)
   SQUINT_LOG_LEVEL         python logging level (default INFO)
   SQUINT_MODE              full (default) or preview: classifier only, with [preview] limits
+  SQUINT_APP               1/true: running inside Squint for Mac ([app] limits, no password)
+  SQUINT_DATA_DIR          base for relative model paths (default: the config file's directory)
 """
 
 from __future__ import annotations
@@ -84,6 +86,7 @@ class Limits:
 class Settings:
     profile: ModelProfile
     mode: str = "full"  # full | preview (classifier only, no Binoculars; docs/api-contract.md v1.3)
+    app: bool = False  # Squint for Mac (squint.desktop): a single local user, so no password or rate cap
     host: str = "127.0.0.1"
     port: int = 8017
     limits: Limits = field(default_factory=Limits)
@@ -134,7 +137,7 @@ def load_profiles(config_path: Path | None = None) -> tuple[dict[str, ModelProfi
     path = Path(config_path or os.environ.get("SQUINT_CONFIG") or DEFAULT_CONFIG)
     with open(path, "rb") as fh:
         raw = tomllib.load(fh)
-    base = path.resolve().parent
+    base = Path(os.environ["SQUINT_DATA_DIR"]) if os.environ.get("SQUINT_DATA_DIR") else path.resolve().parent
     profiles = {}
     for name, p in (raw.get("profiles") or {}).items():
         profiles[name] = ModelProfile(
@@ -164,14 +167,18 @@ def load_settings(config_path: Path | None = None, profile: str | None = None) -
     mode = env.get("SQUINT_MODE", srv.get("mode", "full"))
     if mode not in ("full", "preview"):
         raise SystemExit(f"unknown server mode {mode!r}; use full or preview")
+    app = _flag(env.get("SQUINT_APP", False))
     max_queue = srv.get("max_queue", 50)
-    if mode == "preview":
+    if app:
+        lim.update(raw.get("app") or {})
+    elif mode == "preview":
         preview = dict(raw.get("preview") or {})
         max_queue = preview.pop("max_queue", max_queue)
         lim.update(preview)
     return Settings(
         profile=profiles[name],
         mode=mode,
+        app=app,
         host=env.get("SQUINT_HOST", srv.get("host", "127.0.0.1")),
         port=int(env.get("SQUINT_PORT", srv.get("port", 8017))),
         limits=Limits(**{k: int(v) for k, v in lim.items()}),

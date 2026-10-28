@@ -27,6 +27,7 @@ const sleep = (ms: number) => new Promise(r => window.setTimeout(r, ms));
 export function Checker({ status, onChecked }: { status: Status | null; onChecked: () => void }) {
   const limits = status?.limits ?? LIMITS_FALLBACK;
   const preview = status?.mode === 'preview';
+  const publicSite = preview && !status?.app;
   const calibrated = status ? status.calibration.ready : true;
   const [text, setText] = useState('');
   const [run, setRun] = useState<Run>({ kind: 'idle' });
@@ -93,7 +94,7 @@ export function Checker({ status, onChecked }: { status: Status | null; onChecke
     if (running || upload.busy) return;
     const count = countWords(source);
     if (count < limits.min_words || count > limits.max_words) {
-      setInputError(describeError(new ApiError(422, count < limits.min_words ? 'too_short' : 'too_long', ''), limits, preview));
+      setInputError(describeError(new ApiError(422, count < limits.min_words ? 'too_short' : 'too_long', ''), limits, publicSite));
       areaRef.current?.focus();
       return;
     }
@@ -143,11 +144,11 @@ export function Checker({ status, onChecked }: { status: Status | null; onChecke
         return;
       }
       if (e instanceof ApiError && (e.code === 'too_short' || e.code === 'too_long')) {
-        setInputError(describeError(e, limits, preview));
+        setInputError(describeError(e, limits, publicSite));
         setRun({ kind: 'idle' });
         return;
       }
-      setRun({ kind: 'failed', error: describeError(e, limits, preview), text: source });
+      setRun({ kind: 'failed', error: describeError(e, limits, publicSite), text: source });
       onChecked();
     }
   };
@@ -195,7 +196,7 @@ export function Checker({ status, onChecked }: { status: Status | null; onChecke
     } catch (e) {
       if ((e as Error).name === 'AbortError') return;
       setUpload({ busy: false, note: null, undo: null });
-      setInputError(describeError(e, limits, preview));
+      setInputError(describeError(e, limits, publicSite));
     }
   };
 
@@ -223,7 +224,7 @@ export function Checker({ status, onChecked }: { status: Status | null; onChecke
     return (
       <div className="screen checker is-done">
         {isPreviewResult(run.result) ? (
-          <PreviewEvidence result={run.result} text={run.text} head={head} />
+          <PreviewEvidence result={run.result} text={run.text} head={head} download={publicSite} />
         ) : (
           <Evidence result={run.result} text={run.text} head={head} />
         )}
@@ -360,7 +361,7 @@ export function Checker({ status, onChecked }: { status: Status | null; onChecke
             </div>
           )}
           <p className="margin-quiet">
-            {preview && `${limits.checks_per_hour} ${limits.checks_per_hour === 1 ? 'check' : 'checks'} an hour. `}Nothing you paste is stored.
+            {publicSite && `${limits.checks_per_hour} ${limits.checks_per_hour === 1 ? 'check' : 'checks'} an hour. `}Nothing you paste is stored.
           </p>
         </aside>
       </div>

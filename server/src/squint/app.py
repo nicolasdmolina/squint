@@ -165,11 +165,11 @@ class Services:
         self.calibration = CalibrationStore(settings.calibration_dir)
         self._tokenizer = tokenizer
         self._tok_lock = threading.Lock()
-        if settings.mode == "preview":
-            password = None  # the public preview is open by design; its limits are the protection
+        if settings.mode == "preview" or settings.app:
+            password = None  # the public preview is open by design; the Mac app has one local user
         elif password is FROM_KEYCHAIN:
             password = read_keychain_password(settings.keychain_service)
-        if settings.require_password and not password and settings.mode != "preview":
+        if settings.require_password and not password and settings.mode != "preview" and not settings.app:
             raise PasswordMissing(f"require_password is on but Keychain item {settings.keychain_service!r} "
                                   "was not found (add it, or set [server].require_password = false)")
         self.password: str | None = password
@@ -330,6 +330,7 @@ def create_app(
         cal = svc.calibration.current()
         return {
             "mode": settings.mode,
+            "app": settings.app,
             "model_state": svc.manager.state,
             "queue_length": svc.queue.queue_length(),
             "model_pair": svc.model_pair,

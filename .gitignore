@@ -18,3 +18,4 @@ classifier/data/
 classifier/generated/
 classifier/runs/
 classifier/state/
+mac/build/

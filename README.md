@@ -32,11 +32,19 @@ is not met yet; college essays are the main gap below.
 
 ## Run it on your Mac
 
-Needs an Apple Silicon Mac. The word heat map needs 16 GB of memory and about 11 GB of disk;
-with less memory Squint runs the classifier only.
+[Download Squint for Mac](https://github.com/nicolasdmolina/squint/releases/latest/download/Squint-mac.zip)
+(292 MB). Needs an Apple Silicon Mac with macOS 14 or later. The word heat map needs 16 GB of
+memory and about 11 GB of disk; with less memory Squint runs the classifier only. Models
+download on first launch (10.5 GB, or 557 MB under 16 GB).
 
-A packaged `Squint.app` is coming on the [releases page](https://github.com/nicolasdmolina/squint/releases).
-To run from source now, see [`server/README.md`](server/README.md).
+The app isn't signed by Apple, so macOS blocks it the first time:
+
+1. Unzip it and drag Squint into Applications.
+2. Open Squint. When macOS says it can't check it, click Done.
+3. Open System Settings → Privacy & Security, scroll down, click Open Anyway and confirm.
+
+To build the app yourself, see [`mac/README.md`](mac/README.md). To run the server from
+source, see [`server/README.md`](server/README.md).
 
 ## Known gaps
 
@@ -59,6 +67,7 @@ To run from source now, see [`server/README.md`](server/README.md).
 | `docs/api-contract.md` | The API between the web UI and the server. Change it first. |
 | `server/` | Python service: Binoculars scoring, verdicts, queue, rate limit, `preview` mode for the public site. |
 | `web/` | The web UI. |
+| `mac/` | Squint for Mac: the Swift window, build script, and the classifier manifest the app checks for updates. |
 | `calibration/` | Building the tuning set, fitting thresholds, the accuracy report, and `classifier.json` (the promoted classifier's cutoffs). Data is not committed. |
 | `classifier/` | Overnight classifier training, evaluation and `promote.py`. Weights go to `server/models/` (not committed). |
 | `ops/` | Background service, tunnel and edge Worker (`ops/edge/`) for the public site. |

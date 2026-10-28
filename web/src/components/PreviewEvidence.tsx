@@ -11,7 +11,8 @@ import { MarginFacts, MarginGap } from './Readout';
  * A preview result (contract v1.3): the classifier's verdict and its flagged passages on the
  * proof, with no word-level data. Same galley and margin as the full result, minus the word lens.
  */
-export function PreviewEvidence({ result, text, head }: { result: Result; text: string; head: ReactNode }) {
+/** download: link to Squint for Mac (the public site; inside the app this Mac is just under 16 GB) */
+export function PreviewEvidence({ result, text, head, download = true }: { result: Result; text: string; head: ReactNode; download?: boolean }) {
   const passages = useMemo(() => flaggedPassages(result.segments), [result.segments]);
   const reduceMotion = useMedia('(prefers-reduced-motion: reduce)');
   const printRef = useRef<HTMLDivElement>(null);
@@ -137,10 +138,12 @@ export function PreviewEvidence({ result, text, head }: { result: Result; text: 
             ))}
           </ol>
         )}
-        <a className="text-link margin-link" href={DOWNLOAD_HREF}>
-          Word by word in Squint for Mac
-          <ArrowRightIcon size={16} />
-        </a>
+        {download && (
+          <a className="text-link margin-link" href={DOWNLOAD_HREF}>
+            Word by word in Squint for Mac
+            <ArrowRightIcon size={16} />
+          </a>
+        )}
         <MarginGap result={result} />
       </aside>
     </div>

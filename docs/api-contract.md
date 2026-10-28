@@ -193,3 +193,15 @@ Binoculars pair; only the trained classifier runs.
    load, a job ends with `error.code = "model_unavailable"`.
 4. `GET /api/accuracy` is unchanged (the report is static data).
 5. Job status `loading_model` in preview means the classifier is loading (a few seconds).
+
+## v1.4 amendments (Squint for Mac, 2026-10-28)
+
+The Mac app runs the same server with `SQUINT_APP=1`, in `full` mode on Macs with 16 GB or more
+and in `preview` mode below that.
+
+1. `GET /api/status` adds `"app": true | false`. With `app` true the web UI drops the public-site
+   copy (hourly limits, the "Squint for Mac" link) even in `preview` mode.
+2. App mode never asks for a password and takes its limits from `[app]` in `squint.toml`
+   (2,500 words, no practical hourly cap) instead of `[preview]`.
+3. `SQUINT_DATA_DIR` moves model paths in `[profiles]` under that folder; `squint.desktop`
+   points it at `~/Library/Application Support/Squint`.

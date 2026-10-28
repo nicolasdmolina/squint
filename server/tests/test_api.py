@@ -281,6 +281,7 @@ def test_status_and_accuracy(settings):
         st = c.get("/api/status").json()
         assert st == {
             "mode": "full",
+            "app": False,
         "model_state": "unloaded", "queue_length": 0, "model_pair": PAIR,
             "calibration": {"version": None, "ready": False},
             "classifier": {"version": None, "ready": False, "min_words": None},

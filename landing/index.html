@@ -312,11 +312,12 @@ main section { padding: 96px 0; }
 .download .actions { margin-top: 32px; display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
 .btn-ghost { box-shadow: inset 0 0 0 1px var(--line-strong); color: var(--ink); background: transparent; }
 .btn-ghost:hover { background: var(--surface-2); }
-.soon { display: inline-flex; align-items: center; gap: 8px; padding: 8px 12px; border-radius: 8px; background: var(--surface-2); font-weight: 600; color: var(--ink-2); }
 .specs { margin: 0; display: grid; align-content: start; border-top: 1px solid var(--line); }
 .specs div { display: grid; grid-template-columns: 112px minmax(0, 1fr); gap: 16px; padding: 16px 0; border-bottom: 1px solid var(--line); }
 .specs dt { color: var(--muted); font-size: 0.875rem; line-height: 1.5rem; }
 .specs dd { margin: 0; color: var(--ink); }
+.specs .steps { margin: 8px 0 0; padding-left: 1.25rem; color: var(--ink-2); font-size: 0.875rem; line-height: 1.25rem; }
+.specs .steps li + li { margin-top: 4px; }
 .specs dd span { display: block; margin-top: 4px; color: var(--ink-2); font-size: 0.875rem; line-height: 1.25rem; }
 @media (max-width: 1023px) { .download { grid-template-columns: minmax(0, 1fr); padding: 32px; gap: 32px; } }
 @media (max-width: 640px) { .download { padding: 24px; } .download h2 { font-size: 1.875rem; line-height: 2.25rem; } .specs div { grid-template-columns: minmax(0, 1fr); gap: 4px; } }
@@ -361,7 +362,6 @@ footer .fine a { text-decoration: underline; text-decoration-color: var(--line-s
   <symbol id="i-lock" viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></symbol>
   <symbol id="i-warn" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7.5V13M12 16.4v.1"/></symbol>
   <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
-  <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></symbol>
 </svg>
 <a class="skip" href="#main">Skip to content</a>
 
@@ -513,15 +513,20 @@ footer .fine a { text-decoration: underline; text-decoration-color: var(--line-s
           <h2>Squint for Mac</h2>
           <p class="lead">The full Squint on your own computer: the word by word heat map, 2,500 words a check, no hourly limit, and nothing leaves your Mac.</p>
           <div class="actions">
-            <!-- On release: swap .soon for <a class="btn btn-primary" href="https://github.com/nicolasdmolina/squint/releases">Download</a> -->
-            <span class="soon"><svg class="i" aria-hidden="true"><use href="#i-clock"/></svg>Coming this weekend</span>
+            <a class="btn btn-primary" href="https://github.com/nicolasdmolina/squint/releases/latest/download/Squint-mac.zip">Download for Mac</a>
             <a class="btn btn-ghost" href="https://github.com/nicolasdmolina/squint">GitHub <svg class="i" aria-hidden="true"><use href="#i-out"/></svg></a>
           </div>
         </div>
         <dl class="specs">
-          <div><dt>Mac</dt><dd>Apple Silicon</dd></div>
-          <div><dt>Memory</dt><dd>16 GB or more for the word heat map<span>Under 16 GB you get the classifier only.</span></dd></div>
-          <div><dt>First launch</dt><dd>The app is unsigned, so macOS blocks it the first time<span>Allow it in System Settings → Privacy &amp; Security → Open Anyway. Full steps come with the release.</span></dd></div>
+          <div><dt>Mac</dt><dd>Apple Silicon, macOS 14 or later</dd></div>
+          <div><dt>Memory</dt><dd>16 GB or more for the word heat map<span>Under 16 GB you get the detector only.</span></dd></div>
+          <div><dt>Download</dt><dd>292 MB, then the models on first launch<span>10.5 GB with the heat map, 557 MB without. Interrupted downloads pick up where they stopped.</span></dd></div>
+          <div><dt>First launch</dt><dd>The app isn&rsquo;t signed by Apple, so macOS blocks it once
+            <ol class="steps">
+              <li>Unzip it and drag Squint into Applications.</li>
+              <li>Open Squint. When macOS says it can&rsquo;t check it, click Done.</li>
+              <li>Open System Settings → Privacy &amp; Security, scroll down, click Open Anyway and confirm.</li>
+            </ol></dd></div>
         </dl>
       </div>
     </div>

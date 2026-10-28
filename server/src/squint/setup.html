@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Squint</title>
+<style>
+:root {
+  color-scheme: light dark;
+  --bg: #f6f7f6; --surface: #ffffff; --surface-2: #eef1f0;
+  --ink: #111417; --ink-2: #3f454c; --muted: #5f666e; --line: #dde2e0;
+  --ai: #0a6870; --hu: #ad2f4f;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #181818; --surface: #1f1f1f; --surface-2: #272727;
+    --ink: #f2f2f2; --ink-2: #c9c9c9; --muted: #9b9b9b; --line: #313131;
+    --ai: #5fb8bf; --hu: #e0849b;
+  }
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; min-height: 100vh; display: grid; place-items: center; padding: 32px 16px;
+  background: var(--bg); color: var(--ink);
+  font: 16px/1.5 Geist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+main {
+  width: 100%; max-width: 560px; background: var(--surface); border: 1px solid var(--line);
+  border-radius: 24px; padding: 40px;
+}
+h1 { margin: 0; font-size: 1.75rem; line-height: 2.25rem; letter-spacing: -0.02em; font-weight: 600; }
+p { margin: 12px 0 0; color: var(--ink-2); }
+ul { list-style: none; margin: 24px 0 0; padding: 0; border-top: 1px solid var(--line); }
+li { display: flex; justify-content: space-between; gap: 16px; padding: 12px 0; border-bottom: 1px solid var(--line); }
+li span:last-child { color: var(--muted); font-variant-numeric: tabular-nums; white-space: nowrap; }
+li.got span:last-child { color: var(--ai); }
+.total { display: flex; justify-content: space-between; margin-top: 12px; color: var(--muted); font-size: 0.875rem; }
+.actions { display: flex; gap: 12px; margin-top: 32px; flex-wrap: wrap; }
+button {
+  font: inherit; font-weight: 500; border-radius: 10px; padding: 10px 18px; cursor: pointer;
+  border: 1px solid var(--ink); background: var(--ink); color: var(--bg);
+}
+button.quiet { background: transparent; color: var(--ink); border-color: var(--line); }
+button:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+.bar { margin-top: 28px; height: 8px; border-radius: 4px; background: var(--surface-2); overflow: hidden; }
+.bar div { height: 100%; width: 0; background: var(--ink); transition: width 0.4s cubic-bezier(0.22, 1, 0.36, 1); }
+.meta { display: flex; justify-content: space-between; gap: 16px; margin-top: 10px; color: var(--muted);
+  font-size: 0.875rem; font-variant-numeric: tabular-nums; }
+.warn { color: var(--hu); }
+@media (prefers-reduced-motion: reduce) { .bar div { transition: none; } }
+@media (max-width: 520px) { main { padding: 24px; } }
+</style>
+</head>
+<body>
+<main id="root" aria-live="polite"><p>Opening Squint&hellip;</p></main>
+<script>
+const root = document.getElementById('root');
+const GB = 1e9, MB = 1e6;  // decimal, like Finder
+const size = (b) => b >= GB ? `${(b / GB).toFixed(1)} GB` : `${Math.max(1, Math.round(b / MB))} MB`;
+const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+let rate = null, last = null, rendered = '';
+
+async function call(method, path) {
+  const res = await fetch(path, { method, cache: 'no-store' });
+  if (!res.ok) throw new Error(res.status);
+  return res.json();
+}
+
+function list(s) {
+  return `<ul>${s.items.map((i) => `<li class="${i.done >= i.size ? 'got' : ''}"><span>${esc(i.label)}</span>
+    <span>${i.done >= i.size ? 'Downloaded' : size(i.size)}</span></li>`).join('')}</ul>`;
+}
+
+function memoryNote(s) {
+  return s.pair ? '' : `<p>This Mac has ${s.memory_gb} GB of memory, so Squint gives verdicts with its detector alone.
+    The word marks need 16 GB.</p>`;
+}
+
+function view(s) {
+  const total = s.items.reduce((n, i) => n + i.size, 0);
+  const done = s.items.reduce((n, i) => n + Math.min(i.done, i.size), 0);
+  const left = total - done;
+  if (s.phase === 'downloading' || s.phase === 'installing') {
+    const now = Date.now();
+    if (last && now > last.t) {
+      const r = (done - last.done) / ((now - last.t) / 1000);
+      rate = rate == null ? r : rate * 0.8 + r * 0.2;
+    }
+    last = { t: now, done };
+    const eta = rate > 0 ? Math.ceil(left / rate / 60) : null;
+    const pct = total ? Math.round((done / total) * 100) : 100;
+    return `<h1>${s.phase === 'installing' ? 'Unpacking the detector' : 'Downloading'}</h1>
+      <p>${s.phase === 'installing' ? 'Almost done.' : esc(s.current || '')}</p>
+      <div class="bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${pct}"><div style="width:${pct}%"></div></div>
+      <div class="meta"><span>${size(done)} of ${size(total)}</span>
+      <span>${s.phase === 'installing' ? '' : eta == null ? '' : eta <= 1 ? 'About a minute left' : `About ${eta} minutes left`}</span></div>
+      ${list(s)}
+      <p class="total">Quit any time. The download picks up where it stopped.</p>`;
+  }
+  last = null; rate = null;
+  if (s.phase === 'done') return `<h1>Starting Squint</h1><p>One moment.</p>`;
+  if (s.phase === 'error') {
+    const why = s.error === 'disk'
+      ? `Squint needs ${size(s.need_bytes)} free and this Mac has ${size(s.free_bytes)}. Free up some space, then try again.`
+      : s.error === 'network'
+        ? 'Squint couldn’t reach the download server. Check your connection, then try again.'
+        : esc(s.error);
+    return `<h1>${s.error === 'disk' ? 'Not enough space' : 'The download stopped'}</h1><p>${why}</p>
+      ${s.items.length ? list(s) : ''}
+      <div class="actions"><button data-go="start">Try again</button></div>`;
+  }
+  if (s.update && !s.items.length) {
+    return `<h1>A newer detector is ready</h1>
+      <p>Version ${esc(s.update)}. Squint keeps the one you have until this finishes.</p>
+      <div class="actions"><button data-go="update">Download</button>
+      <button class="quiet" data-go="skip">Not now</button></div>`;
+  }
+  return `<h1>${s.first_run ? 'Set up Squint' : 'Finish setting up Squint'}</h1>
+    <p>Squint checks writing on this Mac, so nothing you paste leaves it. First it needs its models.</p>
+    ${memoryNote(s)}
+    ${list(s)}
+    <div class="total"><span>${size(left)} to download</span><span>${size(s.free_bytes)} free</span></div>
+    <div class="actions"><button data-go="${s.update ? 'update' : 'start'}">Download ${size(left)}</button></div>`;
+}
+
+function show(s) {
+  const html = view(s);
+  if (html === rendered) return;
+  const focused = document.activeElement?.dataset?.go;
+  root.innerHTML = html;
+  rendered = html;
+  if (focused) root.querySelector(`[data-go="${focused}"]`)?.focus();
+}
+
+root.addEventListener('click', async (e) => {
+  const go = e.target.closest('button')?.dataset.go;
+  if (!go) return;
+  e.target.disabled = true;
+  const path = go === 'skip' ? '/api/setup/skip' : go === 'update' ? '/api/setup/start?update=true' : '/api/setup/start';
+  try { show(await call('POST', path)); } catch { /* the poll below shows the state */ }
+});
+
+async function waitForSquint() {
+  // The setup server closes, then the real one opens on the same port.
+  for (;;) {
+    try {
+      const st = await call('GET', '/api/status');
+      if (st && st.mode) return location.replace('/');
+    } catch { /* not up yet */ }
+    await new Promise((r) => setTimeout(r, 500));
+  }
+}
+
+async function poll() {
+  try {
+    const s = await call('GET', '/api/setup');
+    show(s);
+    if (s.phase === 'done') return waitForSquint();
+  } catch {
+    return waitForSquint();
+  }
+  setTimeout(poll, 1000);
+}
+poll();
+</script>
+</body>
+</html>

@@ -49,7 +49,9 @@ export function HowItWorks({ status }: { status: Status | null }) {
   const clf = !!status?.classifier?.ready;
   const minWords = status?.classifier?.min_words ?? 50;
   // The public site runs the detector alone; the word marks live in Squint for Mac.
+  // Inside Squint for Mac, preview means this Mac has under 16 GB of memory.
   const preview = status?.mode === 'preview';
+  const app = !!status?.app;
   const mac = (
     <a className="text-link" href={DOWNLOAD_HREF}>
       Squint for Mac
@@ -62,7 +64,9 @@ export function HowItWorks({ status }: { status: Status | null }) {
         <h1>How it works</h1>
         <p className="lede">
           {preview
-            ? <>A detector trained on human and AI writing gives the verdict. A second method, in {mac}, marks how predictable each word is.</>
+            ? app
+              ? 'A detector trained on human and AI writing gives the verdict. On Macs with 16 GB of memory, a second method marks how predictable each word is.'
+              : <>A detector trained on human and AI writing gives the verdict. A second method, in {mac}, marks how predictable each word is.</>
             : clf
               ? 'Squint uses two methods. A detector trained on human and AI writing gives the verdict. A second method measures how predictable each word is, and that is what the word marks show.'
               : 'Squint doesn’t hunt for giveaway words. It measures how predictable each word is, and compares that with how predictable it ought to be.'}
@@ -102,13 +106,15 @@ export function HowItWorks({ status }: { status: Status | null }) {
 
       <section className="how-section" aria-labelledby="method-title">
         <h2 id="method-title" className="section-title">
-          {preview ? 'The word marks, in Squint for Mac' : clf ? 'The word marks: two models, one ratio' : 'Two models, one ratio'}
+          {preview ? (app ? 'The word marks, on 16 GB Macs' : 'The word marks, in Squint for Mac') : clf ? 'The word marks: two models, one ratio' : 'Two models, one ratio'}
         </h2>
         <div className="prose">
           {preview && (
             <p>
-              The word marks need two 7-billion-parameter models, so they run on your own computer in {mac}. This site runs
-              the detector alone.
+              {app
+                ? 'The word marks need two 7-billion-parameter models and 16 GB of memory. This Mac has less, so Squint runs the detector alone.'
+                : <>The word marks need two 7-billion-parameter models, so they run on your own computer in {mac}. This site runs
+              the detector alone.</>}
             </p>
           )}
           <p>
@@ -163,7 +169,7 @@ export function HowItWorks({ status }: { status: Status | null }) {
         </h2>
         <div className="prose">
           <p>
-            {preview ? 'In Squint for Mac' : 'In a result'}, every word has its own little score: was it more or less predictable than the models expected at
+            {preview ? (app ? 'On 16 GB Macs' : 'In Squint for Mac') : 'In a result'}, every word has its own little score: was it more or less predictable than the models expected at
             that spot?
           </p>
         </div>
