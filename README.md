@@ -23,8 +23,8 @@ What you get:
 - **Show me why**: word-level heat map, hover any word for the model's top 5 guesses and where
   the actual word ranked, per-sentence and per-paragraph leanings, plain-English reasons.
 - **Tested on** held-out human writing (including 512 non-native English essays) and ChatGPT
-  and Claude output. At 50+ words it wrongly flagged 4 of 1,340 human texts (1 of 512 non-native),
-  and caught 744 of 747 ChatGPT and 674 of 731 Claude samples.
+  and Claude output. At 50+ words it wrongly flagged 3 of 1,340 human texts (0 of 512 non-native),
+  and caught 747 of 751 ChatGPT and 699 of 733 Claude samples.
 
 Status: live as a public preview. The accuracy target in [`docs/roadmap.md`](docs/roadmap.md)
 (GPTZero-level: at least 97% of AI text caught, at most 1% of any kind of human writing flagged)

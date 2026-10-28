@@ -20,6 +20,7 @@ wikipedia = 600           # 300 until 2026-10-25; doubled for Claude's encyclope
 amazon_reviews = 300
 stackexchange = 300
 reddit = 300              # Webis-TLDR-17: first-person posts and comments, 2006-2016
+blogs = 300               # Blog Authorship Corpus: first-person personal blogs, 2004 (R1)
 persuade_extra_native = 500
 persuade_extra_ell = 300
 

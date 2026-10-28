@@ -254,7 +254,7 @@ export function HowItWorks({ status }: { status: Status | null }) {
             <dt className="row-label">Current AI models</dt>
             <dd className="row-body">
               {clf
-                ? 'The detector was trained on ChatGPT and Claude. In testing it caught 744 of 747 ChatGPT samples and 674 of 731 Claude samples, so some Claude writing gets through. Gemini and other models haven’t been tested, and new model versions may slip past it until it is retrained.'
+                ? 'The detector was trained on ChatGPT and Claude. In testing it caught 747 of 751 ChatGPT samples and 699 of 733 Claude samples, so some Claude writing gets through. Gemini and other models haven’t been tested, and new model versions may slip past it until it is retrained.'
                 : 'Writing from current models scores inside the range people write in, so Squint misses most of it. In testing it caught none of 288 ChatGPT samples and 32 of 289 Claude samples. Gemini hasn’t been tested.'}{' '}
               <a className="text-link" href={hrefFor('accuracy')}>
                 See the accuracy page

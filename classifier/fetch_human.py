@@ -382,6 +382,50 @@ def reddit_rows(n: int, refresh: bool) -> list[dict]:
                 "CC BY 4.0 (Webis-TLDR-17); posts by Reddit users", {"subreddit": p["sub"]}) for p in picked]
 
 
+# --- Personal blogs (Blog Authorship Corpus, 2004) ----------------------------------------
+
+def blog_text(raw: str) -> str:
+    """One paragraph: the corpus flattened its line breaks into runs of spaces that cannot be told
+    apart from ordinary spacing, so both sides of this source are single paragraphs (the matched
+    AI prompts ask for one, and build_dataset flattens both)."""
+    return normalize_text(re.sub(r"\s+", " ", raw).strip())
+
+
+def blog_rows(n: int, refresh: bool) -> list[dict]:
+    """First-person personal blog posts, the nearest open stand-in for personal essays (Hippocorpus
+    is no longer downloadable). The opening sentence is the subject cue for the matched AI rows."""
+    raw = cached_json("blog_blocks.json", refresh,
+                      lambda: hf_blocks("tasksource/blog_authorship_corpus", "default", "train", 80, "blogs"))
+    items, per_author = [], Counter()
+    for r in sorted(raw, key=lambda r: r["_row"]):
+        t = r.get("text") or ""
+        # link stubs and HTML entities are cues the AI side never has
+        if "urlLink" in t or re.search(r"&\w+;|https?://|www\.|<\w", t):
+            continue
+        text = blog_text(t)
+        words = text.split()
+        if not 120 <= len(words) <= 450:
+            continue
+        # first person, ordinary casing (drops Title Case Every Word posts), mostly prose
+        caps = sum(w[:1].isupper() for w in words) / len(words)
+        if len(re.findall(r"\bI\b", text)) < 3 or caps > 0.35 or sum(c.isdigit() for c in text) > 40:
+            continue
+        first = re.split(r"(?<=[.!?])\s+", text, maxsplit=1)[0]
+        if not 5 <= len(first.split()) <= 30:
+            continue
+        author = str(r.get("id"))
+        per_author[author] += 1
+        if per_author[author] > 2:  # many authors rather than many posts by a few
+            continue
+        items.append({"_uid": str(r["_row"]), "text": text, "author": author, "first": first,
+                      "field": r.get("topic") or "", "age": r.get("age"), "date": r.get("date")})
+    picked = balanced(items, "author", n, "blog-pick")
+    return [row("blogs", p["_uid"], p["text"], "personal", f"blog:{p['_uid']}", p["first"],
+                None if p["field"] in ("indUnk", "") else p["field"],
+                "Blog Authorship Corpus (Schler et al. 2006, blogger.com 2004); non-commercial research use",
+                {"author": p["author"], "age": p["age"], "date": p["date"]}) for p in picked]
+
+
 # --- PERSUADE extra -----------------------------------------------------------------------
 
 def persuade_extra_rows(n_native: int, n_ell: int) -> list[dict]:
@@ -478,7 +522,7 @@ def import_ood(src_dir: Path) -> None:
 
 # --- main --------------------------------------------------------------------------------
 
-FETCHERS = ("persuade", "arxiv", "wikipedia", "amazon-reviews", "stackexchange", "reddit")
+FETCHERS = ("persuade", "arxiv", "wikipedia", "amazon-reviews", "stackexchange", "reddit", "blogs")
 
 
 def main() -> None:
@@ -516,6 +560,8 @@ def main() -> None:
                 got = se_rows(cfg["stackexchange"], args.refresh)
             elif name == "reddit":
                 got = reddit_rows(cfg["reddit"], args.refresh)
+            elif name == "blogs":
+                got = blog_rows(cfg["blogs"], args.refresh)
             else:
                 raise SystemExit(f"unknown source {name}; choose from {FETCHERS}")
         except (OSError, ValueError, KeyError) as e:  # network or API trouble: keep the others

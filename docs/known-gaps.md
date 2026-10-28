@@ -2,14 +2,14 @@
 
 ## Status (2026-10-15): the trained classifier sets the verdict
 
-The ModernBERT-base classifier from the 2026-10-18 overnight run (`calibration/classifier.json`,
-report `classifier/reports/2026-10-18.json`) now decides verdicts for texts of 50+ words.
+The ModernBERT-base classifier from the 2026-10-27 overnight run (promoted 2026-10-28) (`calibration/classifier.json`,
+report `classifier/reports/2026-10-27.json`) now decides verdicts for texts of 50+ words.
 Binoculars still drives the word marks. Held-out results at 50+ words:
 
-- False flags: **4 of 1,340** human texts (0.3%), **1 of 512** non-native.
-- ChatGPT caught: **744 of 747** (99.6%). Claude caught: **674 of 731** (92%).
-- 50–149 words: ChatGPT 99.3% caught, Claude 90% caught and 9.9% called "Likely human".
-- 150+ words: 0 of 587 human texts flagged, ChatGPT 100%, Claude 95%.
+- False flags: **3 of 1,340** human texts (0.3%), **1 of 512** non-native.
+- ChatGPT caught: **747 of 751** (99.5%). Claude caught: **699 of 733** (95.4%).
+- 50–149 words: ChatGPT 99.3% caught, Claude 93.5% caught and 6.5% called "Likely human".
+- 150+ words: 0 of 587 human texts flagged, ChatGPT 99.7%, Claude 97.8%.
 - Under 50 words the classifier wrongly flagged 2.5% of human texts, so Squint shows
   "Too short to tell" there.
 
@@ -24,7 +24,7 @@ Gaps that remain:
 - **Claude imitating a learner.** Asked to write like a B1 English learner, Claude was called
   "Likely human" 6 of 20 times.
 
-- **Claude in short texts.** About 1 in 8 Claude texts of 50–149 words is called "Likely human".
+- **Claude in short texts.** About 1 in 15 Claude texts of 50–149 words is called "Likely human".
 - **Selection bias.** The 50-word minimum was chosen after seeing the evaluation results, and
   the evaluation sets were reused across runs. The fresh re-check above eases this, but its AI
   side is small (195 texts).

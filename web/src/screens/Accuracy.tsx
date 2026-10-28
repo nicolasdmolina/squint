@@ -77,8 +77,8 @@ function KnownGap({ clf }: { clf: boolean }) {
           {gap.title}
         </h2>
         <p>
-          In testing on texts of 50 words or more that it had never seen, Squint caught 744 of 747 ChatGPT samples and 674 of
-          731 Claude samples. The Claude texts it missed were mostly short: under 150 words it caught about 90% of them.
+          In testing on texts of 50 words or more that it had never seen, Squint caught 747 of 751 ChatGPT samples and 674 of
+          731 Claude samples. The Claude texts it missed were mostly short: under 150 words it caught about 94% of them.
           Gemini hasn&rsquo;t been tested, and neither has AI text that a person edited or ran through a paraphrasing tool.
           Human college essays from a source it never trained on are wrongly flagged about 4 to 6% of the time, far more than
           the test set below shows.

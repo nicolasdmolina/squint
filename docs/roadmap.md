@@ -21,7 +21,7 @@ of that gap.
 
 ## R1. College-essay false flags
 
-Status: ready
+Status: in progress (2026-10-28)
 
 Every run since 10-14 wrongly flags 3.8–5.7% of the out-of-distribution college essays
 (`ood-college-essay`, 70 essays scored at several lengths), against about 0.4% on the
@@ -33,7 +33,10 @@ likely to go wrong. No training source is first-person narrative of that kind.
   Open Data is retired, and the Hugging Face copy is a loader script without the data.
 - The Blog Authorship Corpus (2004 blogs, about 681,000 posts; parquet copy at
   `tasksource/blog_authorship_corpus` on Hugging Face) is the nearest open replacement:
-  first-person, informal, pre-ChatGPT. It needs a fetcher and matched AI plan items.
+  first-person, informal, pre-ChatGPT. Added 2026-10-28 as the `blogs` source: 284 posts
+  (at most 2 per author, 120–450 words, no link stubs), with matched ChatGPT and Claude
+  entries written from each post's opening line. The corpus lost its line breaks, so both
+  sides are flattened to one paragraph in `build_dataset.py`.
 - R2 adds informal first-person writing, which may help partly.
 
 Done when: college-essay false flags are at or under 1.5% across two runs, with the other
@@ -64,6 +67,12 @@ one extra false flag in 1,000 fresh human texts. See
 [`../classifier/reports/2026-10-22-learner-check.md`](../classifier/reports/2026-10-22-learner-check.md).
 The 10-23 run checked the same way: 80% on the learner set, 2 fresh human texts flagged, so
 10-18 is still the best candidate. Later runs should be checked the same way before choosing.
+
+2026-10-28: 10-27 (2ba047ff) checked the same way: 95% on the learner set (10-18: 100% in this
+re-run), Claude 96.7% and ChatGPT 100% on the fresh prompts, 1 of 981 fresh humans flagged (the
+same Reddit ELI5 text as 10-18). It is better on held-out sources, so it was promoted; 10-18 stays
+in `server/models/classifier/` for rollback. See
+[`../classifier/reports/2026-10-28-learner-check.md`](../classifier/reports/2026-10-28-learner-check.md).
 
 ## R4. Claude encyclopedia and abstract misses
 

@@ -59,7 +59,8 @@ PARAPHRASE_STYLES = (
 # prompt_id prefix -> the human source whose prompts the item mirrors (used by the split)
 FAMILY_OF_PREFIX = {"persuade": "persuade", "ellipse": "ellipse", "toefl-style": "toefl91", "toefl91": "toefl91",
                     "news": "ghostbuster-news", "wp": "ghostbuster-wp", "arxiv": "arxiv", "wiki": "wikipedia",
-                    "review": "amazon-reviews", "forum": "stackexchange", "reddit": "reddit"}
+                    "review": "amazon-reviews", "forum": "stackexchange", "reddit": "reddit",
+                    "blog": "blogs"}
 
 
 def family_of(prompt_id: str) -> str:
@@ -124,6 +125,17 @@ def matched_items(gen: str, extra: list[dict], cal_human: list[dict]) -> list[di
                             f"Write a Reddit post or comment for r/{sub} (about {tgt} words), in the first person, "
                             f"that gets across this: \"{t}\". Write it the way a regular user types it, and give "
                             f"only the post text.", "personal", h["id"], tgt))
+        elif src == "blogs":
+            field = h.get("topic")
+            who = f"someone who works in {field.lower()}" if field and field != "Student" else \
+                "a student" if field == "Student" else "an ordinary person"
+            tgt = min(about(n), 400)
+            out.append(item(gen, "matched", "blog" if tgt >= 150 else "short", "personal", h["prompt_id"],
+                            f"Write an entry (about {tgt} words) for your own personal blog, in the first person, "
+                            f"as {who} writing about their own life. Write about what this opening line is "
+                            f"about, in your own words without repeating it: \"{t}\". Write it as one single "
+                            f"paragraph with no line breaks, and give only the entry text.", "personal",
+                            h["id"], tgt))
     # news and stories from calibration leads the calibration plan did not use for this generator
     cal_plan_pids = {p["prompt_id"] for p in read_jsonl(CAL_GEN / "plan.jsonl")
                      if p["source"] == gen} if (CAL_GEN / "plan.jsonl").exists() else set()

@@ -39,6 +39,9 @@ cal_build = cal_module("build_dataset")  # calibration/build_dataset.py: variant
 MIN_AI_PER_HUMAN = 0.5
 
 
+ONE_PARAGRAPH = {"blogs"}
+
+
 def load_bases() -> tuple[list[dict], list[dict]]:
     """Base documents (one per original text) and rows dropped on the way."""
     bases, dropped = [], []
@@ -64,7 +67,8 @@ def load_bases() -> tuple[list[dict], list[dict]]:
                 if from_plan and not it:
                     dropped.append({"id": a["id"], "reason": "not in plan.jsonl"})
                     continue
-                if a["kind"] in ("news", "short") and it.get("variant") != "paraphrase" and \
+                if (a["kind"] in ("news", "short") or a["prompt_id"].startswith("blog:")) and \
+                        it.get("variant") != "paraphrase" and \
                         cal_build.copies_prompt(a["text"], prompt_text.get(a["prompt_id"])):
                     dropped.append({"id": a["id"], "reason": "copies a 10-word run of its human prompt"})
                     continue
@@ -74,6 +78,11 @@ def load_bases() -> tuple[list[dict], list[dict]]:
                               "gen_variant": it.get("variant") or ("calibration-mixed-part" if a["role"] == "mixed_part"
                                                                    else "calibration"),
                               "origin_id": it.get("origin_id"), "model_id": a.get("model_id")})
+    # sources whose human texts lost their line breaks: both sides become one paragraph, so
+    # layout is never the label (fetch_human.blog_text)
+    for b in bases:
+        if b["family"] in ONE_PARAGRAPH:
+            b["text"] = " ".join(b["text"].split())
     # A new human source joins only once its matched AI rows exist; trained alone, its style
     # (e.g. Reddit's) would read as a "human" cue. Generation runs after the night's build, so
     # without this a source fetched today would train one-sided tonight.

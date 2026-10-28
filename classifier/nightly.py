@@ -323,7 +323,7 @@ class Night:
         return done[0] if done[0].name not in reported else None
 
     def human_sources_missing(self) -> bool:
-        want = {"arxiv", "wikipedia", "amazon-reviews", "stackexchange", "persuade", "reddit"}
+        want = {"arxiv", "wikipedia", "amazon-reviews", "stackexchange", "persuade", "reddit", "blogs"}
         path = DATA_DIR / "human_extra.jsonl"
         if not path.exists():
             return True
