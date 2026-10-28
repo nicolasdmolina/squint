@@ -12,7 +12,8 @@ How a night goes (all stages are separate processes in their own process groups)
   2. plan      extend classifier/generated/plan.jsonl (seconds)
   3. generate  one process per generator (config.toml [generate].order), started together and left
                running in the background for the whole window; each stops at its per-night
-               call cap, on auth/usage-limit errors, or 2 minutes before the window ends
+               call cap, on auth errors, or 2 minutes before the window ends; a usage limit
+               is waited out until the reset time the CLI reports (at most 4 times a night)
   4. build     data/dataset.jsonl from everything generated so far (minutes), after waiting up to
                BUILD_WAIT_MIN for the generators -- skipped when an unfinished training run
                is waiting to be resumed

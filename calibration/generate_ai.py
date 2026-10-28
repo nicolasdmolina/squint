@@ -30,7 +30,7 @@ import subprocess
 import sys
 import tempfile
 import time
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
@@ -54,6 +54,9 @@ BACKOFF_S = (30, 120, 300)
 LIMIT_PATTERNS = re.compile(
     r"hit your (session|usage|weekly) limit|usage limit|rate[ _-]?limit(ed)?|quota|"
     r"api_error_status\"?:\s*429|too many requests|resets? (at )?\d", re.I)
+RESET_PATTERN = re.compile(r"resets (\d{1,2})(?::(\d\d))?\s*([ap]m)(?: \(([\w/+-]+)\))?", re.I)
+LIMIT_WAIT_FALLBACK_S = 3600  # when the message gives no reset time
+LIMIT_WAITS = 4               # most limit waits per run before giving up for the night
 AUTH_PATTERNS = re.compile(
     r"IneligibleTier|not logged in|please log ?in|login required|run .*login|unauthori[sz]ed|"
     r"invalid api key|authentication (failed|required)|Error authenticating|OAuth token", re.I)
@@ -471,6 +474,24 @@ def plan_batches(todo: list[dict]) -> list[list[dict]]:
     return batches
 
 
+def limit_reset(message: str, now: datetime | None = None) -> datetime | None:
+    """When a usage limit lifts, from CLI text like "resets 4am (America/New_York)" or
+    "resets 1:10am"; the next such time after `now`. None when the text has no reset time."""
+    m = RESET_PATTERN.search(message)
+    if not m:
+        return None
+    hour, minute, ampm, zone = int(m[1]) % 12, int(m[2] or 0), m[3].lower(), m[4]
+    hour += 12 if ampm == "pm" else 0
+    try:
+        from zoneinfo import ZoneInfo
+        tz = ZoneInfo(zone) if zone else None
+    except (KeyError, ValueError, ImportError):
+        tz = None
+    now = (now or datetime.now().astimezone()).astimezone(tz)
+    at = now.replace(hour=hour, minute=minute, second=0, microsecond=0)
+    return at if at > now else at + timedelta(days=1)
+
+
 def run_source(source: str, limit_calls: int | None, max_rounds: int, gen_dir: Path = GEN_DIR,
                should_stop=None) -> None:
     """Generate `source`'s pending plan items from gen_dir/plan.jsonl into gen_dir/ai_<source>.jsonl.
@@ -484,7 +505,7 @@ def run_source(source: str, limit_calls: int | None, max_rounds: int, gen_dir: P
     # run the CLIs from an empty directory outside the workspace so no project AGENTS.md /
     # CLAUDE.md / GEMINI.md context is loaded into the writing requests
     workdir = Path(tempfile.gettempdir()) / "squint-gen-cwd" / source
-    calls = 0
+    calls = limit_waits = 0
     st = dict(load_status(gen_dir).get(source, {}))
     hint_ids = prior_rejects(call_dir, {it["id"]: it for it in plan}) - set(done)
     for rnd in range(max_rounds):
@@ -522,8 +543,21 @@ def run_source(source: str, limit_calls: int | None, max_rounds: int, gen_dir: P
                 if LIMIT_PATTERNS.search(res["stderr"] + res.get("text", "")):
                     st.update({"rate_limited": True, "reason": (res["stderr"] or res["text"])[-600:], "at": now()})
                     save_status(source, st, gen_dir)
-                    print(f"[{source}] USAGE LIMIT - stopping; rerun later to resume:\n{res['stderr'][-400:]}", flush=True)
-                    return
+                    # a caller with a deadline (the nightly) waits for the limit to lift; others stop
+                    if should_stop is None or limit_waits >= LIMIT_WAITS:
+                        print(f"[{source}] USAGE LIMIT - stopping; rerun later to resume:\n{res['stderr'][-400:]}", flush=True)
+                        return
+                    limit_waits += 1
+                    reset = limit_reset(res["stderr"] + " " + res.get("text", ""))
+                    until = reset.timestamp() + 120 if reset else time.time() + LIMIT_WAIT_FALLBACK_S
+                    print(f"[{source}] USAGE LIMIT - waiting until {datetime.fromtimestamp(until):%H:%M} "
+                          f"({'reset time from the CLI' if reset else 'no reset time given'})", flush=True)
+                    while time.time() < until:
+                        if should_stop():
+                            print(f"[{source}] stop requested while waiting for the limit; ending cleanly", flush=True)
+                            return
+                        time.sleep(min(60, max(0.0, until - time.time())))
+                    continue
                 wait = BACKOFF_S[min(attempt, len(BACKOFF_S) - 1)]
                 print(f"[{source}] call failed (attempt {attempt + 1}); sleeping {wait}s: {res['stderr'][-300:]!r}", flush=True)
                 time.sleep(wait)

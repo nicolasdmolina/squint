@@ -14,7 +14,7 @@ report each morning. Ticket: `.scratch/squint-chatgpt-classifier/spec.md`.
 | `config.toml` | Every setting: held-out sources, per-night call caps, model, training, gate. |
 | `sources.json` | The human sources with URL, licence and role (train / holdout / ood). |
 | `fetch_human.py` | Downloads the new human sources (stdlib). `fetch` writes `data/human_extra.jsonl`; `ood --from DIR` imports the OOD sets. Each source is cached in `data/raw/`; failures are retried on the next run. |
-| `generate.py` | AI writing plan + runner. Reuses `calibration/generate_ai.py` (its CLI calls, batching, acceptance checks and auth/usage-limit stops) and only adds plan items and an output dir. |
+| `generate.py` | AI writing plan + runner. Reuses `calibration/generate_ai.py` (its CLI calls, batching, acceptance checks auth stops, and usage-limit waits until the reported reset) and only adds plan items and an output dir. |
 | `build_dataset.py` | `data/dataset.jsonl` + `dataset-manifest.json` (dataset hash, counts). Excerpts are cut the same way as in calibration, so Binoculars scores can be joined by id. Fails on any split leakage. |
 | `splits.py` | Source-held-out split, dedup and the leakage checker (unit-tested). |
 | `train.py` | Fine-tuning on MPS: chunked 512-token inputs, checkpoints, resumable, SIGTERM-safe, deterministic. |
