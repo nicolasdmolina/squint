@@ -316,8 +316,8 @@ main section { padding: 96px 0; }
 .specs div { display: grid; grid-template-columns: 112px minmax(0, 1fr); gap: 16px; padding: 16px 0; border-bottom: 1px solid var(--line); }
 .specs dt { color: var(--muted); font-size: 0.875rem; line-height: 1.5rem; }
 .specs dd { margin: 0; color: var(--ink); }
-.specs .steps { margin: 8px 0 0; padding-left: 1.25rem; color: var(--ink-2); font-size: 0.875rem; line-height: 1.25rem; }
-.specs .steps li + li { margin-top: 4px; }
+.specs .install { margin: 8px 0 0; padding-left: 1.25rem; color: var(--ink-2); font-size: 0.875rem; line-height: 1.25rem; }
+.specs .install li + li { margin-top: 4px; }
 .specs dd span { display: block; margin-top: 4px; color: var(--ink-2); font-size: 0.875rem; line-height: 1.25rem; }
 @media (max-width: 1023px) { .download { grid-template-columns: minmax(0, 1fr); padding: 32px; gap: 32px; } }
 @media (max-width: 640px) { .download { padding: 24px; } .download h2 { font-size: 1.875rem; line-height: 2.25rem; } .specs div { grid-template-columns: minmax(0, 1fr); gap: 4px; } }
@@ -472,7 +472,7 @@ footer .fine a { text-decoration: underline; text-decoration-color: var(--line-s
       <div class="section-head reveal">
         <h2>How it works</h2>
       </div>
-      <ol class="steps">
+      <ol class="install">
         <li class="reveal"><h3>Paste or upload</h3><p>Type, paste, or drop in a .docx, .pdf, or .txt file. Up to 500 words and 3 checks an hour here; 2,500 words and no limit in the Mac app.</p></li>
         <li class="reveal"><h3>A trained classifier reads it</h3><p>ModernBERT, fine tuned on human, ChatGPT, and Claude writing, gives the verdict and checks the text in overlapping 150 word passages.</p></li>
         <li class="reveal"><h3>Read the evidence</h3><p>Likely human, Uncertain, or Likely AI, the AI written share, and the passages behind it. The Mac app adds Binoculars: two Falcon-7B models rate every word.</p></li>
@@ -522,7 +522,7 @@ footer .fine a { text-decoration: underline; text-decoration-color: var(--line-s
           <div><dt>Memory</dt><dd>16 GB or more for the word heat map<span>Under 16 GB you get the detector only.</span></dd></div>
           <div><dt>Download</dt><dd>292 MB, then the models on first launch<span>10.5 GB with the heat map, 557 MB without. Interrupted downloads pick up where they stopped.</span></dd></div>
           <div><dt>First launch</dt><dd>The app isn&rsquo;t signed by Apple, so macOS blocks it once
-            <ol class="steps">
+            <ol class="install">
               <li>Unzip it and drag Squint into Applications.</li>
               <li>Open Squint. When macOS says it can&rsquo;t check it, click Done.</li>
               <li>Open System Settings → Privacy &amp; Security, scroll down, click Open Anyway and confirm.</li>
