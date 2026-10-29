@@ -1,49 +1,41 @@
 # Cloud preview servers
 
-The public site's checks run on cloud servers, not the Mac mini. Each one runs `Dockerfile` here:
-the preview server with the classifier as ONNX (no torch, no Binoculars pair), about 800 MB of memory,
-0.3–0.5 s a check after a 2–3 s cold start.
+The public site's checks run on Modal, with the Mac mini as backup. The cloud server is the preview
+server with the classifier as ONNX (no torch, no Binoculars pair): about 800 MB of memory, 0.3–0.5 s a
+check once the model is loaded.
 
 ```
 visitor ─▶ Worker (ops/edge) ─▶ pages: GitHub Pages (.github/workflows/site.yml)
-                             └▶ /api: BACKENDS in order ─▶ Oracle A1 (primary)
-                                                       └▶ Modal (standby, scales to zero)
+                             └▶ /api: BACKENDS in order ─▶ Modal (scales to zero)
+                                                       └▶ origin: the Mac mini tunnel
                                   all down ─▶ 503 offline ─▶ the app shows example results
 ```
 
-## Build the image
+## Modal
+
+```sh
+uvx modal secret create squint-edge SQUINT_EDGE_SECRET=<the Worker's EDGE_SECRET>
+uvx modal deploy ops/cloud/modal_app.py
+```
+
+The image downloads the promoted detector's ONNX export from its GitHub release, so run
+`classifier/publish.py` first. It scales to zero after 5 idle minutes; the web UI's first
+`/api/status` call wakes it while the visitor is still typing. At a few visits a month this stays
+far inside Modal's free monthly credit.
+
+## Any other host
+
+`Dockerfile` builds the same server for a VM:
 
 ```sh
 gh release download classifier-<version> -p '*-onnx.tar.gz' -D /tmp
 tar -xzf /tmp/squint-classifier-<version>-onnx.tar.gz -C server/models/classifier
 docker build -f ops/cloud/Dockerfile -t squint-cloud .
+docker run -d --restart unless-stopped -p 8017:8017 -e SQUINT_EDGE_SECRET=... squint-cloud
 ```
 
-`<version>` is `calibration/classifier.json`'s. The build fails if the ONNX export is missing or a
-second detector is in `server/models/classifier/`. Instead of downloading, you can export one
-locally with `python -m squint.onnx_export` (see its docstring).
-
-Run it with `SQUINT_EDGE_SECRET` set to the Worker's `EDGE_SECRET`: without it the server takes
-`/api` calls from anyone and rate-limits by the caller's address.
-
-## Oracle Cloud (primary)
-
-Always Free A1 shape, 1 OCPU and 4 GB (Ubuntu, arm64). Oracle reclaims idle Always Free VMs
-when CPU, network and memory all stay under 20% for 7 days; the server holds about 20% of 4 GB
-with the model loaded, so keep `SQUINT_IDLE_UNLOAD_S` high (86400) to keep the model in memory.
-
-```sh
-docker run -d --restart unless-stopped --name squint -p 8017:8017 \
-  -e SQUINT_EDGE_SECRET=... -e SQUINT_IDLE_UNLOAD_S=86400 squint-cloud
-```
-
-Put it behind a Cloudflare Tunnel (as `ops/cloudflared-squint.yml` does for the Mac mini) rather
-than opening port 8017.
-
-## Modal (standby)
-
-Same image, `min_containers=0`, so it costs nothing while Oracle answers. Give it the same
-`SQUINT_EDGE_SECRET` as a Modal secret and add its URL to the Worker's `BACKENDS` after Oracle's.
+Without `SQUINT_EDGE_SECRET` the server takes `/api` calls from anyone and rate-limits by the
+caller's address.
 
 ## Worker settings
 
@@ -53,4 +45,4 @@ Same image, `min_containers=0`, so it costs nothing while Oracle answers. Give i
 ## A new detector
 
 `classifier/promote.py`, then `classifier/publish.py` (uploads the release, rewrites
-`mac/manifest.json`), then rebuild and redeploy each server with the new ONNX export.
+`mac/manifest.json`), then `modal deploy` again.
