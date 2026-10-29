@@ -1,78 +1,78 @@
 {
   "classifier": {
-    "version": "2026-10-18",
-    "url": "https://github.com/nicolasdmolina/squint/releases/download/classifier-2026-10-18/squint-classifier-2026-10-18.tar.gz",
-    "bytes": 556558427,
-    "sha256": "7d0b4fac1a005f90ebd89df979bf5e0fc0be6055438ed50456a1d77fc944786b",
+    "version": "2026-10-27",
+    "url": "https://github.com/nicolasdmolina/squint/releases/download/classifier-2026-10-27/squint-classifier-2026-10-27.tar.gz",
+    "bytes": 556531652,
+    "sha256": "df0a7292d9068a5e7be0863655dcdbd475c0a73d621cae2eb14a2c9289c8bf07",
     "config": {
-      "version": "2026-10-18",
-      "run": "modernbert-base-f37cef8b35373ff6",
+      "version": "2026-10-27",
+      "run": "modernbert-base-2ba047ff8496e270",
       "model": "answerdotai/ModernBERT-base",
-      "path": "models/classifier/modernbert-base-f37cef8b35373ff6",
+      "path": "models/classifier/modernbert-base-2ba047ff8496e270",
       "max_length": 512,
       "max_chunks": 8,
       "min_words": 50,
-      "ai_above": 0.9991573095321655,
-      "human_below": 0.9991573095321655,
-      "n_tune_ai": 1131,
+      "ai_above": 0.9972207546234131,
+      "human_below": 0.9972207546234131,
+      "n_tune_ai": 1265,
       "held_out": {
         "false_flags": {
           "n": 1340,
-          "flagged": 4,
-          "rate": 0.003,
+          "flagged": 3,
+          "rate": 0.0022,
           "ci95": [
-            0.0012,
-            0.0077
+            0.0008,
+            0.0066
           ]
         },
         "false_flags_non_native": {
           "n": 512,
-          "flagged": 1,
-          "rate": 0.002,
+          "flagged": 0,
+          "rate": 0.0,
           "ci95": [
-            0.0003,
-            0.011
+            0.0,
+            0.0074
           ]
         },
         "chatgpt_catch": {
-          "n": 747,
-          "flagged": 744,
-          "rate": 0.996,
+          "n": 751,
+          "flagged": 747,
+          "rate": 0.9947,
           "ci95": [
-            0.9883,
-            0.9986
+            0.9864,
+            0.9979
           ]
         }
       },
       "by_length": {
         "20-49": {
           "humans": 750,
-          "false_flag": 0.0253,
-          "humans_likely_human": 0.9747,
+          "false_flag": 0.0333,
+          "humans_likely_human": 0.9667,
           "chatgpt": {
-            "n": 428,
-            "caught": 0.9159,
-            "called_human": 0.0841
+            "n": 430,
+            "caught": 0.9279,
+            "called_human": 0.0721
           },
           "claude": {
-            "n": 416,
-            "caught": 0.7308,
-            "called_human": 0.2692
+            "n": 417,
+            "caught": 0.7722,
+            "called_human": 0.2278
           }
         },
         "50-149": {
           "humans": 753,
-          "false_flag": 0.0053,
-          "humans_likely_human": 0.9947,
+          "false_flag": 0.004,
+          "humans_likely_human": 0.996,
           "chatgpt": {
-            "n": 426,
+            "n": 428,
             "caught": 0.993,
             "called_human": 0.007
           },
           "claude": {
-            "n": 415,
-            "caught": 0.9012,
-            "called_human": 0.0988
+            "n": 416,
+            "caught": 0.9351,
+            "called_human": 0.0649
           }
         },
         "150+": {
@@ -80,18 +80,18 @@
           "false_flag": 0.0,
           "humans_likely_human": 1.0,
           "chatgpt": {
-            "n": 321,
-            "caught": 1.0,
-            "called_human": 0.0
+            "n": 323,
+            "caught": 0.9969,
+            "called_human": 0.0031
           },
           "claude": {
-            "n": 316,
-            "caught": 0.9494,
-            "called_human": 0.0506
+            "n": 317,
+            "caught": 0.9779,
+            "called_human": 0.0221
           }
         }
       },
-      "report": "classifier/reports/2026-10-18.json",
+      "report": "classifier/reports/2026-10-27.json",
       "gate_pass": true
     }
   }
