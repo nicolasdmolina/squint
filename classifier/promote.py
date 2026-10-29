@@ -13,7 +13,8 @@ which the server reads (like thresholds.json) to decide whether the classifier i
                 human_above)
   min_words     shorter texts get "too short to tell"
 
-Refuses a report whose gate did not pass, unless --force.
+Refuses a report whose gate did not pass, unless --force. Then run publish.py so Squint for Mac
+and the cloud servers get the new detector.
 """
 
 from __future__ import annotations
