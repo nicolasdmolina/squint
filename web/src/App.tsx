@@ -6,9 +6,9 @@ import { Rail } from './components/Chrome';
 import { useHashRoute, useThemePref } from './lib/hooks';
 import { Accuracy } from './screens/Accuracy';
 import { Checker } from './screens/Checker';
+import { Examples } from './screens/Examples';
 import { HowItWorks } from './screens/HowItWorks';
 import { Login } from './screens/Login';
-import { DOWNLOAD_HREF } from './copy';
 import { squintTheme } from './theme';
 import type { Session, Status } from './types';
 
@@ -87,7 +87,14 @@ export function App() {
           onLock={lock}
         />
         <main id="main" ref={mainRef} tabIndex={-1} className="main">
-          {!session && (bootFailed ? <BootFailed code={bootFailed} onRetry={loadSession} /> : <Booting />)}
+          {!session &&
+            (bootFailed === 'offline' || bootFailed === 'network' ? (
+              <Examples onRetry={loadSession} />
+            ) : bootFailed ? (
+              <BootFailed onRetry={loadSession} />
+            ) : (
+              <Booting />
+            ))}
           {session && !unlocked && (
             <Login
               note={lockNote}
@@ -118,22 +125,7 @@ function Booting() {
   );
 }
 
-function BootFailed({ code, onRetry }: { code: string; onRetry: () => void }) {
-  // `offline` comes from the public site's edge when the Mac mini behind it is unreachable.
-  if (code === 'offline') {
-    return (
-      <div className="boot" role="alert">
-        <p className="boot-title">Squint is offline.</p>
-        <p>The Mac mini it runs on isn&rsquo;t answering right now. Try again later.</p>
-        <div className="boot-actions">
-          <Button label="Try again" variant="secondary" onClick={onRetry} />
-          <a className="text-link" href={DOWNLOAD_HREF}>
-            Run Squint on your own Mac
-          </a>
-        </div>
-      </div>
-    );
-  }
+function BootFailed({ onRetry }: { onRetry: () => void }) {
   return (
     <div className="boot" role="alert">
       <p className="boot-title">Squint isn&rsquo;t answering.</p>

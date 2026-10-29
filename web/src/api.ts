@@ -62,8 +62,9 @@ export const api = {
     form.append('file', file);
     return request<Extracted>('/extract', { method: 'POST', body: form }, signal);
   },
+  /** A queued job to poll, or (in preview) the finished job itself. */
   analyze: (text: string) =>
-    request<{ job_id: string; position: number }>('/analyze', { method: 'POST', body: JSON.stringify({ text }) }),
+    request<{ job_id: string; position: number } | Job>('/analyze', { method: 'POST', body: JSON.stringify({ text }) }),
   job: (id: string, signal?: AbortSignal) => request<Job>(`/jobs/${encodeURIComponent(id)}`, {}, signal),
   accuracy: () => request<Accuracy>('/accuracy'),
 };

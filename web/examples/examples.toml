@@ -1,0 +1,43 @@
+# Texts for the offline examples (web/examples/make.py). Human: public domain. AI: Squint's own
+# held-out generations (classifier/data, ids below), never used in training or tuning.
+
+[[example]]
+label = "Lincoln"
+source = "The Gettysburg Address, Abraham Lincoln, 1863"
+text = """
+Four score and seven years ago our fathers brought forth on this continent, a new nation, conceived in Liberty, and dedicated to the proposition that all men are created equal.
+
+Now we are engaged in a great civil war, testing whether that nation, or any nation so conceived and so dedicated, can long endure. We are met on a great battle-field of that war. We have come to dedicate a portion of that field, as a final resting place for those who here gave their lives that that nation might live. It is altogether fitting and proper that we should do this.
+
+But, in a larger sense, we can not dedicate—we can not consecrate—we can not hallow—this ground. The brave men, living and dead, who struggled here, have consecrated it, far above our poor power to add or detract. The world will little note, nor long remember what we say here, but it can never forget what they did here. It is for us the living, rather, to be dedicated here to the unfinished work which they who fought here have thus far so nobly advanced. It is rather for us to be here dedicated to the great task remaining before us—that from these honored dead we take increased devotion to that cause for which they gave the last full measure of devotion—that we here highly resolve that these dead shall not have died in vain—that this nation, under God, shall have a new birth of freedom—and that government of the people, by the people, for the people, shall not perish from the earth.
+"""
+
+[[example]]
+label = "ChatGPT"
+source = "ChatGPT, asked for a student essay (chatgpt-0019)"
+text = """
+Students would benefit from having the option to attend classes from home through online or video conferencing. Although learning remotely is not the best choice for everyone, it can remove obstacles that prevent some students from participating fully in school. Schools should offer distance learning because it can improve access, provide flexibility, and help students develop independence when appropriate support is available.
+
+First, distance learning can make education more accessible. Some students have medical conditions that make regular travel to school difficult, while others face long commutes or temporary mobility limitations. A student recovering from a broken leg, for example, could join a classroom discussion from home instead of relying entirely on worksheets. Online attendance can also give students access to courses that are unavailable nearby. If a small school cannot offer an advanced language class, a shared online course could connect interested students with a qualified teacher.
+
+Second, learning from home can provide useful flexibility. Time normally spent traveling can become time for studying, sleeping, or preparing for class. Where teachers provide recordings, students can review a difficult explanation instead of depending only on notes taken during the lesson. For example, a student struggling with an algebra problem could replay the teacher’s demonstration and pause to work through each step. Students would still need to meet deadlines and attend required sessions, but having additional ways to review material could help them learn at a manageable pace.
+
+Critics correctly point out that students at home may become distracted, isolated, or disconnected from their teachers. These concerns mean that online classes need careful design. Regular discussions, small group projects, teacher conferences, and clear attendance expectations can keep students involved. Schools should also provide devices and internet support to students who need them. With these resources, distance learning can teach independence: students practice organizing their workspace, managing assignments, and asking for assistance. Those skills develop through guidance and accountability, rather than simply leaving students alone with a computer.
+
+Distance learning should therefore remain an available option alongside classroom instruction. Its success depends on the student’s circumstances, the quality of teaching, and access to necessary resources. For students who need greater access or flexibility, a supported online program can make attending school easier and learning more effective. Offering that choice would allow schools to respond to different needs while preserving the relationships and expectations that make education valuable.
+"""
+
+[[example]]
+label = "Claude"
+source = "Claude, asked for a forum post (claude-xmat-5346f690)"
+text = """
+Kid Icarus Uprising. I said it. That's my pick for most misunderstood game on the system.
+
+I remember when it came out in 2012 and everyone was losing their minds about the controls. The stylus aiming, holding the system with one hand, the cramps, the little plastic stand that came in the box that everyone made fun of. Half the reviews I read were basically "cool game but my hand hurts." And honestly that was fair at first. My hand hurt too lol.
+
+But I stuck with it and something clicked around chapter 4 or 5. Once you get used to flicking the stylus to spin the camera the ground sections feel amazing. The air sections were always great. And the writing is genuinely hilarious, Pit and Palutena and Hades just roasting each other the whole time. The intensity slider where you bet hearts on difficulty is still one of the best ideas I've seen in an action game.
+
+Thing is, nobody I knew was in the middle on it. My friends either sank 100 hours into it and collected every weapon, or they put it down after one level and never touched it again. There was no "yeah it was ok" crowd.
+
+I pulled my old 3DS out last month and played through it again. Still holds up. Still hurts my hand a bit. Still worth it. Sakurai made something special and I wish more people had given it a real chance.
+"""

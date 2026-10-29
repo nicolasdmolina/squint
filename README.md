@@ -69,8 +69,8 @@ source, see [`server/README.md`](server/README.md).
 | `web/` | The web UI. |
 | `mac/` | Squint for Mac: the Swift window, build script, and the classifier manifest the app checks for updates. |
 | `calibration/` | Building the tuning set, fitting thresholds, the accuracy report, and `classifier.json` (the promoted classifier's cutoffs). Data is not committed. |
-| `classifier/` | Overnight classifier training, evaluation and `promote.py`. Weights go to `server/models/` (not committed). |
-| `ops/` | Background service, tunnel and edge Worker (`ops/edge/`) for the public site. |
+| `classifier/` | Overnight classifier training, evaluation, `promote.py` and `publish.py` (the release the app downloads). Weights go to `server/models/` (not committed). |
+| `ops/` | The public site: edge Worker (`ops/edge/`), cloud image (`ops/cloud/`), and the Mac mini service and tunnel. |
 
 Nothing users submit is stored. Model files and datasets stay out of Git.
 

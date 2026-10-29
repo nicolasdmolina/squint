@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import asyncio
+import hmac
 import ipaddress
 import json
 import logging
@@ -45,6 +46,9 @@ def error_response(status: int, code: str, message: str, headers: dict | None = 
     return JSONResponse({"error": {"code": code, "message": message, **extra}}, status_code=status, headers=headers)
 
 
+PREVIEW_WAIT_S = 25.0
+
+
 def rate_key(addr: str) -> str:
     """Rate-limit key for a client address: IPv4 as is, IPv6 by its /64 (one subscriber's
     allocation, so rotating addresses inside it does not reset the limits)."""
@@ -60,6 +64,10 @@ def rate_key(addr: str) -> str:
 
 
 def client_key(request: Request) -> str:
+    # behind the edge Worker (SQUINT_EDGE_SECRET), the _edge middleware has already checked the caller
+    edge = getattr(request.state, "edge_client", None)
+    if edge:
+        return rate_key(edge)
     cf = (request.headers.get("cf-connecting-ip") or "").strip()
     return rate_key(cf or (request.client.host if request.client else "unknown"))
 
@@ -264,6 +272,18 @@ def create_app(
     async def _validation_error(request: Request, exc: RequestValidationError):
         return error_response(400, "invalid_request", "The request was not in the expected format.")
 
+    if settings.edge_secret:
+        secret = settings.edge_secret.encode()
+
+        @app.middleware("http")
+        async def _edge(request: Request, call_next):
+            if request.url.path.startswith("/api/"):
+                given = request.headers.get("x-squint-edge", "").encode()
+                if not hmac.compare_digest(given, secret):
+                    return error_response(403, "forbidden", "Use squint.nickymolina.com.")
+                request.state.edge_client = (request.headers.get("x-squint-client") or "").strip() or "unknown"
+            return await call_next(request)
+
     @app.middleware("http")
     async def _headers(request: Request, call_next):
         response = await call_next(request)
@@ -421,6 +441,12 @@ def create_app(
         except QueueFull:
             raise ApiError(503, "busy", "Squint is busy right now. Try again in a minute.")
         svc.analyze_limiter.hit(key)
+        if settings.mode == "preview":
+            # A preview check takes about a second, so answer in this request: any server behind
+            # the edge can then take any check, with no job to look up afterwards.
+            snap = await run_in_threadpool(svc.queue.wait, job.id, PREVIEW_WAIT_S)
+            if snap and snap["status"] in ("done", "error"):
+                return JSONResponse(snap)
         return JSONResponse({"job_id": job.id, "position": position}, status_code=202)
 
     @app.get("/api/jobs/{job_id}")

@@ -136,14 +136,88 @@ class AiClassifier:
         return [weighted_mean(*per[i]) for i in range(len(texts))]
 
 
+class OnnxClassifier:
+    """The same classifier exported to model.onnx (squint.onnx_export), run with onnxruntime and
+    the tokenizers library: no torch, about 1 GB of memory. Used by the cloud preview server.
+    Windows run one at a time, so no padding ever reaches the model."""
+
+    def __init__(self, model_dir: Path, max_length: int, max_chunks: int, threads: int | None = None):
+        self.model_dir = Path(model_dir)
+        self.max_length = max_length
+        self.max_chunks = max_chunks
+        self.threads = threads
+        self._tok = None
+        self._session = None
+        self._template: tuple[list[int], list[int]] | None = None
+
+    @property
+    def loaded(self) -> bool:
+        return self._session is not None
+
+    def load(self) -> None:
+        import onnxruntime as ort
+        from tokenizers import Tokenizer
+
+        opts = ort.SessionOptions()
+        opts.intra_op_num_threads = self.threads or 0
+        self._session = ort.InferenceSession(str(self.model_dir / ONNX_FILE), opts,
+                                             providers=["CPUExecutionProvider"])
+        self._tok = Tokenizer.from_file(str(self.model_dir / "tokenizer.json"))
+        self._tok.no_truncation()
+        self._tok.no_padding()
+        bare = self._tok.encode("hello", add_special_tokens=False).ids
+        full = self._tok.encode("hello", add_special_tokens=True).ids
+        for i in range(len(full) - len(bare) + 1):
+            if full[i:i + len(bare)] == bare:
+                self._template = (list(full[:i]), list(full[i + len(bare):]))
+                break
+        else:
+            raise RuntimeError("cannot work out the tokenizer's special-token template")
+        log.info("classifier loaded from %s (onnx)", self.model_dir)
+
+    def unload(self) -> None:
+        self._session = None
+        self._tok = None
+
+    def predict(self, texts: list[str]) -> list[float]:
+        import numpy as np
+
+        if self._session is None:
+            raise RuntimeError("classifier not loaded")
+        pre, suf = self._template
+        body = self.max_length - len(pre) - len(suf)
+        out = []
+        for t in texts:
+            ids = self._tok.encode(t, add_special_tokens=False).ids
+            probs, weights = [], []
+            for c in chunk_token_ids(ids, body, self.max_chunks):
+                x = np.array([pre + c + suf], dtype=np.int64)
+                logits = self._session.run(None, {"input_ids": x, "attention_mask": np.ones_like(x)})[0][0]
+                z = logits.astype(np.float64) - logits.max()
+                probs.append(float(np.exp(z[1]) / np.exp(z).sum()))
+                weights.append(len(c))
+            out.append(weighted_mean(probs, weights))
+        return out
+
+
+ONNX_FILE = "model.onnx"
+
+
+def make_classifier(model_dir: Path, max_length: int, max_chunks: int):
+    """ONNX when the model directory has model.onnx (the cloud server ships only that), else torch."""
+    if (Path(model_dir) / ONNX_FILE).exists():
+        return OnnxClassifier(model_dir, max_length, max_chunks)
+    return AiClassifier(model_dir, max_length, max_chunks)
+
+
 class ClassifierHolder:
     """Keeps at most one AiClassifier, matching calibration/classifier.json. Used only from the
     single job worker (and the janitor's unload), so a plain lock is enough."""
 
     def __init__(self, repo_dir: Path, factory=None):
         self.repo_dir = Path(repo_dir)
-        self._factory = factory or (lambda cfg: AiClassifier(self.repo_dir / cfg["path"], int(cfg["max_length"]),
-                                                             int(cfg["max_chunks"])))
+        self._factory = factory or (lambda cfg: make_classifier(self.repo_dir / cfg["path"], int(cfg["max_length"]),
+                                                                int(cfg["max_chunks"])))
         self._lock = threading.Lock()
         self._clf = None
         self._key = None

@@ -1458,3 +1458,23 @@ tr[data-mine] .wd-p {
 #checker-title {
   scroll-margin-top: calc(var(--rail-h) + var(--s5) + 32px);
 }
+
+/* ------------------------------------------------------------------ offline examples */
+
+.offline-note {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s3) var(--s5);
+  padding: var(--s4) var(--s5);
+  margin-bottom: var(--s6);
+  border: var(--line);
+  border-radius: 12px;
+  background: var(--sheet-sunk);
+  color: var(--ink-2);
+}
+.offline-note b {
+  color: var(--ink);
+  font-weight: 650;
+}

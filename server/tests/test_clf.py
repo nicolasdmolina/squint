@@ -281,3 +281,30 @@ def test_classifier_loads_before_the_pair(settings):
     with TestClient(app) as c:
         assert _run(c, words(200, "robot"))["result"]["verdict"]["band"] == "likely_ai"
     assert order == ["classifier", "pair"]
+
+
+def test_make_classifier_uses_onnx_when_the_model_dir_has_it(tmp_path):
+    from squint.clf import AiClassifier, OnnxClassifier, make_classifier
+
+    assert isinstance(make_classifier(tmp_path, 512, 8), AiClassifier)
+    (tmp_path / "model.onnx").write_bytes(b"")
+    assert isinstance(make_classifier(tmp_path, 512, 8), OnnxClassifier)
+
+
+def _promoted_onnx():
+    cfg = json.loads((REPO / "calibration" / "classifier.json").read_text())
+    src = REPO / cfg["path"]
+    return src, src.with_name(src.name + "-onnx")
+
+
+@pytest.mark.skipif(not (_promoted_onnx()[1] / "model.onnx").exists() or importlib.util.find_spec("onnxruntime") is None,
+                    reason="needs the promoted classifier exported with squint.onnx_export, and onnxruntime")
+def test_onnx_classifier_matches_torch():
+    from squint.clf import AiClassifier, OnnxClassifier
+
+    src, onx = _promoted_onnx()
+    texts = [words(60), "The committee reviewed every proposal carefully before voting. " * 120]
+    a, b = AiClassifier(src, 512, 8), OnnxClassifier(onx, 512, 8)
+    a.load()
+    b.load()
+    assert max(abs(x - y) for x, y in zip(a.predict(texts), b.predict(texts))) < 1e-3

@@ -205,3 +205,15 @@ and in `preview` mode below that.
    (2,500 words, no practical hourly cap) instead of `[preview]`.
 3. `SQUINT_DATA_DIR` moves model paths in `[profiles]` under that folder; `squint.desktop`
    points it at `~/Library/Application Support/Squint`.
+
+## v1.5 amendments (cloud preview, 2026-10-28)
+
+1. In `preview` mode, `POST /api/analyze` waits up to 25 seconds for the check and answers
+   `200` with the finished job (the `GET /api/jobs/{id}` shape, `status` `done` or `error`).
+   If the check is still running after that, it answers `202 {job_id, position}` as before, so
+   clients handle both.
+2. When no checking server answers, the edge Worker replies to every `/api/*` call with
+   `503 {"error": {"code": "offline", ...}}`. The web UI then shows stored example results.
+3. With `SQUINT_EDGE_SECRET` set, `/api/*` answers `403 forbidden` unless the request carries
+   `X-Squint-Edge` with that value. Rate limits then key on `X-Squint-Client` (the Worker sets it
+   to the visitor's IP), not on `CF-Connecting-IP`.

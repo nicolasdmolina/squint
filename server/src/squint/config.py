@@ -14,6 +14,8 @@ Environment variables (all optional):
   SQUINT_MODE              full (default) or preview: classifier only, with [preview] limits
   SQUINT_APP               1/true: running inside Squint for Mac ([app] limits, no password)
   SQUINT_DATA_DIR          base for relative model paths (default: the config file's directory)
+  SQUINT_EDGE_SECRET       cloud backends: /api answers only requests carrying X-Squint-Edge with this
+                           value (the Worker adds it), and X-Squint-Client names the client to rate-limit
 """
 
 from __future__ import annotations
@@ -97,6 +99,7 @@ class Settings:
     web_dist: Path = REPO_DIR / "web" / "dist"
     keychain_service: str = "squint-password"
     require_password: bool = False
+    edge_secret: str | None = None  # SQUINT_EDGE_SECRET: only the edge Worker may call /api
     session_ttl_s: int = 30 * 24 * 3600
     login_max_failures: int = 5  # per client: then 429 until the window passes
     login_window_s: int = 15 * 60
@@ -189,4 +192,5 @@ def load_settings(config_path: Path | None = None, profile: str | None = None) -
         web_dist=Path(env.get("SQUINT_WEB_DIST", REPO_DIR / "web" / "dist")),
         keychain_service=env.get("SQUINT_KEYCHAIN_SERVICE", srv.get("keychain_service", "squint-password")),
         require_password=_flag(env.get("SQUINT_REQUIRE_PASSWORD", srv.get("require_password", False))),
+        edge_secret=env.get("SQUINT_EDGE_SECRET") or None,
     )

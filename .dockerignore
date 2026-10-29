@@ -1,0 +1,9 @@
+# ops/cloud/Dockerfile needs only the server code, the calibration files and the ONNX detector
+*
+!server/pyproject.toml
+!server/squint.toml
+!server/src/
+!server/models/classifier/*-onnx/
+!calibration/*.json
+**/__pycache__
+!ops/cloud/place_detector.py

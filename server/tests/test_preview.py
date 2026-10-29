@@ -1,3 +1,4 @@
+import dataclasses
 import json
 import tomllib
 
@@ -9,8 +10,8 @@ from squint.app import create_app
 from squint.config import DEFAULT_CONFIG, load_settings
 
 
-def _preview_client(settings, clf, cfg=None, pair_loads=None):
-    settings = settings.with_overrides(mode="preview")
+def _preview_client(settings, clf, cfg=None, pair_loads=None, **overrides):
+    settings = settings.with_overrides(mode="preview", **overrides)
     (settings.calibration_dir / "thresholds.json").write_text(json.dumps(thresholds()))
     if cfg is not False:
         (settings.calibration_dir / "classifier.json").write_text(json.dumps(cfg or clf_cfg()))
@@ -84,3 +85,25 @@ def test_preview_never_asks_for_a_password(settings):
                      tokenizer=None, password="secret", classifier_factory=lambda c: FakeClassifier())
     with TestClient(app) as c:
         assert c.get("/api/session").json() == {"authenticated": True, "password_required": False}
+
+
+def test_preview_check_answers_in_one_request(settings):
+    with _preview_client(settings, FakeClassifier()) as c:
+        r = c.post("/api/analyze", json={"text": words(100) + " robot"})
+    assert r.status_code == 200
+    snap = r.json()
+    assert snap["status"] == "done" and snap["result"]["verdict"]["band"] == "likely_ai" and snap["job_id"]
+
+
+def test_behind_the_edge_only_the_worker_gets_in_and_limits_follow_its_client_header(settings):
+    one_per_hour = dataclasses.replace(settings.limits, checks_per_hour=1)
+    text = {"text": words(100) + " robot"}
+    with _preview_client(settings, FakeClassifier(), edge_secret="s3cret", limits=one_per_hour) as c:
+        assert c.get("/api/status").status_code == 403
+        assert c.post("/api/analyze", json=text, headers={"X-Squint-Edge": "wrong"}).status_code == 403
+        edge = {"X-Squint-Edge": "s3cret"}
+        assert c.post("/api/analyze", json=text, headers={**edge, "X-Squint-Client": "1.1.1.1"}).status_code == 200
+        spoofed = {**edge, "X-Squint-Client": "1.1.1.1", "CF-Connecting-IP": "9.9.9.9"}
+        r = c.post("/api/analyze", json=text, headers=spoofed)
+        assert r.status_code == 429
+        assert c.post("/api/analyze", json=text, headers={**edge, "X-Squint-Client": "2.2.2.2"}).status_code == 200

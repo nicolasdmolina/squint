@@ -49,7 +49,7 @@ export function VerdictHead({
 }
 
 /** Say where the AI-like stretch sits when the flagged windows show it; otherwise the band's own line. */
-function verdictLine(result: Result): string {
+export function verdictLine(result: Result): string {
   const v = result.verdict;
   const flagged = result.segments.filter(s => s.flagged);
   if (v.band === 'likely_ai' && flagged.length && flagged.length < result.segments.length) {

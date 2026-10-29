@@ -10,7 +10,7 @@ import { StageRows, type Progress } from '../components/StageRows';
 import { describeError, lengthGuide, LIMITS_FALLBACK, type UiError } from '../copy';
 import { countWords, fmtInt, words } from '../lib/format';
 import { reflowPdfText } from '../lib/reflow';
-import { isPreviewResult, type Result, type Status } from '../types';
+import { isPreviewResult, type Job, type Result, type Status } from '../types';
 
 type Run =
   | { kind: 'idle' }
@@ -106,21 +106,28 @@ export function Checker({ status, onChecked }: { status: Status | null; onChecke
     setRun({ kind: 'running', progress });
     try {
       const job = await api.analyze(source);
+      // The preview answers with the finished job; otherwise poll it.
+      let answered: Job | null = 'status' in job ? job : null;
       progress = { ...progress, status: 'queued', position: job.position };
-      if (live()) setRun({ kind: 'running', progress });
+      if (live() && !answered) setRun({ kind: 'running', progress });
       let misses = 0;
       while (live()) {
-        await sleep(POLL_MS);
-        if (!live()) return;
-        let j;
-        try {
-          j = await api.job(job.job_id);
-          misses = 0;
-        } catch (e) {
-          if (e instanceof ApiError && e.code === 'network' && ++misses <= 6) continue;
-          throw e;
+        let j: Job;
+        if (answered) {
+          j = answered;
+          answered = null;
+        } else {
+          await sleep(POLL_MS);
+          if (!live()) return;
+          try {
+            j = await api.job(job.job_id);
+            misses = 0;
+          } catch (e) {
+            if (e instanceof ApiError && e.code === 'network' && ++misses <= 6) continue;
+            throw e;
+          }
+          if (!live()) return;
         }
-        if (!live()) return;
         const now = Date.now();
         if (j.status === 'loading_model' && !progress.warmStart) progress = { ...progress, warmStart: now };
         if ((j.status === 'scoring' || j.status === 'done') && !progress.scoreStart) progress = { ...progress, scoreStart: now };

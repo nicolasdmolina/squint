@@ -208,6 +208,18 @@ class JobQueue:
                 "error": job.error,
             }
 
+    def wait(self, job_id: str, timeout: float) -> dict | None:
+        """The job's snapshot once it is done or failed, or as it stands after `timeout` seconds."""
+        deadline = self._clock() + timeout
+        with self._cv:
+            job = self._jobs.get(job_id)
+            while job is not None and job.status not in ("done", "error") and not self._stop:
+                left = deadline - self._clock()
+                if left <= 0:
+                    break
+                self._cv.wait(timeout=min(left, 0.5))
+        return self.snapshot(job_id)
+
     def queue_length(self) -> int:
         with self._cv:
             return len(self._pending) + (1 if self._running is not None else 0)
