@@ -1,0 +1,23 @@
+{
+  "collected": "2026-10-28",
+  "file": "classifier/data/sealed/human.jsonl",
+  "sha256": "c7d89d1a52002f6f0127eb942370dcaa35b776dba31ebb7800b0c239af7e475b",
+  "rows": 600,
+  "by_source": {
+    "bbc-news": 100,
+    "enron-email": 100,
+    "imdb": 100,
+    "newsgroups": 100,
+    "plos-summary": 100,
+    "yelp": 100
+  },
+  "datasets": {
+    "bbc-news": "EdinburghNLP/xsum (default/test)",
+    "imdb": "stanfordnlp/imdb (plain_text/test)",
+    "yelp": "Yelp/yelp_review_full (yelp_review_full/test)",
+    "plos-summary": "pszemraj/scientific_lay_summarisation-plos-norm (default/test)",
+    "enron-email": "corbt/enron-emails (default/train)",
+    "newsgroups": "SetFit/20_newsgroups (default/test)"
+  },
+  "scored": null
+}

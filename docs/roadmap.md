@@ -94,7 +94,14 @@ Done when: Claude's encyclopedic and academic misses are under 5% on held-out.
 
 ## R5. A sealed final test
 
-Status: ready
+Status: in progress (2026-10-28). The human half is collected and sealed: 600 texts, 100
+each from BBC news, IMDB and Yelp reviews, PLOS author summaries, Enron email and 1993
+Usenet posts, none used by any run (`classifier/sealed.py`, hash and counts in
+`classifier/sealed/MANIFEST.json`). Hard-wrapped mail and Usenet lines are joined into
+paragraphs so layout is no cue. Next: fresh ChatGPT and Claude pieces from each row's `cue`
+(after the generators' current plan is done), then one scoring of the chosen model. The
+file lives only in the ignored `classifier/data/sealed/`; the manifest hash shows if it
+changes. Personal essays are missing from it, as they are from training (R1).
 
 The held-out sets have been looked at after every run, and the 50-word minimum was chosen
 after seeing them. Before any claim that Squint is accurate, collect a new set (pre-ChatGPT
