@@ -404,7 +404,8 @@ class Night:
             for gen in self.generators:
                 self.spawn(f"generate-{gen}", self.cmd(
                     f"generate-{gen}",
-                    [PY, "-u", "classifier/generate.py", "run", "--source", gen, "--deadline", str(gen_deadline)],
+                    [PY, "-u", "classifier/generate.py", "run", "--source", gen, "--deadline", str(gen_deadline),
+                     "--then-sealed"],
                     self.args.stub_gen_secs, gen_deadline))
             self.mark("generate", "running", generators=self.generators)
 

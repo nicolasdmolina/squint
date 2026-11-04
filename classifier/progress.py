@@ -22,6 +22,12 @@ NAME = re.compile(r"^\d{4}-\d\d-\d\d(-\d+)?$")
 LIVE = CLF_DIR.parent / "calibration" / "classifier.json"
 
 
+def short(run: str) -> str:
+    """modernbert-base-90eac052e0629eff-epochs3 -> 90eac052-epochs3"""
+    m = re.match(r".*?-([0-9a-f]{16})(.*)$", run)
+    return m.group(1)[:8] + m.group(2) if m else run
+
+
 def rate(parts: list[dict]) -> float | None:
     n = sum(p["n"] for p in parts)
     return sum(p["flagged"] for p in parts) / n if n else None
@@ -48,14 +54,14 @@ def load() -> list[dict]:
         rep = json.loads(p.read_text())
         rnd = p.stem[11:]  # "" for a night's first run, "2" for its second
         label = p.stem[5:10] + (f" #{rnd}" if rnd else "")
-        rows.append({"label": label, "run": rep["run"].rsplit("-", 1)[-1][:8],
+        rows.append({"label": label, "run": short(rep["run"]),
                      "rows": rep.get("trained", {}).get("train_rows"), **point(rep)})
     return rows
 
 
 def live_run() -> str | None:
     try:
-        return json.loads(LIVE.read_text()).get("run", "").rsplit("-", 1)[-1][:8] or None
+        return short(json.loads(LIVE.read_text()).get("run", "")) or None
     except (OSError, ValueError):
         return None
 
@@ -101,7 +107,9 @@ def chart(rows: list[dict], out: Path) -> None:
     bottom.set_ylabel("Humans wrongly flagged (%)")
     bottom.set_ylim(bottom=0)
     bottom.legend(loc="upper left", frameon=False)
-    bottom.set_xticks(x, [r["label"] for r in rows], rotation=0, fontsize=9)
+    # a run with non-default settings shows them under its date (e.g. "epochs3")
+    ticks = [r["label"] + ("\n" + r["run"].split("-", 1)[1] if "-" in r["run"] else "") for r in rows]
+    bottom.set_xticks(x, ticks, rotation=0, fontsize=9)
 
     for ax in (top, bottom):
         ax.grid(axis="y", alpha=0.3)

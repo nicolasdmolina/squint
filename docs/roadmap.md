@@ -92,14 +92,25 @@ generators catch up.
 
 Done when: Claude's encyclopedic and academic misses are under 5% on held-out.
 
+## R4b. Training settings, not more data
+
+Status: in progress (2026-11-03). Runs since 10-27 have not beaten it, and the generators
+finished the training plan on 10-31, so nights retrain nothing. Training loss was still
+falling at the end of epoch 2 (0.034 to 0.018 over the last tenth), so `epochs` went from 2
+to 3. A run with settings other than the 10-14 to 11-03 baseline carries them in its name
+(`modernbert-base-<hash>-epochs3`), so it trains even when the data has not changed. If 3
+epochs is no better than 10-27, set it back and try the next setting.
+
 ## R5. A sealed final test
 
 Status: in progress (2026-10-28). The human half is collected and sealed: 600 texts, 100
 each from BBC news, IMDB and Yelp reviews, PLOS author summaries, Enron email and 1993
 Usenet posts, none used by any run (`classifier/sealed.py`, hash and counts in
 `classifier/sealed/MANIFEST.json`). Hard-wrapped mail and Usenet lines are joined into
-paragraphs so layout is no cue. Next: fresh ChatGPT and Claude pieces from each row's `cue`
-(after the generators' current plan is done), then one scoring of the chosen model. The
+paragraphs so layout is no cue. On 2026-11-03 `sealed.py plan` wrote 1,200 AI items (one
+ChatGPT and one Claude piece per row, from its `cue` only) into `classifier/data/sealed/gen/`;
+the nightly generators write them once the training plan is done. Then one scoring of the
+chosen model. The
 file lives only in the ignored `classifier/data/sealed/`; the manifest hash shows if it
 changes. Personal essays are missing from it, as they are from training (R1).
 

@@ -19,5 +19,14 @@ class Cleaning(unittest.TestCase):
         self.assertEqual(r["cue"], "5 stars")
 
 
+class Prompts(unittest.TestCase):
+    def test_every_source_has_a_prompt_that_shows_only_the_cue(self):
+        text = "A sentence only the human wrote. " * 20
+        for src in sealed.SOURCES:
+            kind, prompt = sealed.instruction({"source": src, "cue": "THE CUE", "text": text}, 200)
+            self.assertIn("THE CUE", prompt, src)
+            self.assertNotIn("only the human wrote", prompt, src)
+
+
 if __name__ == "__main__":
     unittest.main()

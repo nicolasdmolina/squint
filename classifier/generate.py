@@ -288,6 +288,8 @@ def main() -> None:
     r.add_argument("--limit-calls", type=int, default=None, help="default: the per-night cap in config.toml")
     r.add_argument("--max-rounds", type=int, default=None)
     r.add_argument("--deadline", type=float, default=None, help="unix time; no new call starts after it")
+    r.add_argument("--then-sealed", action="store_true",
+                   help="once this source's plan is done, write its sealed-test pieces (sealed.py)")
     args = ap.parse_args()
     cfg = load_config()
     GEN_DIR.mkdir(parents=True, exist_ok=True)
@@ -314,6 +316,17 @@ def main() -> None:
         return args.deadline is not None and time.time() > args.deadline - margin
 
     g.run_source(args.source, cap, rounds, gen_dir=GEN_DIR, should_stop=should_stop)
+    sealed_dir = DATA_DIR / "sealed" / "gen"
+    if args.then_sealed and (sealed_dir / "plan.jsonl").exists() and not should_stop() and \
+            not pending(GEN_DIR, args.source):
+        g.run_source(args.source, cap, rounds, gen_dir=sealed_dir, should_stop=should_stop)
+
+
+def pending(gen_dir: Path, source: str) -> int:
+    """Plan items for `source` in gen_dir with no piece yet."""
+    out = gen_dir / f"ai_{source}.jsonl"
+    done = {r["id"] for r in read_jsonl(out)} if out.exists() else set()
+    return sum(1 for it in read_jsonl(gen_dir / "plan.jsonl") if it["source"] == source and it["id"] not in done)
 
 
 if __name__ == "__main__":

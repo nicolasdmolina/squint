@@ -1,12 +1,14 @@
 """The sealed final test (docs/roadmap.md R5): human writing from sources no run has used.
 
   classifier/.venv/bin/python classifier/sealed.py collect     # -> classifier/data/sealed/human.jsonl
+  classifier/.venv/bin/python classifier/sealed.py plan        # -> classifier/data/sealed/gen/plan.jsonl
 
 Collected once, then sealed: classifier/sealed/MANIFEST.json records the file's sha256 and the
 counts. Nothing in training, tuning, evaluation or the nightly reads data/sealed/, and nobody
 looks at its scores until a model is chosen; then it is scored once and the number reported
-unchanged. The AI half (fresh ChatGPT and Claude pieces from each row's `cue`) is generated
-later. All sources predate ChatGPT (2022-11-30):
+unchanged. The AI half is one ChatGPT and one Claude piece per row, written from its `cue`
+into data/sealed/gen/ (generate.py run --then-sealed, which the nightly passes once the
+training plan is done); build_dataset never reads that folder. All sources predate ChatGPT (2022-11-30):
 
   bbc-news      BBC articles 2010-2017 (XSum)                     cue: the one-line summary
   imdb          IMDB reviews to 2011 (Maas et al.)                cue: positive / negative
@@ -28,11 +30,14 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from clf_common import CLF_DIR, DATA_DIR  # noqa: E402
-from common import normalize_text, write_json, write_jsonl  # noqa: E402
+from common import normalize_text, read_jsonl, word_count, write_json, write_jsonl  # noqa: E402
 from fetch_human import balanced, cached_json, hf_blocks  # noqa: E402
+from generate import about, item  # noqa: E402
 
 OUT = DATA_DIR / "sealed" / "human.jsonl"
 MANIFEST = CLF_DIR / "sealed" / "MANIFEST.json"
+GEN = DATA_DIR / "sealed" / "gen"
+GENERATORS = ("chatgpt", "claude")
 PER_SOURCE = 100
 
 
@@ -169,13 +174,55 @@ def collect(refresh: bool) -> int:
     return 0
 
 
+def instruction(h: dict, n: int) -> tuple[str, str]:
+    """(kind, instruction) for the AI piece matching sealed human row h. Only the cue is shown,
+    never the human text."""
+    src, cue = h["source"], h["cue"]
+    if src == "bbc-news":
+        return "news", (f"Write a news article (about {n} words) for a British news website reporting this: "
+                        f"\"{cue}\". Use short paragraphs and no headline.")
+    if src == "imdb":
+        return "review", (f"Write a {cue} user review (about {n} words) of a film you watched, for IMDB. "
+                          f"Choose the film yourself.")
+    if src == "yelp":
+        return "review", (f"Write a Yelp review (about {n} words) of a local business you visited, giving it "
+                          f"{cue}. Choose the business yourself.")
+    if src == "plos-summary":
+        return "abstract", (f"Write the author summary (about {n} words, one paragraph, for readers outside the "
+                            f"field) of a research paper titled \"{cue}\".")
+    if src == "enron-email":
+        return "email", (f"Write a work email (about {n} words) to a colleague, with the subject line \"{cue}\". "
+                         f"Give only the body, starting with the greeting.")
+    if src == "newsgroups":
+        return "forum", f"Write a post (about {n} words) for the Usenet newsgroup {cue}, as a regular there."
+    raise ValueError(src)
+
+
+def plan() -> int:
+    if not OUT.exists():
+        print("collect the human half first")
+        return 1
+    items = []
+    for h in read_jsonl(OUT):
+        n = min(about(word_count(h["text"])), 450)
+        kind, text = instruction(h, n)
+        for gen in GENERATORS:
+            it = item(gen, "sealed", kind if n >= 150 else "short", h["subset"], f"sealed:{h['id']}", text,
+                      kind, h["id"], n)
+            items.append({**it, "family": h["source"]})
+    write_jsonl(GEN / "plan.jsonl", items)
+    print(f"wrote {len(items)} sealed AI items -> {GEN / 'plan.jsonl'}")
+    return 0
+
+
 def main() -> int:
     ap = argparse.ArgumentParser()
     sub = ap.add_subparsers(dest="cmd", required=True)
     c = sub.add_parser("collect")
     c.add_argument("--refresh", action="store_true")
+    sub.add_parser("plan")
     args = ap.parse_args()
-    return collect(args.refresh)
+    return collect(args.refresh) if args.cmd == "collect" else plan()
 
 
 if __name__ == "__main__":

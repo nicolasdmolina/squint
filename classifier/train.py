@@ -55,8 +55,16 @@ def on_signal(signum, frame):
     Stop.reason = signal.Signals(signum).name
 
 
-def default_run_dir(model: str, dataset_hash: str) -> Path:
-    return RUNS_DIR / f"{model.split('/')[-1].lower()}-{dataset_hash}"
+# The settings every run used through 2026-11-03. A run with other settings gets them in its
+# name, so trying new settings on unchanged data trains a new run instead of "already finished".
+BASELINE = {"max_length": 512, "max_chunks_per_doc": 4, "batch_size": 4, "grad_accum": 8, "epochs": 2,
+            "lr": 3e-05, "weight_decay": 0.01, "warmup_frac": 0.06, "seed": 1234}
+
+
+def default_run_dir(model: str, dataset_hash: str, settings: dict | None = None) -> Path:
+    diff = "".join(f"-{k.replace('_', '')}{settings[k]:g}" for k in BASELINE
+                   if settings and settings.get(k) is not None and float(settings[k]) != float(BASELINE[k]))
+    return RUNS_DIR / f"{model.split('/')[-1].lower()}-{dataset_hash}{diff}"
 
 
 def sampling_weights(rows: list[dict]) -> list[float]:
@@ -161,7 +169,7 @@ def main() -> int:
             print(f"no dataset at {args.dataset}; run build_dataset.py first", file=sys.stderr)
             return EXIT_ERROR
         dhash = json.loads(manifest_path.read_text())["dataset_hash"] if manifest_path.exists() else "nohash"
-        run_dir = args.run_dir or default_run_dir(args.model, dhash)
+        run_dir = args.run_dir or default_run_dir(args.model, dhash, vars(args))
     run_dir.mkdir(parents=True, exist_ok=True)
     shutil.rmtree(run_dir / "checkpoint.tmp", ignore_errors=True)  # left by an interrupted save
     if (run_dir / "final" / "config.json").exists():
