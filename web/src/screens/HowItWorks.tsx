@@ -85,14 +85,14 @@ export function HowItWorks({ status }: { status: Status | null }) {
               on the same kinds of topics.
             </p>
             <p>
-              It reads the whole text and rates how likely it is to be AI writing. Squint only says{' '}
-              <em className="term">Likely AI</em> when that rating is very high, high enough that in testing it flagged 4 of
-              1,340 human texts, about 1 in 330. When the rating is low it says <em className="term">Likely human</em>, and in between
-              it says <em className="term">Uncertain</em>.
+              It reads the whole text and rates how likely it is to be AI writing. Squint says{' '}
+              <em className="term">Likely AI</em> only when that rating is very high, high enough that in testing it flagged 3 of
+              1,340 human texts, about 1 in 450. Below that it says <em className="term">Likely human</em>. Those two cutoffs
+              meet, so this detector does not say <em className="term">Uncertain</em>.
             </p>
             <p>
               Under {minWords} words it won&rsquo;t give a verdict. Short snippets don&rsquo;t carry enough signal, and in
-              testing the detector wrongly flagged about 2.5% of short human texts.
+              testing the detector wrongly flagged about 3.3% of short human texts.
             </p>
             {preview && (
               <p>
@@ -264,8 +264,9 @@ export function HowItWorks({ status }: { status: Status | null }) {
           <div className="row">
             <dt className="row-label">Edited or paraphrased AI text</dt>
             <dd className="row-body">
-              Rewrite AI text by hand, or run it through a paraphrasing tool, and it gets less predictable. Squint will often
-              miss it, and a mix of human and AI writing can land in Uncertain.
+              {clf
+                ? 'Rewrite AI text by hand, or run it through a paraphrasing tool, and it gets less predictable. Squint will often miss it.'
+                : 'Rewrite AI text by hand, or run it through a paraphrasing tool, and it gets less predictable. Squint will often miss it, and a mix of human and AI writing can land in Uncertain.'}
             </dd>
           </div>
           <div className="row">
