@@ -399,7 +399,7 @@ footer .fine a { text-decoration: underline; text-decoration-color: var(--line-s
         <p class="sub">Squint reads a piece of writing and marks the passages that look machine made, so you get evidence you can weigh instead of a scary percentage.</p>
         <div class="actions">
           <a class="btn btn-primary" href="/app/">Try it <svg class="i" aria-hidden="true"><use href="#i-arrow"/></svg></a>
-          <span class="proof"><svg class="i" aria-hidden="true"><use href="#i-seal"/></svg><span>Wrongly flagged <b>4 of 1,340</b> human texts in testing</span></span>
+          <span class="proof"><svg class="i" aria-hidden="true"><use href="#i-seal"/></svg><span>Wrongly flagged <b>3 of 1,340</b> human texts in testing</span></span>
         </div>
       </div>
 
@@ -446,7 +446,7 @@ footer .fine a { text-decoration: underline; text-decoration-color: var(--line-s
             <li><svg class="i" aria-hidden="true"><use href="#i-bars"/></svg>The passages that read as AI written, marked on your text, and the share of the text they cover.</li>
             <li><svg class="i" aria-hidden="true"><use href="#i-underline"/></svg>In the Mac app, every word marked with the model’s top five guesses for it.</li>
             <li><svg class="i" aria-hidden="true"><use href="#i-hourglass"/></svg>Says “Too short to tell” under 50 words instead of guessing.</li>
-            <li><svg class="i" aria-hidden="true"><use href="#i-users"/></svg>Tested on 512 essays by English learners. One was wrongly flagged.</li>
+            <li><svg class="i" aria-hidden="true"><use href="#i-users"/></svg>Tested on 512 essays by English learners. None were wrongly flagged.</li>
           </ul>
         </div>
       </div>
@@ -487,9 +487,9 @@ footer .fine a { text-decoration: underline; text-decoration-color: var(--line-s
         <p>Held out results for texts of 50 words or more, measured October 2026.</p>
       </div>
       <div class="stats reveal">
-        <div class="stat"><strong>0.3%</strong><span>of human texts wrongly flagged</span><small>4 of 1,340 · 1 of 512 non-native</small></div>
-        <div class="stat"><strong>99.6%</strong><span>of ChatGPT texts caught</span><small>744 of 747</small></div>
-        <div class="stat"><strong>92.2%</strong><span>of Claude texts caught</span><small>674 of 731</small></div>
+        <div class="stat"><strong>0.2%</strong><span>of human texts wrongly flagged</span><small>3 of 1,340 · 0 of 512 non-native</small></div>
+        <div class="stat"><strong>99.5%</strong><span>of ChatGPT texts caught</span><small>747 of 751</small></div>
+        <div class="stat"><strong>95.4%</strong><span>of Claude texts caught</span><small>699 of 733</small></div>
         <div class="stat"><strong>0</strong><span>flags on a fresh set of human writing</span><small>0 of 1,000</small></div>
       </div>
       <div class="gaps reveal">
@@ -541,7 +541,7 @@ footer .fine a { text-decoration: underline; text-decoration-color: var(--line-s
         <details><summary>Is a “Likely AI” result proof?<svg class="i" aria-hidden="true"><use href="#i-plus"/></svg></summary><p>No. It means the text reads like current ChatGPT or Claude writing. Treat it as a reason to look closer and talk to the writer, never as a verdict on its own.</p></details>
         <details><summary>How much text do I need?<svg class="i" aria-hidden="true"><use href="#i-plus"/></svg></summary><p>At least 20 words to check, 50 for a verdict, and 150 for the AI written share. Results are most reliable from 150 words up. This site takes up to 500 words a check.</p></details>
         <details id="privacy"><summary>Do you store what I paste?<svg class="i" aria-hidden="true"><use href="#i-plus"/></svg></summary><p>No. Text is checked in memory on one Mac mini and never written to disk. Results are dropped after 10 minutes, and no third party AI service sees your text. The Mac app never sends it anywhere.</p></details>
-        <details><summary>Will it flag writers who are still learning English?<svg class="i" aria-hidden="true"><use href="#i-plus"/></svg></summary><p>It wrongly flagged 1 of 512 learner essays in testing, and 0 of 600 on a fresh set. Simple or formulaic writing is not treated as a sign of AI on its own. College essays are the weak spot: about 4 to 6% are wrongly flagged.</p></details>
+        <details><summary>Will it flag writers who are still learning English?<svg class="i" aria-hidden="true"><use href="#i-plus"/></svg></summary><p>It wrongly flagged 0 of 512 learner essays in testing, and 0 of 600 on a fresh set. Simple or formulaic writing is not treated as a sign of AI on its own. College essays are the weak spot: about 4 to 6% are wrongly flagged.</p></details>
         <details><summary>Which AI models can it detect?<svg class="i" aria-hidden="true"><use href="#i-plus"/></svg></summary><p>Current ChatGPT and Claude. Older models are mostly missed, and Gemini hasn’t been tested yet. The known gaps are listed in the app next to every verdict.</p></details>
         <details><summary>Why don’t I see every word marked?<svg class="i" aria-hidden="true"><use href="#i-plus"/></svg></summary><p>The word marks come from two 7 billion parameter models, too heavy to run for everyone on one Mac mini. This site runs the classifier and marks whole passages. The Mac app runs both on your own computer.</p></details>
         <details><summary>Why is there a limit of 3 checks an hour?<svg class="i" aria-hidden="true"><use href="#i-plus"/></svg></summary><p>Every check runs on one Mac mini at home. The limit keeps it free for everyone. The Mac app has no limit.</p></details>
