@@ -42,6 +42,15 @@ class RetryHint(unittest.TestCase):
             self.assertEqual(g.prior_rejects(d, plan), {"x-1"})
 
 
+class Batches(unittest.TestCase):
+    def test_failed_items_get_a_call_each(self):
+        todo = [{"id": f"a-{i}", "kind": "abstract"} for i in range(6)]
+        self.assertEqual(sorted(len(b) for b in g.plan_batches(todo)), [1, 5])
+        batches = g.plan_batches(todo, {"a-0", "a-1"})
+        self.assertEqual([[it] for it in todo[:2]], batches[:2])
+        self.assertEqual(sorted(len(b) for b in batches[2:]), [4])
+
+
 class LengthRule(unittest.TestCase):
     def test_long_floor_follows_a_small_target(self):
         abstract = {"id": "a", "kind": "abstract", "target_words": 100}

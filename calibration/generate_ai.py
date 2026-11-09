@@ -459,12 +459,14 @@ def save_status(source: str, entry: dict, gen_dir: Path = GEN_DIR) -> None:
     tmp.replace(p)
 
 
-def plan_batches(todo: list[dict]) -> list[list[dict]]:
-    """Group pending items into calls: long kinds together (fixed order first), then short."""
+def plan_batches(todo: list[dict], alone: set[str] = frozenset()) -> list[list[dict]]:
+    """Group pending items into calls: long kinds together (fixed order first), then short. Items in
+    `alone` (their batch failed) get a call each, so one blocked prompt doesn't sink the rest."""
+    batches = [[it] for it in todo if it["id"] in alone]
+    todo = [it for it in todo if it["id"] not in alone]
     long_items = [it for it in todo if it["kind"] != "short"]
     short_items = [it for it in todo if it["kind"] == "short"]
     kinds = list(LONG_KIND_ORDER) + sorted({it["kind"] for it in long_items} - set(LONG_KIND_ORDER))
-    batches = []
     for kind in kinds:
         # shuffle (deterministically) so one call never holds several pieces on one prompt
         same = sorted([it for it in long_items if it["kind"] == kind], key=lambda it: stable_hash("batch", it["id"]))
@@ -508,11 +510,12 @@ def run_source(source: str, limit_calls: int | None, max_rounds: int, gen_dir: P
     calls = limit_waits = 0
     st = dict(load_status(gen_dir).get(source, {}))
     hint_ids = prior_rejects(call_dir, {it["id"]: it for it in plan}) - set(done)
+    alone = set()
     for rnd in range(max_rounds):
         todo = [it for it in plan if it["id"] not in done]
         if not todo:
             break
-        batches = plan_batches(todo)  # keeps registers together inside a batch
+        batches = plan_batches(todo, alone)  # keeps registers together inside a batch
         print(f"[{source}] round {rnd + 1}: {len(todo)} items in {len(batches)} calls", flush=True)
         for batch in batches:
             if limit_calls is not None and calls >= limit_calls:
@@ -563,6 +566,7 @@ def run_source(source: str, limit_calls: int | None, max_rounds: int, gen_dir: P
                 time.sleep(wait)
             if not res or not res["ok"]:
                 print(f"[{source}] giving up on batch {[b['id'] for b in batch]} this round", flush=True)
+                alone |= {b["id"] for b in batch}
                 continue
             try:
                 got = {g["id"]: g["text"] for g in parse_items(res["text"])}
