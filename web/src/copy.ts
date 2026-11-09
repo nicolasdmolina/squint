@@ -140,25 +140,17 @@ export function describeError(e: unknown, limits: Status['limits'] = LIMITS_FALL
 }
 
 export const notes = {
-  stored: 'Nothing is saved. This result is gone after 10 minutes.',
   privacy: 'Nothing you paste is stored. Squint runs on a private machine and forgets each result after 10 minutes.',
 };
 
-/** The known blind spot, said wherever a reading is shown. Source: calibration/classifier.json
- * (held-out texts of 50+ words, 18 Oct 2026 run). */
+/** Shown under every reading. calibration/classifier.json: Claude texts of 50–149 words called human, 2026-10-27. */
 export const gap = {
   title: 'Squint still misses some Claude writing.',
-  body: 'On texts of 50 words or more it caught 747 of 751 ChatGPT samples but 699 of 733 Claude samples, so “Likely human” doesn’t clear a text. Gemini and edited AI text haven’t been tested.',
-  short: 'In testing it caught 747 of 751 ChatGPT samples but 699 of 733 Claude samples, so “Likely human” doesn’t clear a text.',
-  shortUntuned: 'In testing it caught 747 of 751 ChatGPT samples but 699 of 733 Claude samples, so marks that look human-like don’t clear a text either.',
-  margin: 'Short Claude writing slips through about 1 in 10.',
+  margin: 'Short Claude writing slips through about 1 in 15.',
 };
 
 /** The same, for a server without the trained detector (Binoculars alone). Source: calibration/report.json (8 Oct 2026). */
 export const gapBinoculars = {
   title: 'Squint misses most writing from current AI models.',
-  body: 'In testing it caught none of 288 ChatGPT samples and about 1 in 9 Claude samples, so “Likely human” doesn’t clear a text. Gemini hasn’t been tested.',
-  short: 'In testing it caught none of 288 ChatGPT samples and about 1 in 9 Claude samples, so “Likely human” doesn’t clear a text.',
-  shortUntuned: 'In testing it caught none of 288 ChatGPT samples and about 1 in 9 Claude samples, so marks that look human-like don’t clear a text either.',
   margin: 'Most ChatGPT writing slips through.',
 };

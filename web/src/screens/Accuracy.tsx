@@ -68,7 +68,6 @@ export function Accuracy({ status }: { status: Status | null }) {
   );
 }
 
-/** The gap is stated before any number, tuned or not. Source: docs/known-gaps.md. */
 function KnownGap({ clf }: { clf: boolean }) {
   if (clf) {
     return (
@@ -77,11 +76,9 @@ function KnownGap({ clf }: { clf: boolean }) {
           {gap.title}
         </h2>
         <p>
-          In testing on texts of 50 words or more that it had never seen, Squint caught 747 of 751 ChatGPT samples and 674 of
-          731 Claude samples. The Claude texts it missed were mostly short: under 150 words it caught about 94% of them.
-          Gemini hasn&rsquo;t been tested, and neither has AI text that a person edited or ran through a paraphrasing tool.
-          Human college essays from a source it never trained on are wrongly flagged about 4 to 6% of the time, far more than
-          the test set below shows.
+          The Claude texts it misses are mostly short. Gemini hasn&rsquo;t been tested, and neither has AI text that a
+          person edited or ran through a paraphrasing tool. Human college essays from a source it never trained on are
+          wrongly flagged about 4 to 6% of the time, far more than the test set below shows.
         </p>
         <p className="gap-sub">
           A &ldquo;Likely human&rdquo; reading doesn&rsquo;t clear a text. Under 50 words Squint won&rsquo;t give a verdict

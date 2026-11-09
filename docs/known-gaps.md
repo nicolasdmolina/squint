@@ -6,11 +6,11 @@ The ModernBERT-base classifier from the 2026-10-27 overnight run (promoted 2026-
 report `classifier/reports/2026-10-27.json`) now decides verdicts for texts of 50+ words.
 Binoculars still drives the word marks. Held-out results at 50+ words:
 
-- False flags: **3 of 1,340** human texts (0.3%), **1 of 512** non-native.
+- False flags: **3 of 1,340** human texts (0.2%), **0 of 512** non-native.
 - ChatGPT caught: **747 of 751** (99.5%). Claude caught: **699 of 733** (95.4%).
 - 50–149 words: ChatGPT 99.3% caught, Claude 93.5% caught and 6.5% called "Likely human".
 - 150+ words: 0 of 587 human texts flagged, ChatGPT 99.7%, Claude 97.8%.
-- Under 50 words the classifier wrongly flagged 2.5% of human texts, so Squint shows
+- Under 50 words the classifier wrongly flagged 3.3% of human texts, so Squint shows
   "Too short to tell" there.
 
 Fresh re-check (2026-10-16, `classifier/reports/2026-10-16-fresh-check.md`), on sources and
