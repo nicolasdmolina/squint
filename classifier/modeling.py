@@ -94,11 +94,6 @@ def special_template(tok) -> tuple[list[int], list[int]]:
     return out
 
 
-def special_count(tok) -> int:
-    pre, suf = special_template(tok)
-    return len(pre) + len(suf)
-
-
 def text_chunks(tok, text: str, max_length: int, max_chunks: int | None) -> list[list[int]]:
     ids = tok(text, add_special_tokens=False)["input_ids"]
     pre, suf = special_template(tok)

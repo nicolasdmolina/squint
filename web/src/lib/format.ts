@@ -36,13 +36,6 @@ export function ordinal(n: number) {
   return `${fmtInt(n)}${s[(v - 20) % 10] || s[v] || s[0]}`;
 }
 
-/** A probability as plain odds: 0.42 -> "about 42%", 0.03 -> "about 1 in 33". */
-export function odds(p: number) {
-  if (p >= 0.95) return 'near certain';
-  if (p >= 0.2) return `about ${Math.round(p * 100)}%`;
-  return `about 1 in ${fmtInt(nice(1 / p))}`;
-}
-
 export const fmtP = (p: number) => (p >= 0.995 ? '>99%' : p < 0.01 ? '<1%' : `${Math.round(p * 100)}%`);
 
 export function fmtWait(seconds: number) {

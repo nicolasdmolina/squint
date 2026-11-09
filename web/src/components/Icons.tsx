@@ -45,13 +45,6 @@ export const MoonIcon = (p: P) => (
   </Svg>
 );
 
-export const SystemIcon = (p: P) => (
-  <Svg {...p}>
-    <rect x="2.75" y="3.75" width="14.5" height="9.5" rx="2" />
-    <path d="M7 16.5h6M10 13.25v3.25" />
-  </Svg>
-);
-
 export const AlertIcon = (p: P) => (
   <Svg {...p}>
     <path d="M10 2.75 18 16.5H2L10 2.75Z" />
@@ -95,20 +88,5 @@ export const FileIcon = (p: P) => (
   <Svg {...p}>
     <path d="M11.5 2.75H5.25a.5.5 0 0 0-.5.5v13.5c0 .28.22.5.5.5h9.5a.5.5 0 0 0 .5-.5V6.5L11.5 2.75Z" />
     <path d="M11.5 2.75V6.5h3.75M7.5 10.5h5M7.5 13.5h5" />
-  </Svg>
-);
-
-export const InfoIcon = (p: P) => (
-  <Svg {...p}>
-    <circle cx="10" cy="10" r="7.25" />
-    <path d="M10 9v4.75" />
-    <circle cx="10" cy="6.4" r="0.4" fill="currentColor" />
-  </Svg>
-);
-
-export const RedoIcon = (p: P) => (
-  <Svg {...p}>
-    <path d="M15.5 8.5A6 6 0 1 0 16 12" />
-    <path d="M16 4v4.5h-4.5" />
   </Svg>
 );

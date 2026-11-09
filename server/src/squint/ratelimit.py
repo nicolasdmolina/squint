@@ -46,9 +46,3 @@ class SlidingWindowLimiter:
     def reset(self, key: str) -> None:
         with self._lock:
             self._hits.pop(key, None)
-
-    def sweep(self) -> None:
-        with self._lock:
-            now = self._clock()
-            for key in list(self._hits):
-                self._prune(key, now)
