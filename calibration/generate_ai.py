@@ -515,7 +515,7 @@ def run_source(source: str, limit_calls: int | None, max_rounds: int, gen_dir: P
         todo = [it for it in plan if it["id"] not in done]
         if not todo:
             break
-        batches = plan_batches(todo, alone)  # keeps registers together inside a batch
+        batches = plan_batches(todo, alone)
         print(f"[{source}] round {rnd + 1}: {len(todo)} items in {len(batches)} calls", flush=True)
         for batch in batches:
             if limit_calls is not None and calls >= limit_calls:

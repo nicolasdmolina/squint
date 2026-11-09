@@ -80,7 +80,7 @@ export const HeatText = memo(function HeatText({
         }
         if (pos < p.end) parts.push(text.slice(pos, p.end));
         return (
-          <p className="para" key={p.i} data-lean={p.lean}>
+          <p className="para" key={p.i}>
             {parts}
           </p>
         );
