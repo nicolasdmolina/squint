@@ -426,6 +426,68 @@ def blog_rows(n: int, refresh: bool) -> list[dict]:
                 {"author": p["author"], "age": p["age"], "date": p["date"]}) for p in picked]
 
 
+# --- College essays (EssayForum, before 2022-09) ------------------------------------------
+
+COLLEGE = re.compile(r"\b(college|university|admissions?|common app|personal statement|campus|high school)\b", re.I)
+NOT_COLLEGE = re.compile(r"\b(ielts|toefl|task [12]|the (bar |line |pie )?(chart|graph|table)|to what extent|"
+                         r"some people (believe|think|say))\b", re.I)
+# the student's own note to forum readers, before or after the essay
+ASKING = re.compile(r"\b(review|feedback|comments?|critique|criticism|suggestions?|thanks?|thank you|please|pls|"
+                    r"help|appreciated?|proofread|word (limit|count)|prompt|draft|hi|hello|hey|guys|essay|"
+                    r"advice|questions?|grammar|edits?|tips?|here it is|tell me|errors?|mistakes?)\b", re.I)
+PROMPT_START = re.compile(r"^(explain|describe|discuss|tell us|write|share|reflect|consider|elaborate|"
+                          r"why|what|how|which|who|please)\b", re.I)
+
+
+def forum_essay(raw: str) -> str | None:
+    """The essay without the poster's request around it, or None when it can't be told apart."""
+    # posters often skip the space after a sentence ("great!Main idea")
+    sents = re.split(r"(?<=[.!?])\s*(?=[A-Z\"'])", blog_text(raw))
+    for _ in range(4):  # greetings, then the school's prompt (usually questions)
+        if sents and (ASKING.search(sents[0]) or PROMPT_START.search(sents[0]) or
+                      sents[0].rstrip("\"' ").endswith("?")) and len(sents[0].split()) < 30:
+            sents.pop(0)
+    while sents and ASKING.search(sents[-1]) and len(sents[-1].split()) < 30:
+        sents.pop()
+    text = " ".join(s.strip() for s in sents).strip(" \"'")
+    # a request left inside the text: drop the essay rather than guess where it starts
+    if len(sents) < 5 or ASKING.search(" ".join(sents[:2] + sents[-2:])) or \
+            re.search(r"\b(feedback|criticism|critique|proofread|my essay|this essay|word (limit|count)|"
+                      r"what do you (guys )?think|any (help|advice|suggestions|comments)|here (is|'s) my|"
+                      r"thank you for|please|\d+ ?words)\b|-{4,}|_{4,}", text, re.I):
+        return None
+    return text
+
+
+def essayforum_rows(n: int, refresh: bool) -> list[dict]:
+    """College application essays students posted to EssayForum for feedback (collected before
+    2022-09, so before ChatGPT): the only open set of real personal statements found (R1). Most are
+    drafts, many by non-native writers. Line breaks were lost, so like blogs both sides are one
+    paragraph. The opening sentence is the subject cue for the matched AI rows."""
+    raw = cached_json("essayforum_blocks.json", refresh,
+                      lambda: hf_blocks("nid989/EssayFroum-Dataset", "default", "train", 80, "essayforum"))
+    items, seen = [], set()
+    for r in sorted(raw, key=lambda r: r["_row"]):
+        t = r.get("Cleaned Essay") or ""
+        if not COLLEGE.search(t) or NOT_COLLEGE.search(t) or re.search(r"https?://|www\.|@|<\w", t):
+            continue
+        text = forum_essay(t)
+        if not text or not 250 <= len(text.split()) <= 650:
+            continue
+        if len(re.findall(r"\b(I|my|me)\b", text)) < 8 or sum(c.isdigit() for c in text) > 40:
+            continue
+        key = re.sub(r"\W+", " ", text.lower())[:200]  # the same essay reposted after edits
+        first = re.split(r"(?<=[.!?])\s+", text, maxsplit=1)[0]
+        if key in seen or not 5 <= len(first.split()) <= 35:
+            continue
+        seen.add(key)
+        items.append({"_uid": str(r["_row"]), "text": text, "first": first, "band": len(text.split()) // 150})
+    picked = balanced(items, "band", n, "essayforum-pick")
+    return [row("essayforum", p["_uid"], p["text"], "personal", f"eforum:{p['_uid']}", p["first"], None,
+                "EssayForum posts via nid989/EssayFroum-Dataset (Apache-2.0 on the Hub); essays by forum users",
+                {}) for p in picked]
+
+
 # --- PERSUADE extra -----------------------------------------------------------------------
 
 def persuade_extra_rows(n_native: int, n_ell: int) -> list[dict]:
@@ -522,7 +584,7 @@ def import_ood(src_dir: Path) -> None:
 
 # --- main --------------------------------------------------------------------------------
 
-FETCHERS = ("persuade", "arxiv", "wikipedia", "amazon-reviews", "stackexchange", "reddit", "blogs")
+FETCHERS = ("persuade", "arxiv", "wikipedia", "amazon-reviews", "stackexchange", "reddit", "blogs", "essayforum")
 
 
 def main() -> None:
@@ -562,6 +624,8 @@ def main() -> None:
                 got = reddit_rows(cfg["reddit"], args.refresh)
             elif name == "blogs":
                 got = blog_rows(cfg["blogs"], args.refresh)
+            elif name == "essayforum":
+                got = essayforum_rows(cfg["essayforum"], args.refresh)
             else:
                 raise SystemExit(f"unknown source {name}; choose from {FETCHERS}")
         except (OSError, ValueError, KeyError) as e:  # network or API trouble: keep the others

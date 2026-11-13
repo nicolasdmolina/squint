@@ -60,7 +60,7 @@ PARAPHRASE_STYLES = (
 FAMILY_OF_PREFIX = {"persuade": "persuade", "ellipse": "ellipse", "toefl-style": "toefl91", "toefl91": "toefl91",
                     "news": "ghostbuster-news", "wp": "ghostbuster-wp", "arxiv": "arxiv", "wiki": "wikipedia",
                     "review": "amazon-reviews", "forum": "stackexchange", "reddit": "reddit",
-                    "blog": "blogs"}
+                    "blog": "blogs", "eforum": "essayforum"}
 
 
 def family_of(prompt_id: str) -> str:
@@ -135,6 +135,14 @@ def matched_items(gen: str, extra: list[dict], cal_human: list[dict]) -> list[di
                             f"as {who} writing about their own life. Write about what this opening line is "
                             f"about, in your own words without repeating it: \"{t}\". Write it as one single "
                             f"paragraph with no line breaks, and give only the entry text.", "personal",
+                            h["id"], tgt))
+        elif src == "essayforum":
+            tgt = min(about(n), 650)
+            out.append(item(gen, "matched", "college-essay", "personal", h["prompt_id"],
+                            f"Write a college application essay (about {tgt} words) as a high school senior "
+                            f"applying to US colleges: a personal statement or a supplement. Write about what this "
+                            f"opening line is about, in your own words without repeating it: \"{t}\". Write it as "
+                            f"one single paragraph with no line breaks, and give only the essay text.", "personal",
                             h["id"], tgt))
     # news and stories from calibration leads the calibration plan did not use for this generator
     cal_plan_pids = {p["prompt_id"] for p in read_jsonl(CAL_GEN / "plan.jsonl")

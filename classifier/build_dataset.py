@@ -39,7 +39,7 @@ cal_build = cal_module("build_dataset")  # calibration/build_dataset.py: variant
 MIN_AI_PER_HUMAN = 0.5
 
 
-ONE_PARAGRAPH = {"blogs"}
+ONE_PARAGRAPH = {"blogs", "essayforum"}
 
 
 def load_bases() -> tuple[list[dict], list[dict]]:
@@ -67,7 +67,7 @@ def load_bases() -> tuple[list[dict], list[dict]]:
                 if from_plan and not it:
                     dropped.append({"id": a["id"], "reason": "not in plan.jsonl"})
                     continue
-                if (a["kind"] in ("news", "short") or a["prompt_id"].startswith("blog:")) and \
+                if (a["kind"] in ("news", "short") or a["prompt_id"].startswith(("blog:", "eforum:"))) and \
                         it.get("variant") != "paraphrase" and \
                         cal_build.copies_prompt(a["text"], prompt_text.get(a["prompt_id"])):
                     dropped.append({"id": a["id"], "reason": "copies a 10-word run of its human prompt"})
